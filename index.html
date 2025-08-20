@@ -1,0 +1,1322 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ability Warriors</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #1a1a2e; color: #eee; }
+        
+        .tabs { display: flex; margin-bottom: 20px; background: #16213e; border-radius: 10px; overflow: hidden; }
+        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; background: #0f3460; border: none; color: #eee; transition: background 0.3s; }
+        .tab:hover { background: #533483; }
+        .tab.active { background: #e94560; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .stats { display: flex; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat { background: #0f3460; padding: 10px; border-radius: 5px; text-align: center; margin: 2px; }
+        
+        .panel { background: #16213e; border: 2px solid #0f3460; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        .ability { background: #0f3460; border: 1px solid #533483; border-radius: 5px; padding: 10px; margin: 5px 0; cursor: pointer; transition: background 0.3s; }
+        .ability:hover { background: #533483; }
+        .ability.equipped { border-color: #e94560; background: #533483; }
+        
+        .common { border-left: 5px solid #gray; }
+        .uncommon { border-left: 5px solid #00ff00; }
+        .rare { border-left: 5px solid #0099ff; }
+        .epic { border-left: 5px solid #9900ff; }
+        .legendary { border-left: 5px solid #ff6600; }
+        .mythic { border-left: 5px solid #ff0080; }
+        
+        button { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; font-size: 16px; }
+        button:hover { background: #c73650; }
+        button:disabled { background: #666; cursor: not-allowed; }
+        
+        .charge-btn { background: #00aaff !important; }
+        .charge-btn:hover { background: #0088cc !important; }
+        
+        .bar { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .bar-fill { height: 100%; transition: width 0.3s; }
+        .health { background: #e94560; }
+        .energy { background: #00aaff; }
+        
+        .log { height: 200px; overflow-y: auto; background: #0f3460; padding: 10px; border-radius: 5px; margin-top: 10px; }
+        .status { display: flex; gap: 5px; margin: 5px 0; flex-wrap: wrap; }
+        .effect { background: #e94560; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+        
+        .burn { background: #ff4444; }
+        .freeze { background: #4444ff; }
+        .poison { background: #44ff44; }
+        .stun { background: #ffff44; color: #000; }
+        .bleed { background: #cc0000; }
+        
+        .banner { background: #0f3460; border: 2px solid #533483; border-radius: 10px; padding: 15px; margin: 10px 0; transition: all 0.3s; }
+        .banner:hover { border-color: #e94560; transform: translateY(-2px); }
+        
+        .banner-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .banner-title { font-size: 20px; font-weight: bold; }
+        .banner-rolls { display: flex; gap: 10px; }
+        
+        .roll-1x { background: #00aaff !important; }
+        .roll-10x { background: #ffa500 !important; }
+        
+        .banner-preview { display: none; background: #16213e; padding: 10px; margin-top: 10px; border-radius: 5px; max-height: 300px; overflow-y: auto; }
+        .banner-preview.show { display: block; }
+        .preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; }
+        
+        .achievement { background: #0f3460; border: 1px solid #666; border-radius: 5px; padding: 10px; margin: 5px 0; }
+        .achievement.unlocked { border-color: #ffa500; background: #533483; }
+        
+        .boss-enemy { color: #ff6600; font-weight: bold; text-shadow: 0 0 10px #ff6600; }
+        .win-streak { background: #00ff00; color: #000; padding: 5px; border-radius: 3px; }
+        
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-card { background: #0f3460; padding: 15px; border-radius: 10px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #e94560; }
+        
+        .anime { font-size: 12px; color: #aaa; font-style: italic; }
+        
+        /* Roll Result Popup */
+        .roll-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 1000; }
+        .roll-popup.show { display: flex; align-items: center; justify-content: center; }
+        .roll-content { background: #16213e; border: 3px solid #e94560; border-radius: 15px; padding: 30px; max-width: 90%; max-height: 90%; overflow-y: auto; }
+        .roll-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin: 20px 0; }
+        .roll-item { background: #0f3460; border-radius: 10px; padding: 15px; text-align: center; min-width: 150px; }
+        .roll-item.legendary { border: 3px solid #ff6600; box-shadow: 0 0 20px #ff6600; animation: glow 2s infinite; }
+        .roll-item.mythic { border: 3px solid #ff0080; box-shadow: 0 0 20px #ff0080; animation: glow 2s infinite; }
+        .roll-item.epic { border: 2px solid #9900ff; box-shadow: 0 0 15px #9900ff; }
+        
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px currentColor; } 50% { box-shadow: 0 0 30px currentColor, 0 0 40px currentColor; } }
+        
+        .close-btn { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        
+        @media (max-width: 768px) {
+            .roll-grid { grid-template-columns: repeat(2, 1fr); }
+            .banner-rolls { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Ability Warriors</h1>
+    
+    <div class="stats">
+        <div class="stat">Floor: <span id="level">1</span></div>
+        <div class="stat">Health: <span id="hp">100</span>/<span id="maxHp">100</span></div>
+        <div class="stat">Energy: <span id="energy">50</span>/<span id="maxEnergy">50</span></div>
+        <div class="stat">Enemy Lv: <span id="enemyLv">1</span></div>
+        <div class="stat win-streak">Win Streak: <span id="winStreak">0</span></div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('shop')">Banners</button>
+        <button class="tab" onclick="switchTab('moves')">Moves</button>
+        <button class="tab" onclick="switchTab('battle')">Battle</button>
+        <button class="tab" onclick="switchTab('stats')">Stats</button>
+        <button class="tab" onclick="switchTab('achievements')">Achievements</button>
+    </div>
+
+    <!-- Roll Result Popup -->
+    <div id="rollPopup" class="roll-popup">
+        <div class="roll-content">
+            <h2 id="rollTitle">Roll Results</h2>
+            <div id="rollResults" class="roll-grid"></div>
+            <button class="close-btn" onclick="closeRollPopup()">Close</button>
+        </div>
+    </div>
+
+    <!-- Shop Tab -->
+    <div id="shop" class="tab-content active">
+        <div class="panel">
+            <div class="stat" style="display: inline-block; margin-bottom: 20px;">Rolls: <span id="rolls">4</span></div>
+            
+            <h3>Banners</h3>
+            <div id="banners"></div>
+        </div>
+    </div>
+
+    <!-- Moves Tab -->
+    <div id="moves" class="tab-content">
+        <div class="container">
+            <div class="panel">
+            <h3>Collection</h3>
+                <div id="collection"></div>
+            </div>
+            <div class="panel">
+                <h3>Equipped (Max 4)</h3>
+                <div id="equipped-display"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Battle Tab -->
+    <div id="battle" class="tab-content">
+        <div class="panel">
+            <div style="text-align: center;">
+                <h4 id="enemyTitle">Enemy: <span id="enemyName">Bandit</span></h4>
+                <div class="bar"><div class="bar-fill health" id="enemyHpBar" style="width: 100%"></div></div>
+                <div>HP: <span id="enemyHp">80</span>/<span id="enemyMaxHp">80</span></div>
+                <div class="status" id="enemyStatus"></div>
+                
+                <button onclick="startBattle()" id="battleBtn">Next Battle</button>
+                
+                <h4>Your Status</h4>
+                <div class="bar"><div class="bar-fill health" id="playerHpBar" style="width: 100%"></div></div>
+                <div class="bar"><div class="bar-fill energy" id="playerEnergyBar" style="width: 100%"></div></div>
+                <div class="status" id="playerStatus"></div>
+            </div>
+            
+            <h4>Battle Actions</h4>
+            <div id="equipped"></div>
+            <div class="log" id="log"></div>
+        </div>
+    </div>
+
+    <!-- Stats Tab -->
+    <div id="stats" class="tab-content">
+        <div class="panel">
+            <h3>Player Statistics</h3>
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div>Level</div>
+                    <div class="stat-value" id="statLevel">1</div>
+                </div>
+                <div class="stat-card">
+                    <div>Max Health</div>
+                    <div class="stat-value" id="statMaxHp">100</div>
+                </div>
+                <div class="stat-card">
+                    <div>Max Energy</div>
+                    <div class="stat-value" id="statMaxEnergy">50</div>
+                </div>
+                <div class="stat-card">
+                    <div>Total Abilities</div>
+                    <div class="stat-value" id="statAbilities">1</div>
+                </div>
+                <div class="stat-card">
+                    <div>Battles Won</div>
+                    <div class="stat-value" id="statWins">0</div>
+                </div>
+                <div class="stat-card">
+                    <div>Best Win Streak</div>
+                    <div class="stat-value" id="statBestStreak">0</div>
+                </div>
+                <div class="stat-card">
+                    <div>Bosses Defeated</div>
+                    <div class="stat-value" id="statBosses">0</div>
+                </div>
+                <div class="stat-card">
+                    <div>Total Rolls</div>
+                    <div class="stat-value" id="statTotalRolls">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Tab -->
+    <div id="achievements" class="tab-content">
+        <div class="panel">
+            <h3>Achievements</h3>
+            <div id="achievementsList"></div>
+        </div>
+    </div>
+
+    <script>
+        let game = {
+            level: 1, hp: 100, maxHp: 100, energy: 50, maxEnergy: 50, rolls: 4,
+            abilities: [], equipped: [], inBattle: false,
+            enemyLv: 1, enemyHp: 80, enemyMaxHp: 80, enemyName: "Bandit",
+            turn: true, playerEffects: {}, enemyEffects: {},
+            achievements: {}, winStreak: 0, bestStreak: 0, totalWins: 0, 
+            bossesDefeated: 0, totalRolls: 0
+        };
+
+        const packs = {
+            naruto: {
+                name: "Naruto",
+                abilities: [
+                    {n:"Kunai Throw",d:[10,20],e:8,r:"common",s:null},
+                    {n:"Shuriken Barrage",d:[5,35],e:12,r:"common",s:null},
+                    {n:"Clone Barrage",d:[20,50],e:30,r:"common",s:null},
+                    {n:"Leaf Hurricane",d:[10,50],e:20,r:"uncommon",s:null},
+                    {n:"Primary Lotus",d:[10,60],e:22,r:"uncommon",s:null},
+                    {n:"Fireball Jutsu",d:[45,60],e:28,r:"rare",s:"burn"},
+                    {n:"Water Dragon",d:[60,85],e:32,r:"epic",s:null},
+                    {n:"Rasengan",d:[70,90],e:40,r:"epic",s:"pierce"},
+                    {n:"Chidori",d:[90,160],e:38,r:"legendary",s:"stun"},
+                    {n:"Rasenshuriken",d:[90,120],e:45,r:"legendary",s:"pierce"},
+                    {n:"Amaterasu",d:[100,190],e:50,r:"legendary",s:"burn"},
+                    {n:"Infinite Tsukuyomi",d:[100,250],e:70,r:"mythic",s:"stun"},
+                    {n:"Ultra Big Ball Rasenshuriken",d:[120,460],e:80,r:"mythic",s:"burn"}
+                ]
+            },
+            dragonball: {
+                name: "Dragon Ball",
+                abilities: [
+                    {n:"Ki Blast",d:[1,35],e:8,r:"common",s:null},
+                    {n:"Kamehameha",d:[25,35],e:25,r:"common",s:null},
+                    {n:"Galick Gun",d:[20,35],e:25,r:"common",s:null},
+                    {n:"Kioken Kamehameha x10",d:[45,70],e:45,r:"uncommon",s:null},
+                    {n:"Destructo Disc",d:[50,65],e:35,r:"rare",s:"pierce"},
+                    {n:"Masenko",d:[40,65],e:28,r:"rare",s:null},
+                    {n:"Big Bang Attack",d:[60,90],e:45,r:"epic",s:null},
+                    {n:"Special Beam Cannon",d:[50,100],e:50,r:"epic",s:"pierce"},
+                    {n:"Solar Flare",d:[1,10],e:45,r:"legendary",s:"stun"},
+                    {n:"Spirit Bomb",d:[1,400],e:90,r:"legendary",s:null},
+                    {n:"Final Flash",d:[110,220],e:90,r:"legendary",s:null},
+                    {n:"Big Bang Kamehameha",d:[170,250],e:85,r:"legendary",s:null},
+                    {n:"Hakai Bomb",d:[190,400],e:90,r:"mythic",s:null},
+                    {n:"Zeno Erase",d:[1,1000],e:250,r:"mythic",s:"freeze"},
+                ]
+            },
+            onepiece: {
+                name: "One Piece",
+                abilities: [
+                    {n:"Gomu Gomu Pistol",d:[10,20],e:8,r:"common",s:null},
+                    {n:"Gomu Gomu Bazooka",d:[34,35],e:21,r:"common",s:null},
+                    {n:"Onigiri",d:[39,40],e:29,r:"common",s:null},
+                    {n:"Tatsumaki",d:[25,35],e:18,r:"uncommon",s:null},
+                    {n:"Fire Fist",d:[35,55],e:20,r:"uncommon",s:"burn"},
+                    {n:"Burning Mochi",d:[60,80],e:30,r:"rare",s:"burn"},
+                    {n:"Gura Gura Punch",d:[60,75],e:50,r:"rare",s:null},
+                    {n:"Kong Gun",d:[60,90],e:45,r:"epic",s:null},
+                    {n:"Double Culverin",d:[70,140],e:50,r:"epic",s:"speed"},
+                    {n:"Conqueror's Haki",d:[50,100],e:40,r:"legendary",s:"stun"},
+                    {n:"Red Hawk",d:[100,250],e:85,r:"legendary",s:"burn"},
+                    {n:"King Kong Gatling",d:[50,500],e:80,r:"legendary",s:null},
+                    {n:"Gura Gura Kaishin",d:[300,600],e:100,r:"mythic",s:null},
+                    {n:"Bajrang Gun",d:[500,800],e:150,r:"mythic",s:null}
+                ]
+            },
+            demonslayer: {
+                name: "Demon Slayer",
+                abilities: [
+                    {n:"Water Surface Slash",d:[20,35],e:18,r:"common",s:null},
+                    {n:"Beast Fang",d:[30,45],e:20,r:"uncommon",s:null},
+                    {n:"Water Wheel",d:[40,70],e:28,r:"rare",s:null},
+                    {n:"Thunderclap And Flash",d:[60,75],e:45,r:"rare",s:null},
+                    {n:"Scattering Mist Slash",d:[40,90],e:40,r:"rare",s:null},
+                    {n:"Rumble and Flash",d:[70,110],e:60,r:"epic",s:null},
+                    {n:"Flame Tiger",d:[50,130],e:60,r:"epic",s:"burn"},
+                    {n:"Crecent-Shaped Slashes",d:[10,250],e:75,r:"epic",s:null},
+                    {n:"String Peformance",d:[120,180],e:90,r:"legendary",s:null},
+                    {n:"Obscuring Clouds",d:[90,190],e:100,r:"mythic",s:"stun"},
+                    {n:"Destructive Death",d:[100,750],e:175,r:"mythic",s:null},
+                    {n:"Sun Beathing 'Thirteenth Form'",d:[600,700],e:185,r:"mythic",s:"burn"}
+                ]
+            },
+            jojo: {
+                name: "JoJo's Bizzarre Adventure",
+                abilities: [
+                    {n:"Hammon 'Punch'",d:[20,35],e:20,r:"uncommon",s:null},
+                    {n:"Hammon 'Ripple'",d:[10,45],e:30,r:"uncommon",s:null},
+                    {n:"Iron Fist Barrage",d:[5,65],e:35,r:"rare",s:null},
+                    {n:"Flame Vortex",d:[40,90],e:55,r:"epic",s:"burn"},
+                    {n:"Stand Barrage",d:[60,360],e:70,r:"legendary",s:null},
+                    {n:"timestop",d:[1,10],e:100,r:"mythic",s:"freeze"},
+                    {n:"Road-Roller Crush",d:[300,500],e:130,r:"mythic",s:null},
+                ]
+             },
+            blackclover: {
+                name: "Black Clover",
+                abilities: [
+                    {n:"Water Jet",d:[25,35],e:20,r:"common",s:null},
+                    {n:"Wind Slash",d:[10,25],e:15,r:"common",s:null},
+                    {n:"Earth Spike",d:[25,30],e:25,r:"uncommon",s:null},
+                    {n:"Flame Shot",d:[30,40],e:30,r:"uncommon",s:null},
+                    {n:"Hurricane Slash",d:[40,150],e:60,r:"epic",s:null},
+                    {n:"Dragon King Flare",d:[150,240],e:30,r:"legendary",s:"burn"},
+                    {n:"Sea Dragon's Roar",d:[10,30],e:80,r:"mythic",s:"freeze"},
+                    {n:"Final Slash",d:[100,700],e:100,r:"mythic",s:"bleed"},
+                ]
+            },
+            chainsawman: {
+                name: "Chainsaw Man",
+                abilities: [
+                    {n:"Axe Swing",d:[10,35],e:10,r:"common",s:null},
+                    {n:"Blood Hammer",d:[40,55],e:45,r:"uncommon",s:null},
+                    {n:"Handheald Pochita",d:[25,100],e:25,r:"rare",s:"bleed"},
+                    {n:"Kon",d:[120,180],e:80,r:"epic",s:null},
+                    {n:"Gunstorm",d:[230,430],e:130,r:"legendary",s:"bleed"},
+                    {n:"Life Drain",d:[100,1000],e:250,r:"mythic",s:null},
+                ]
+            },
+            sevendeadlysins: {
+                name: "Seven Deadly Sins",
+                abilities: [
+                    {n:"Sprit Spear",d:[25,50],e:40,r:"common",s:null},
+                    {n:"Fox Hunt",d:[40,65],e:45,r:"uncommon",s:"bleed"},
+                    {n:"Gideon",d:[70,90],e:60,r:"rare",s:null},
+                    {n:"Trillion Dark",d:[130,240],e:80,r:"epic",s:null},
+                    {n:"Divine Axe",d:[145,370],e:45,r:"legendary",s:null},
+                    {n:"Full Counter",d:[1,500],e:100,r:"mythic",s:"stun"},
+                ]
+            },
+            jujutsu: {
+                name: "Jujutsu Kaisen",
+                abilities: [
+                    {n:"Cursed Strike",d:[15,25],e:10,r:"common",s:null},
+                    {n:"Divergent Fist",d:[12,22],e:9,r:"common",s:null},
+                    {n:"Piercing Blood",d:[28,38],e:22,r:"uncommon",s:"burn"},
+                    {n:"Black Flash",d:[40,55],e:30,r:"rare",s:null},
+                    {n:"Lapse Blue",d:[42,57],e:32,r:"rare",s:null},
+                    {n:"Nue",d:[50,65],e:30,r:"epic",s:"pierce"},
+                    {n:"Reversal Red",d:[60,70],e:40,r:"epic",s:null},
+                    {n:"Chimera Shadow Garden",d:[1,10],e:50,r:"legendary",s:"stun"},
+                    {n:"Cleave",d:[70,120],e:55,r:"legendary",s:null},
+                    {n:"Hollow Purple",d:[100,270],e:65,r:"legendary",s:null},
+                    {n:"Molevolent Shrine",d:[100,220],e:70,r:"legendary",s:"bleed"},
+                    {n:"Infninite Void",d:[49,50],e:85,r:"mythic",s:"stun"},
+                    {n:"Reverse Curse Technique",d:[1,2],e:50,r:"mythic",s:"heal"},
+                    {n:"World Cutting Slash",d:[290,700],e:95,r:"mythic",s:"bleed"}
+                ]
+            },
+            mha: {
+                name: "My Hero Academia",
+                abilities: [
+                    {n:"Delaware Smash",d:[20,25],e:20,r:"common",s:null},
+                    {n:"Detroit Smash",d:[20,30],e:22,r:"common",s:null},
+                    {n:"Manchester Smash",d:[25,45],e:17,r:"uncommon",s:null},
+                    {n:"AP Shot",d:[35,65],e:20,r:"rare",s:"burn"},
+                    {n:"Recipro Burst",d:[50,85],e:35,r:"epic",s:null},
+                    {n:"Blackwhip",d:[90,110],e:48,r:"legendary",s:null},
+                    {n:"Ice Glacier",d:[90,110],e:20,r:"mythic",s:"freeze"},
+                    {n:"Stun Grenade",d:[20,70],e:10,r:"mythic",s:"stun"},
+                ]
+            }
+        };
+
+        const weights = {common:55, uncommon:35, rare:8, epic:1.5, legendary:.49, mythic:0.01};
+        const enemies = ["Bandit","Pirate","Marine","Devil Fruit User","Rouge Ninja","Admiral","Titan","Siayan"];
+        
+        const bosses = {
+            10: { name: "Yamcha", hp: 500 },
+            20: { name: "Nobara", hp: 750 },
+            30: { name: "Rock Lee", hp: 1000 },
+            40: { name: "Light Yagami", hp: 2000 },
+            50: { name: "Itadori", hp: 2500 },
+            60: { name: "Bakugo", hp: 5000 },
+            70: { name: "Izuku", hp: 10000 },
+            80: { name: "Gon", hp: 15000 },
+            90: { name: "Killua", hp: 25000 },
+            100: { name: "Mob Psycho", hp: 50000 },
+            110: { name: "Tanjiro", hp: 500 },
+            120: { name: "Levi Ackerman", hp: 750 },
+            130: { name: "Ichigo", hp: 1000 },
+            140: { name: "Zoro", hp: 2000 },
+            150: { name: "Luffy", hp: 2500 },
+            160: { name: "Light Yagami", hp: 5000 },
+            170: { name: "Kakashi", hp: 10000 },
+            180: { name: "Naruto", hp: 15000 },
+            190: { name: "Sasuke", hp: 25000 },
+            200: { name: "Sung Jinwoo", hp: 50000 },
+            210: { name: "Gohan", hp: 5000 },
+            220: { name: "Gojo", hp: 10000 },
+            230: { name: "Saitama", hp: 15000 },
+            240: { name: "Vegeta", hp: 25000 },
+            250: { name: "Goku", hp: 50000 }
+        };
+
+        const achievementsList = {
+            firstWin: { name: "First Victory", desc: "Win your first battle", unlocked: false },
+            legendary: { name: "One Step Closer", desc: "Roll a legendary ability", unlocked: false },
+            mythic: { name: "777", desc: "Roll a mythic ability", unlocked: false },
+            streak10: { name: "Win Streak Master", desc: "Win 10 battles in a row", unlocked: false },
+            boss: { name: "Really?", desc: "Defeat Yamcha", unlocked: false },
+            collector: { name: "Collector", desc: "Own 50 abilities", unlocked: false },
+            level50: { name: "King Of Curses", desc: "Deafeat Itadori", unlocked: false },
+            level100: { name: "???%", desc: "Deafeat Mob", unlocked: false },
+            level150: { name: "Pirate King", desc: "Deafeat Luffy", unlocked: false },
+            level200: { name: "Solo Leveler", desc: "Deafeat Sung Jinwoo", unlocked: false },
+            level250: { name: "Super Siayan", desc: "Deafeat Goku", unlocked: false },
+            roller: { name: "Gambling Addict", desc: "Roll 100 times", unlocked: false }
+        };
+
+                function init() {
+            game.abilities.push({id:0,n:"Charge",d:[0,0],e:-30,r:"starter",s:"charge",equipped:true,a:"Basic"});
+            game.equipped.push(game.abilities[0]);
+            createBanners();
+            loadGame();
+            update();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function createBanners() {
+            const bannersDiv = document.getElementById('banners');
+            bannersDiv.innerHTML = '';
+            
+            Object.entries(packs).forEach(([key, pack]) => {
+                const banner = document.createElement('div');
+                banner.className = 'banner';
+                
+                banner.innerHTML = `
+                    <div class="banner-header">
+                        <div class="banner-title">${pack.name}</div>
+                        <div class="banner-rolls">
+                            <button onclick="rollFromBanner('${key}', 1)" class="roll-1x" ${game.rolls < 1 ? 'disabled' : ''}>1x Roll</button>
+                            <button onclick="rollFromBanner('${key}', 10)" class="roll-10x" ${game.rolls < 10 ? 'disabled' : ''}>10x Roll</button>
+                        </div>
+                    </div>
+                    <button onclick="togglePreview('${key}')" style="width: 100%; margin-bottom: 10px;">View All</button>
+                    <div class="banner-preview" id="preview-${key}">
+                        <div class="preview-grid">
+                            ${pack.abilities.map(ability => 
+                                `<div class="ability ${ability.r}">
+                                    <strong>${ability.n}</strong> [${ability.r.toUpperCase()}]<br>
+                                    ${ability.d[0]}-${ability.d[1]} dmg | ${ability.e}e ${ability.s ? `(${ability.s})` : ''}
+                                </div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+                bannersDiv.appendChild(banner);
+            });
+        }
+
+        function togglePreview(key) {
+            const preview = document.getElementById(`preview-${key}`);
+            preview.classList.toggle('show');
+        }
+
+        function rollFromBanner(bannerKey, count) {
+            if (game.rolls < count) return;
+            
+            game.rolls -= count;
+            game.totalRolls += count;
+            
+            const pack = packs[bannerKey];
+            const results = [];
+            
+            for (let i = 0; i < count; i++) {
+                const total = Object.values(weights).reduce((a,b) => a+b, 0);
+                let rand = Math.random() * total;
+                let rarity = "common";
+                
+                for (const [r, w] of Object.entries(weights)) {
+                    rand -= w;
+                    if (rand <= 0) { rarity = r; break; }
+                }
+                
+                const available = pack.abilities.filter(a => a.r === rarity);
+                const template = available[Math.floor(Math.random() * available.length)];
+                
+                const ability = {
+                    id: Date.now() + i + Math.random(),
+                    n: template.n, d: template.d, e: template.e,
+                    r: template.r, s: template.s, equipped: false, a: pack.name
+                };
+                
+                game.abilities.push(ability);
+                results.push(ability);
+                
+                if (rarity === "legendary") checkAchievement("legendary");
+                if (rarity === "mythic") checkAchievement("mythic");
+            }
+            
+            if (game.abilities.length >= 50) checkAchievement("collector");
+            if (game.totalRolls >= 100) checkAchievement("roller");
+            
+            showRollResults(results, count);
+            update();
+        }
+
+        function showRollResults(results, count) {
+            const popup = document.getElementById('rollPopup');
+            const title = document.getElementById('rollTitle');
+            const resultsDiv = document.getElementById('rollResults');
+            
+            title.textContent = count === 1 ? '🎲 Single Roll Result!' : `🎲 ${count}x Roll Results!`;
+            resultsDiv.innerHTML = '';
+            
+            results.forEach(ability => {
+                const div = document.createElement('div');
+                div.className = `roll-item ${ability.r}`;
+                
+                const energyText = ` | ${ability.e}e`;
+                const damageText = `${ability.d[0]}-${ability.d[1]} dmg`;
+                const specialText = ability.s ? ` (${ability.s})` : "";
+                
+                div.innerHTML = `
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">${ability.n}</div>
+                    <div style="color: #aaa; margin-bottom: 5px;">[${ability.r.toUpperCase()}]</div>
+                    <div style="font-size: 14px;">${damageText}${energyText}</div>
+                    ${specialText ? `<div style="font-size: 12px; color: #ffa500;">${specialText}</div>` : ''}
+                    <div style="font-size: 11px; color: #888; margin-top: 5px;">${ability.a}</div>
+                `;
+                resultsDiv.appendChild(div);
+            });
+            
+            popup.classList.add('show');
+        }
+
+        function closeRollPopup() {
+            document.getElementById('rollPopup').classList.remove('show');
+        }
+
+        function equip(id) {
+            const ability = game.abilities.find(a => a.id === id);
+            if (!ability) return;
+            
+            if (ability.n === "Charge" && ability.equipped) {
+                log("❌ Cannot unequip Charge!");
+                return;
+            }
+            
+            if (ability.equipped) {
+                ability.equipped = false;
+                game.equipped = game.equipped.filter(a => a.id !== id);
+            } else {
+                if (game.equipped.length < 4) {
+                    ability.equipped = true;
+                    game.equipped.push(ability);
+                } else {
+                    log("❌ Max 4 abilities!");
+                    return;
+                }
+            }
+            update();
+        }
+
+        function use(id) {
+            if (!game.inBattle || !game.turn) return;
+            
+            const ability = game.equipped.find(a => a.id === id);
+            if (!ability) return;
+            
+            if (ability.n === "Charge") {
+                game.energy = Math.min(game.maxEnergy, game.energy + 100000);
+                log("Charged energy!");
+                endTurn();
+                return;
+            }
+            
+            if (game.energy < ability.e) {
+                log("Not enough energy!");
+                return;
+            }
+            
+            game.energy -= ability.e;
+            let dmg = Math.floor(Math.random() * (ability.d[1] - ability.d[0] + 1)) + ability.d[0];
+            
+            // Apply special effect bonuses
+            if (ability.s === "critical" && Math.random() < 0.3) {
+                dmg *= 2;
+                log(`Critical Hit!`);
+            }
+            
+            game.enemyHp = Math.max(0, game.enemyHp - dmg);
+            log(`⚔️ ${ability.n} deals ${dmg} damage!`);
+            
+            if (ability.s) applyEffect(ability.s, "enemy");
+            
+            if (game.enemyHp <= 0) {
+                victory();
+                return;
+            }
+            
+            endTurn();
+        }
+
+        function applyEffect(effect, target) {
+            const isPlayer = target === "player";
+            const effects = isPlayer ? game.playerEffects : game.enemyEffects;
+            
+            switch (effect) {
+                case "burn": effects.burn = 3; log(`🔥 ${isPlayer ? "You" : "Enemy"} burning!`); break;
+                case "freeze": effects.freeze = 2; log(`🧊 ${isPlayer ? "You" : "Enemy"} frozen!`); break;
+                case "stun": effects.stun = 2; log(`⚡ ${isPlayer ? "You" : "Enemy"} stunned!`); break;
+                case "bleed": effects.bleed = 4; log(`🩸 ${isPlayer ? "You" : "Enemy"} bleeding!`); break;
+                case "poison": effects.poison = 3; log(`☠️ ${isPlayer ? "You" : "Enemy"} poisoned!`); break;
+                case "pierce": 
+                    if (!isPlayer) {
+                        game.enemyHp = Math.max(0, game.enemyHp - 20);
+                        log("Pierce! +20 damage!");
+                    }
+                    break;
+                case "heal":
+                    if (!isPlayer) {
+                        game.hp = Math.min(game.maxHp, game.hp + 100000);
+                        log("Healed!");
+                    }
+                    break;
+                case "perfect":
+                    if (!isPlayer) {
+                        game.playerEffects.perfect = 2;
+                        log("Perfect state active!");
+                    }
+                    break;
+                case "enhance":
+                    if (!isPlayer) {
+                        game.playerEffects.enhance = 3;
+                        log("Enhanced for 3 turns!");
+                    }
+                    break;
+                case "rage":
+                    if (!isPlayer) {
+                        game.playerEffects.rage = 2;
+                        log("Rage mode activated!");
+                    }
+                    break;
+                case "speed":
+                    if (!isPlayer) {
+                        game.playerEffects.speed = 2;
+                        log("Speed boost active!");
+                    }
+                    break;
+            }
+        }
+
+        function endTurn() {
+            game.turn = false;
+            setTimeout(enemyTurn, 1000);
+            update();
+        }
+
+        function enemyTurn() {
+            if (!game.inBattle) return;
+            
+            if (game.enemyEffects.stun > 0 || game.enemyEffects.freeze > 0) {
+                log("Enemy cannot act!");
+                game.turn = true;
+                processEffects();
+                update();
+                return;
+            }
+            
+            let dmg = Math.floor(Math.random() * 25) + (game.enemyLv * 6);
+            
+            if (bosses[game.enemyLv]) {
+                dmg += 20;
+                if (Math.random() < 0.4) {
+                    log(`💀 ${game.enemyName} uses special attack!`);
+                    dmg *= 1.8;
+                }
+            }
+            
+            if (game.playerEffects.perfect > 0) {
+                log("✨ Perfect dodge and counter!");
+                game.playerEffects.perfect--;
+                game.enemyHp = Math.max(0, game.enemyHp - 35);
+                game.turn = true;
+                processEffects();
+                update();
+                return;
+            }
+            
+            if (game.playerEffects.speed > 0 && Math.random() < 0.5) {
+                log("💨 Speed dodge!");
+                game.playerEffects.speed--;
+                game.turn = true;
+                processEffects();
+                update();
+                return;
+            }
+            
+            game.hp = Math.max(0, game.hp - dmg);
+            log(`👹 ${game.enemyName} attacks for ${dmg} damage!`);
+            
+            if (game.hp <= 0) {
+                gameOver();
+                return;
+            }
+            
+            game.turn = true;
+            processEffects();
+            update();
+        }
+
+        function processEffects() {
+            // Player effects
+            for (const [effect, duration] of Object.entries(game.playerEffects)) {
+                if (duration > 0) {
+                    if (effect === "burn") {
+                        game.hp = Math.max(0, game.hp - 8);
+                        log("🔥 Burn damage!");
+                    } else if (effect === "bleed") {
+                        game.hp = Math.max(0, game.hp - 5);
+                        log("🩸 Bleed damage!");
+                    } else if (effect === "poison") {
+                        game.hp = Math.max(0, game.hp - 6);
+                        log("☠️ Poison damage!");
+                    }
+                    
+                    game.playerEffects[effect]--;
+                    if (game.playerEffects[effect] <= 0) delete game.playerEffects[effect];
+                }
+            }
+            
+            // Enemy effects
+            for (const [effect, duration] of Object.entries(game.enemyEffects)) {
+                if (duration > 0) {
+                    if (effect === "burn") {
+                        game.enemyHp = Math.max(0, game.enemyHp - 8);
+                        log("🔥 Enemy burn damage!");
+                    } else if (effect === "bleed") {
+                        game.enemyHp = Math.max(0, game.enemyHp - 5);
+                        log("🩸 Enemy bleed damage!");
+                    } else if (effect === "poison") {
+                        game.enemyHp = Math.max(0, game.enemyHp - 6);
+                        log("☠️ Enemy poison damage!");
+                    }
+                    
+                    game.enemyEffects[effect]--;
+                    if (game.enemyEffects[effect] <= 0) delete game.enemyEffects[effect];
+                }
+            }
+        }
+
+        function startBattle() {
+            game.inBattle = true;
+            game.turn = true;
+            game.playerEffects = {};
+            game.enemyEffects = {};
+            
+            game.hp = game.maxHp;
+            game.energy = game.maxEnergy;
+            
+            if (bosses[game.enemyLv]) {
+                const boss = bosses[game.enemyLv];
+                game.enemyName = boss.name;
+                game.enemyMaxHp = boss.hp;
+                document.getElementById("enemyTitle").className = "boss-enemy";
+            } else {
+                game.enemyName = enemies[Math.min(game.enemyLv - 1, enemies.length - 1)];
+                game.enemyMaxHp = 50 + (game.enemyLv * 30);
+                document.getElementById("enemyTitle").className = "";
+            }
+            
+            game.enemyHp = game.enemyMaxHp;
+            document.getElementById("battleBtn").style.display = "none";
+            log(`⚔️ Battle vs ${game.enemyName}!`);
+            update();
+        }
+
+        function victory() {
+            game.inBattle = false;
+            const isBoss = bosses[game.enemyLv];
+            
+            if (isBoss) {
+                game.level += 1;
+                game.rolls += 10;
+                game.bossesDefeated++;
+                log(`Boss Defeated! +1 levels, +10 rolls!`);
+                checkAchievement("boss");
+            } else {
+                game.level++;
+                game.rolls++;
+                log(`Victory! Level ${game.level}!`);
+            }
+            
+            game.maxHp += 25;
+            game.maxEnergy += 10;
+            game.hp = game.maxHp;
+            game.energy = game.maxEnergy;
+            game.winStreak++;
+            game.totalWins++;
+            
+            if (game.winStreak > game.bestStreak) {
+                game.bestStreak = game.winStreak;
+            }
+            
+            game.enemyLv++;
+            
+            if (game.totalWins === 1) checkAchievement("firstWin");
+            if (game.winStreak >= 10) checkAchievement("streak10");
+            if (game.level >= 25) checkAchievement("level25");
+            
+            document.getElementById("battleBtn").style.display = "block";
+            update();
+        }
+
+        function gameOver() {
+            game.inBattle = false;
+            game.winStreak = 0;
+            log("💀 Game Over! Win streak reset!");
+            document.getElementById("battleBtn").textContent = "Restart";
+            document.getElementById("battleBtn").onclick = restart;
+            document.getElementById("battleBtn").style.display = "block";
+            update();
+        }
+
+        function restart() {
+            game = {
+                level: 1, hp: 100, maxHp: 100, energy: 50, maxEnergy: 50, rolls: 4,
+                abilities: [], equipped: [], inBattle: false,
+                enemyLv: 1, enemyHp: 50, enemyMaxHp: 50, enemyName: "Bandit",
+                turn: true, playerEffects: {}, enemyEffects: {},
+                achievements: {}, winStreak: 0, bestStreak: 0, totalWins: 0,
+                bossesDefeated: 0, totalRolls: 0
+            };
+            document.getElementById("battleBtn").textContent = "Start Battle";
+            document.getElementById("battleBtn").onclick = startBattle;
+            document.getElementById("enemyTitle").className = "";
+            document.getElementById("log").innerHTML = "";
+            init();
+        }
+
+        function checkAchievement(id) {
+            if (game.achievements[id] || !achievementsList[id]) return;
+            
+            game.achievements[id] = true;
+            log(`🏆 Achievement Unlocked: ${achievementsList[id].name}!`);
+            
+            // Give rewards
+            switch (id) {
+                case "firstWin": game.rolls += 10; break;
+                case "legendary": game.maxHp += 50; game.hp = game.maxHp; break;
+                case "mythic": game.maxHp += 100; game.maxEnergy += 25; game.hp = game.maxHp; game.energy = game.maxEnergy; break;
+                case "streak10": game.rolls += 10; break;
+                case "boss": game.rolls += 10; break;
+                case "collector": game.rolls += 10; break;
+                case "level25": game.rolls += 50; break;
+                case "roller": game.rolls += 10; break;
+            }
+            
+            update();
+        }
+
+        function saveGame() {
+            localStorage.setItem('animeRPG', JSON.stringify(game));
+            log("💾 Game saved!");
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('animeRPG');
+            if (saved) {
+                const loadedGame = JSON.parse(saved);
+                game = { ...game, ...loadedGame };
+                log("📁 Game loaded!");
+                createBanners();
+                update();
+            }
+        }
+
+        function update() {
+            // Basic stats
+            document.getElementById("level").textContent = game.level;
+            document.getElementById("hp").textContent = game.hp;
+            document.getElementById("maxHp").textContent = game.maxHp;
+            document.getElementById("energy").textContent = game.energy;
+            document.getElementById("maxEnergy").textContent = game.maxEnergy;
+            document.getElementById("enemyLv").textContent = game.enemyLv;
+            document.getElementById("enemyName").textContent = game.enemyName;
+            document.getElementById("enemyHp").textContent = game.enemyHp;
+            document.getElementById("enemyMaxHp").textContent = game.enemyMaxHp;
+            document.getElementById("winStreak").textContent = game.winStreak;
+            
+            // Shop tab rolls
+            if (document.getElementById("rolls")) {
+                document.getElementById("rolls").textContent = game.rolls;
+            }
+            
+            // Update banner buttons
+            createBanners();
+            
+            // Bars
+            document.getElementById("playerHpBar").style.width = (game.hp / game.maxHp * 100) + "%";
+            document.getElementById("playerEnergyBar").style.width = (game.energy / game.maxEnergy * 100) + "%";
+            document.getElementById("enemyHpBar").style.width = (game.enemyHp / game.enemyMaxHp * 100) + "%";
+            
+            // Collection (Moves tab)
+            const collection = document.getElementById("collection");
+            if (collection) {
+                collection.innerHTML = "";
+                game.abilities.forEach(ability => {
+                    const div = document.createElement("div");
+                    div.className = `ability ${ability.r} ${ability.equipped ? 'equipped' : ''}`;
+                    div.onclick = () => equip(ability.id);
+                    
+                    const energyText = ability.n === "Charge" ? " (Restores 30)" : ` | ${ability.e}e`;
+                    const damageText = ability.n === "Charge" ? "" : `${ability.d[0]}-${ability.d[1]}dmg | `;
+                    const specialText = ability.s ? ` (${ability.s})` : "";
+                    
+                    div.innerHTML = `<strong>${ability.n}</strong> [${ability.r.toUpperCase()}]<br>
+                        ${damageText}${energyText}${specialText}<br>
+                        <span class="anime">${ability.a}</span>`;
+                    collection.appendChild(div);
+                });
+            }
+            
+            // Equipped display (Moves tab)
+            const equippedDisplay = document.getElementById("equipped-display");
+            if (equippedDisplay) {
+                equippedDisplay.innerHTML = "";
+                game.equipped.forEach(ability => {
+                    const div = document.createElement("div");
+                    div.className = `ability ${ability.r} equipped`;
+                    div.onclick = () => equip(ability.id);
+                    
+                    const energyText = ability.n === "Charge" ? " (Restores 30)" : ` | ${ability.e}e`;
+                    const damageText = ability.n === "Charge" ? "" : `${ability.d[0]}-${ability.d[1]}dmg | `;
+                    const specialText = ability.s ? ` (${ability.s})` : "";
+                    
+                    div.innerHTML = `<strong>${ability.n}</strong> [${ability.r.toUpperCase()}]<br>
+                        ${damageText}${energyText}${specialText}`;
+                    equippedDisplay.appendChild(div);
+                });
+            }
+            
+            // Battle actions (Battle tab)
+            const equipped = document.getElementById("equipped");
+            if (equipped) {
+                equipped.innerHTML = "";
+                game.equipped.forEach(ability => {
+                    const btn = document.createElement("button");
+                    btn.textContent = ability.n === "Charge" ? `${ability.n} (Energy)` : `${ability.n} (${ability.e}e)`;
+                    btn.onclick = () => use(ability.id);
+                    btn.disabled = !game.inBattle || !game.turn || (ability.n !== "Charge" && game.energy < ability.e);
+                    if (ability.n === "Charge") btn.className = "charge-btn";
+                    equipped.appendChild(btn);
+                });
+            }
+            
+            // Stats tab
+            if (document.getElementById("statLevel")) {
+                document.getElementById("statLevel").textContent = game.level;
+                document.getElementById("statMaxHp").textContent = game.maxHp;
+                document.getElementById("statMaxEnergy").textContent = game.maxEnergy;
+                document.getElementById("statAbilities").textContent = game.abilities.length;
+                document.getElementById("statWins").textContent = game.totalWins;
+                document.getElementById("statBestStreak").textContent = game.bestStreak;
+                document.getElementById("statBosses").textContent = game.bossesDefeated;
+                document.getElementById("statTotalRolls").textContent = game.totalRolls;
+            }
+            
+            // Achievements
+            const achievementsDiv = document.getElementById("achievementsList");
+            if (achievementsDiv) {
+                achievementsDiv.innerHTML = "";
+                Object.entries(achievementsList).forEach(([id, achievement]) => {
+                    const div = document.createElement("div");
+                    div.className = `achievement ${game.achievements[id] ? 'unlocked' : ''}`;
+                    div.innerHTML = `<strong>${achievement.name}</strong><br>${achievement.desc}`;
+                    achievementsDiv.appendChild(div);
+                });
+            }
+            
+            // Status effects
+            updateStatus();
+        }
+
+        function updateStatus() {
+            const playerStatus = document.getElementById("playerStatus");
+            const enemyStatus = document.getElementById("enemyStatus");
+            
+            if (playerStatus) {
+                playerStatus.innerHTML = "";
+                for (const [effect, duration] of Object.entries(game.playerEffects)) {
+                    const span = document.createElement("span");
+                    span.className = `effect ${effect}`;
+                    span.textContent = `${effect} (${duration})`;
+                    playerStatus.appendChild(span);
+                }
+            }
+            
+            if (enemyStatus) {
+                enemyStatus.innerHTML = "";
+                for (const [effect, duration] of Object.entries(game.enemyEffects)) {
+                    const span = document.createElement("span");
+                    span.className = `effect ${effect}`;
+                    span.textContent = `${effect} (${duration})`;
+                    enemyStatus.appendChild(span);
+                }
+            }
+        }
+
+        function log(msg) {
+            const logDiv = document.getElementById("log");
+            if (logDiv) {
+                const div = document.createElement("div");
+                div.textContent = msg;
+                logDiv.appendChild(div);
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+        }
+
+        // Close popup when clicking outside
+        document.getElementById('rollPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRollPopup();
+            }
+        });
+
+        init();
+    </script>
+<style>
+  /* container */
+  #mini{
+    position:fixed;
+    top:16px;
+    right:16px;
+    width:360px;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,0.45);
+    z-index:9999;
+    background:transparent;
+  }
+
+  /* player area */
+  #player{
+    position:relative;
+    width:100%;
+    height:210px;
+    background:#000;
+    border-radius:10px;
+  }
+  #playerHolder iframe{width:100%;height:100%;border:0;display:block}
+
+  /* invisible overlay (blocks interaction until clicked) */
+  #cover{
+    position:absolute;
+    inset:0;
+    z-index:5;
+    cursor:pointer;
+    background:transparent; /* invisible wall */
+    transition:opacity .18s ease, visibility .18s ease;
+  }
+  #cover.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+
+  /* minimize button positioned over the player */
+  #minBtnTop{
+    position:absolute;
+    top:10px;
+    right:10px;
+    width:36px;
+    height:36px;
+    border-radius:8px;
+    background:rgba(0,0,0,0.45);
+    color:#fff;
+    border:none;
+    z-index:7;
+    display:inline-grid;
+    place-items:center;
+    cursor:pointer;
+    backdrop-filter: blur(4px);
+  }
+  #minBtnTop:hover{ transform:translateY(-2px); }
+
+  /* open button shown when minimized */
+  #openBtn{
+    position:fixed;
+    top:12px;
+    right:12px;
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    background:linear-gradient(180deg,#ff4d4f,#ff7a7a);
+    color:#fff;
+    border:none;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:10000;
+    box-shadow:0 12px 36px rgba(255,77,79,0.18);
+    cursor:pointer;
+  }
+  #openBtn:hover{ transform:translateY(-3px); }
+</style>
+</head>
+<body>
+  <button id="openBtn" aria-label="Open player">▶</button>
+
+  <div id="mini" role="region" aria-label="Mini video player">
+    <div id="player" tabindex="0">
+      <div id="playerHolder"></div>
+
+      <!-- invisible overlay to block interaction until clicked -->
+      <div id="cover" role="button" aria-pressed="false" aria-label="Enable video interaction (click)"></div>
+
+      <button id="minBtnTop" title="Minimize" aria-label="Minimize">−</button>
+    </div>
+  </div>
+
+<script>
+/* ===== configuration ===== */
+const PLAYLIST_ID = 'PLxA687tYuMWjRmMc6B3eccQb_WY7mQHTk';
+
+/* ===== state ===== */
+let player = null;
+let ready = false;
+let interactive = false; // true when cover hidden
+let wasPlayingBeforeMin = false;
+
+/* Load YouTube IFrame API */
+const tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+document.head.appendChild(tag);
+
+/* YouTube API callback */
+function onYouTubeIframeAPIReady(){
+  player = new YT.Player('playerHolder', {
+    height: '210',
+    width: '100%',
+    playerVars: {
+      listType: 'playlist',
+      list: PLAYLIST_ID,
+      controls: 1,
+      modestbranding: 1,
+      rel: 0,
+      autoplay: 1,
+      playsinline: 1
+    },
+    events: {
+      onReady: onPlayerReady,
+      onStateChange: onPlayerStateChange
+    }
+  });
+}
+
+function onPlayerReady(){
+  ready = true;
+  try {
+    const ifr = player.getIframe();
+    if (ifr) ifr.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+  } catch(e){}
+
+  // Try to start playback muted first (this increases autoplay success).
+  // Then try to unmute — if the browser allows it, sound will be audible immediately.
+  try { player.mute(); } catch(e){}
+  try { player.setVolume(100); } catch(e){}
+  try { player.playVideo(); } catch(e){}
+
+  // Attempt to unmute shortly after start. This may fail on some browsers (autoplay policies).
+  // If it fails, the video will remain muted until the user interacts (that's browser behavior).
+  setTimeout(() => {
+    try { player.unMute(); player.setVolume(100); } catch(e){}
+  }, 600);
+}
+
+function onPlayerStateChange(e){
+  // no forced resume/pause; native controls will behave normally when overlay is hidden
+}
+
+/* ===== UI behavior ===== */
+const mini = document.getElementById('mini');
+const playerEl = document.getElementById('player');
+const cover = document.getElementById('cover');
+const minBtnTop = document.getElementById('minBtnTop');
+const openBtn = document.getElementById('openBtn');
+
+/* initial: cover visible, blocking interaction */
+cover.classList.remove('hidden');
+cover.setAttribute('aria-pressed','false');
+interactive = false;
+
+/* click on cover to enable interaction (hide cover).
+   We DO NOT mute when cover is shown/hidden — sound is left as-is.
+*/
+cover.addEventListener('click', (ev) => {
+  ev.stopPropagation();
+  if (!ready) { hideCover(); interactive = true; return; }
+  hideCover();
+  interactive = true;
+});
+
+/* when mouse leaves the player area, restore the invisible wall (if it had been removed).
+   Note: we do NOT mute when re-applying the wall, so sound continues.
+*/
+playerEl.addEventListener('mouseleave', () => {
+  if (interactive) {
+    showCover();
+    interactive = false;
+  }
+});
+
+/* keyboard accessibility: allow Enter/Space to toggle cover */
+cover.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Enter' || ev.key === ' ') {
+    ev.preventDefault();
+    cover.click();
+  }
+});
+
+/* touch: if interactive and user touches outside the player, re-cover.
+   We keep sound unchanged (no mute) when re-covering.
+*/
+document.addEventListener('touchstart', (ev) => {
+  if (!playerEl.contains(ev.target) && interactive) {
+    showCover();
+    interactive = false;
+  }
+}, {passive:true});
+
+/* utility to hide/show cover */
+function hideCover(){
+  cover.classList.add('hidden');
+  cover.setAttribute('aria-pressed','true');
+}
+function showCover(){
+  cover.classList.remove('hidden');
+  cover.setAttribute('aria-pressed','false');
+}
+
+/* minimize: hide player, mute the video and show open button (minimized should be muted per previous behavior) */
+minBtnTop.addEventListener('click', () => {
+  if (ready) {
+    try {
+      const st = player.getPlayerState();
+      wasPlayingBeforeMin = (st === YT.PlayerState.PLAYING);
+    } catch(e) { wasPlayingBeforeMin = false; }
+    try { player.mute(); } catch(e){}
+  }
+  mini.style.display = 'none';
+  openBtn.style.display = 'flex';
+  interactive = false;
+  showCover();
+});
+
+/* open: restore the player. Keep the invisible wall in place (user must click to enable).
+   If the player was playing before minimize, resume playback and unmute.
+*/
+openBtn.addEventListener('click', () => {
+  mini.style.display = 'block';
+  openBtn.style.display = 'none';
+  if (ready) {
+    try { player.setVolume(100); } catch(e){}
+    try {
+      if (wasPlayingBeforeMin) {
+        player.unMute();
+        player.playVideo();
+      } else {
+        // keep current mute state; do not force.
+      }
+    } catch(e){}
+  }
+  interactive = false;
+  showCover();
+});
+
+/* Make minimize/open keyboard accessible */
+minBtnTop.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Enter' || ev.key === ' ') {
+    ev.preventDefault();
+    minBtnTop.click();
+  }
+});
+openBtn.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Enter' || ev.key === ' ') {
+    ev.preventDefault();
+    openBtn.click();
+  }
+});
+
+/* Notes:
+   - The invisible overlay no longer mutes or unmutes the player when applied/removed.
+   - We still attempt to autoplay by starting muted then attempting to unmute shortly after load.
+     Browser autoplay policies may prevent unmuting until a user gesture — that's enforced by the browser.
+   - Minimize still mutes the player (as previously requested). Opening will unmute and resume if it was playing before minimize.
+*/
+</script>
+</body>
+</html>
