@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Untitled</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ability Warriors</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #1a1a2e; color: #eee; }
+        
+        .tabs { display: flex; margin-bottom: 20px; background: #16213e; border-radius: 10px; overflow: hidden; }
+        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; background: #0f3460; border: none; color: #eee; transition: background 0.3s; }
+        .tab:hover { background: #533483; }
+        .tab.active { background: #e94560; }
+
+        .sub-tabs { display: flex; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid #0f3460; }
+        .sub-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; background: #16213e; border: none; color: #ccc; transition: background 0.3s; font-size: 14px; }
+        .sub-tab:hover { background: #533483; }
+        .sub-tab.active { background: #e94560; color: white; font-weight: bold; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .sub-tab-content { display: none; }
+        .sub-tab-content.active { display: block; }
+        
+        .stats { display: flex; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat { background: #0f3460; padding: 10px; border-radius: 5px; text-align: center; margin: 2px; }
+        
+        .panel { background: #16213e; border: 2px solid #0f3460; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        
+        .ability, .form-card { background: #0f3460; border: 1px solid #533483; border-radius: 5px; padding: 10px; margin: 5px 0; cursor: pointer; transition: background 0.3s; }
+        .ability:hover, .form-card:hover { background: #533483; }
+        .ability.equipped, .form-card.equipped { border-color: #e94560; background: #533483; }
+        
+        .common { border-left: 5px solid gray; }
+        .uncommon { border-left: 5px solid #00ff00; }
+        .rare { border-left: 5px solid #0099ff; }
+        .epic { border-left: 5px solid #9900ff; }
+        .legendary { border-left: 5px solid #ff6600; }
+        .mythic { border-left: 5px solid #ff0080; }
+        
+        button { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; font-size: 16px; }
+        button:hover { background: #c73650; }
+        button:disabled { background: #666; cursor: not-allowed; }
+        
+        .charge-btn { background: #00aaff !important; }
+        .charge-btn:hover { background: #0088cc !important; }
+        .form-btn { background: #9d4edd !important; width: 100%; margin-top: 10px; }
+        .form-btn:hover { background: #7b2cbf !important; }
+        
+        .bar-container { position: relative; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
+        .bar-text { position: absolute; color: white; text-shadow: 1px 1px 2px black; font-size: 14px; pointer-events: none; }
+        .bar { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; }
+        .bar-fill { height: 100%; transition: width 0.3s; }
+        .health { background: #e94560; }
+        .energy { background: #00aaff; }
+        
+        .log { height: 200px; overflow-y: auto; background: #0f3460; padding: 10px; border-radius: 5px; margin-top: 10px; }
+        .status { display: flex; gap: 5px; margin: 5px 0; flex-wrap: wrap; justify-content: center; }
+        .effect { background: #e94560; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+        
+        .burn { background: #ff4444; }
+        .freeze { background: #4444ff; }
+        .poison { background: #44ff44; }
+        .stun { background: #ffff44; color: #000; }
+        .bleed { background: #cc0000; }
+        .weaken { background: #8B4513; }
+        .armor-break { background: #A9A9A9; color: #000; }
+        .confusion { background: #DA70D6; }
+        .shield { background: #ADD8E6; color: #000; }
+        .regen { background: #90EE90; color: #000; }
+        .reflect { background: #FFD700; color: #000; }
+        .haste { background: #E0FFFF; color: #000; }
+        .active-form { background: linear-gradient(45deg, #ff6600, #9900ff); border: 1px solid white; animation: glow 2s infinite alternate; }
+        .crit-boost { background: #00FF00; color: #000; }
+        .invulnerable { background: #87CEEB; color: #000; }
+        
+        .banner { background: #0f3460; border: 2px solid #533483; border-radius: 10px; padding: 15px; margin: 10px 0; transition: all 0.3s; }
+        .banner:hover { border-color: #e94560; transform: translateY(-2px); }
+        
+        .banner-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .banner-title { font-size: 20px; font-weight: bold; }
+        .banner-rolls { display: flex; gap: 10px; }
+        
+        .roll-1x { background: #00aaff !important; }
+        .roll-10x { background: #ffa500 !important; }
+        
+        .banner-preview { display: none; background: #16213e; padding: 10px; margin-top: 10px; border-radius: 5px; max-height: 300px; overflow-y: auto; }
+        .banner-preview.show { display: block; }
+        .preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; }
+        
+        .achievement { background: #0f3460; border: 1px solid #666; border-radius: 5px; padding: 10px; margin: 5px 0; }
+        .achievement.unlocked { border-color: #ffa500; background: #533483; }
+        
+        .boss-enemy { color: #ff6600; font-weight: bold; text-shadow: 0 0 10px #ff6600; }
+        .win-streak { background: #00ff00; color: #000; padding: 5px; border-radius: 3px; }
+        
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-card { background: #0f3460; padding: 15px; border-radius: 10px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #e94560; }
+        
+        .anime { font-size: 12px; color: #aaa; font-style: italic; }
+        
+        /* Roll Result Popup */
+        .roll-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 1000; }
+        .roll-popup.show { display: flex; align-items: center; justify-content: center; }
+        .roll-content { background: #16213e; border: 3px solid #e94560; border-radius: 15px; padding: 30px; max-width: 90%; max-height: 90%; overflow-y: auto; }
+        .roll-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+        .roll-item { background: #0f3460; border-radius: 10px; padding: 15px; text-align: center; min-width: 150px; }
+        .roll-item.legendary { border: 3px solid #ff6600; box-shadow: 0 0 20px #ff6600; animation: glow 2s infinite; }
+        .roll-item.mythic { border: 3px solid #ff0080; box-shadow: 0 0 20px #ff0080; animation: glow 2s infinite; }
+        .roll-item.epic { border: 2px solid #9900ff; box-shadow: 0 0 15px #9900ff; }
+        
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px currentColor; } 50% { box-shadow: 0 0 30px currentColor, 0 0 40px currentColor; } }
+        
+        .close-btn { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        
+        @media (max-width: 768px) {
+            .roll-grid { grid-template-columns: repeat(2, 1fr); }
+            .banner-rolls { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Ability Warriors</h1>
+    
+    <div class="stats">
+        <div class="stat">Floor: <span id="level">1</span></div>
+        <div class="stat">Health: <span id="hp">100</span>/<span id="maxHp">100</span></div>
+        <div class="stat">Energy: <span id="energy">50</span>/<span id="maxEnergy">50</span></div>
+        <div class="stat">Enemy Lv: <span id="enemyLv">1</span></div>
+        <div class="stat win-streak">Best Floor: <span id="winStreak">0</span></div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('shop')">Banners</button>
+        <button class="tab" onclick="switchTab('moves')">Moveset</button>
+        <button class="tab" onclick="switchTab('battle')">Play</button>
+        <button class="tab" onclick="switchTab('stats')">Stats</button>
+        <button class="tab" onclick="switchTab('achievements')">Achievements</button>
+    </div>
+
+    <!-- Roll Result Popup -->
+    <div id="rollPopup" class="roll-popup">
+        <div class="roll-content">
+            <h2 id="rollTitle">Roll Results</h2>
+            <div id="rollResults" class="roll-grid"></div>
+            <button class="close-btn" onclick="closeRollPopup()">Close</button>
+        </div>
+    </div>
+
+    <!-- Shop Tab -->
+    <div id="shop" class="tab-content active">
+        <div class="panel">
+            <div class="stat" style="display: inline-block; margin-bottom: 20px;">Rolls: <span id="rolls">4</span></div>
+            
+            <div class="sub-tabs">
+                <button class="sub-tab active" onclick="switchBannerTab('abilities')">Abilities</button>
+                <button class="sub-tab" onclick="switchBannerTab('forms')">Forms</button>
+            </div>
+
+            <div id="abilities-banners" class="sub-tab-content active">
+                <h3>Ability Banners</h3>
+                <div id="ability-banners-list"></div>
+            </div>
+            <div id="forms-banners" class="sub-tab-content">
+                <h3>Form Banners</h3>
+                <div id="form-banners-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Moves Tab -->
+    <div id="moves" class="tab-content">
+        <div class="container">
+            <div class="panel">
+                <h3>Collection</h3>
+                <div id="collection" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+            <div class="panel">
+                <h3>Equipped Moves (Max 4)</h3>
+                <div id="equipped-display"></div>
+            </div>
+            <div class="panel">
+                <h3>Forms</h3>
+                <div id="forms-collection" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+            <div class="panel">
+                <h3>Equipped Form</h3>
+                <div id="equipped-form-display"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Battle Tab -->
+    <div id="battle" class="tab-content">
+        <div class="panel">
+            <div style="text-align: center;">
+                <h4 id="enemyTitle">Enemy: <span id="enemyName">Bandit</span></h4>
+                <div class="bar-container">
+                    <div class="bar"><div class="bar-fill health" id="enemyHpBar" style="width: 100%"></div></div>
+                </div>
+                <div>HP: <span id="enemyHp">80</span>/<span id="enemyMaxHp">80</span></div>
+                <div class="status" id="enemyStatus"></div>
+                
+                <button onclick="startBattle()" id="battleBtn">Next Battle</button>
+                
+                <h4>Your Status</h4>
+                <div class="bar-container">
+                    <div class="bar"><div class="bar-fill health" id="playerHpBar" style="width: 100%"></div></div>
+                    <span id="playerHpText" class="bar-text">100/100</span>
+                </div>
+                <div class="bar-container">
+                    <div class="bar"><div class="bar-fill energy" id="playerEnergyBar" style="width: 100%"></div></div>
+                    <span id="playerEnergyText" class="bar-text">50/50</span>
+                </div>
+                <div class="status" id="playerStatus"></div>
+            </div>
+            
+            <h4>Battle Actions</h4>
+            <div id="equipped"></div>
+            <div id="form-activation"></div>
+            <div class="log" id="log"></div>
+        </div>
+    </div>
+
+    <!-- Stats Tab -->
+    <div id="stats" class="tab-content">
+        <div class="panel">
+            <h3>Player Statistics</h3>
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div>Floor</div>
+                    <div class="stat-value" id="statLevel">1</div>
+                </div>
+                <div class="stat-card">
+                    <div>Max Health</div>
+                    <div class="stat-value" id="statMaxHp">100</div>
+                </div>
+                <div class="stat-card">
+                    <div>Max Energy</div>
+                    <div class="stat-value" id="statMaxEnergy">50</div>
+                </div>
+                <div class="stat-card">
+                    <div>Moves</div>
+                    <div class="stat-value" id="statAbilities">1</div>
+                </div>
+                <div class="stat-card">
+                    <div>Battles Won</div>
+                    <div class="stat-value" id="statWins">0</div>
+                </div>
+                <div class="stat-card">
+                    <div>Best Floor</div>
+                    <div class="stat-value" id="statBestStreak">0</div>
+                </div>
+                 <div class="stat-card">
+                    <div>Damage Bonus</div>
+                    <div class="stat-value" id="statDamageBonus">100%</div>
+                </div>
+                <div class="stat-card">
+                    <div>Total Rolls</div>
+                    <div class="stat-value" id="statTotalRolls">0</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; border-top: 2px solid #0f3460; padding-top: 20px;">
+                <h3>Stat Points</h3>
+                <div class="stat-card" style="max-width: 200px; margin: auto;">
+                    <div>Available Points</div>
+                    <div class="stat-value" id="statPoints">0</div>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
+                    <button id="investHpBtn" onclick="invest('hp')">+25% Health</button>
+                    <button id="investEnergyBtn" onclick="invest('energy')">+25% Energy</button>
+                    <button id="investDamageBtn" onclick="invest('damage')">+5% Damage</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Tab -->
+    <div id="achievements" class="tab-content">
+        <div class="panel">
+            <h3>Achievements</h3>
+            <div id="achievementsList"></div>
+        </div>
+    </div>
+
+    <script>
+        let game = {
+            level: 1, hp: 100, maxHp: 100, energy: 50, maxEnergy: 50, rolls: 10,
+            abilities: [], equipped: [], inBattle: false,
+            enemyLv: 1, enemyHp: 80, enemyMaxHp: 80, enemyName: "Bandit",
+            turn: true, playerEffects: {}, enemyEffects: {},
+            achievements: {}, winStreak: 0, bestStreak: 0, totalWins: 0, 
+            bossesDefeated: 0, totalRolls: 0,
+            statPoints: 0, damageBonus: 1,
+            playerShield: 0, enemyShield: 0,
+            forms: [], equippedForm: null, activeForm: null,
+            baseMaxHp: 100, baseMaxEnergy: 50
+        };
+
+        // Helper function to create a special effect object
+        const s = (type, chance) => ({ type, chance });
+
+        const formPacks = {
+            dragonball: {
+                name: "Dragon Ball Forms",
+                forms: [
+                    {id: "f_db_c1", n: "Kaio-ken", r: "common", cost: 20, dur: 3, eff: {hp:0.1, en:0.1, dmg:0.1}},
+                    {id: "f_db_u1", n: "Super Saiyan", r: "uncommon", cost: 30, dur: 3, eff: {hp:0.15, en:0.15, dmg:0.15}},
+                    {id: "f_db_r1", n: "Super Saiyan 2", r: "rare", cost: 40, dur: 4, eff: {hp:0.25, en:0.25, dmg:0.25}},
+                    {id: "f_db_e1", n: "Super Saiyan God", r: "epic", cost: 50, dur: 4, eff: {hp:0.4, en:0.4, dmg:0.4}},
+                    // Added crit_boost for Super Saiyan Blue
+                    {id: "f_db_l1", n: "Super Saiyan Blue", r: "legendary", cost: 70, dur: 5, eff: {hp:0.5, en:0.5, dmg:0.6, crit_boost: 0.3}}, 
+                    // Added invulnerable_turns for Ultra Instinct
+                    {id: "f_db_m1", n: "Ultra Instinct", r: "mythic", cost: 100, dur: 5, eff: {hp:0.5, en:0.5, dmg:0.75, dodge: 0.5, invulnerable_turns: 1}}
+                ]
+            },
+            naruto: {
+                name: "Naruto Forms",
+                forms: [
+                    {id: "f_nar_c1", n: "Shadow Clone Jutsu", r: "common", cost: 15, dur: 2, eff: {hp:0.05, en:0.05, dmg:0.05}},
+                    {id: "f_nar_u1", n: "Sage Mode", r: "uncommon", cost: 25, dur: 3, eff: {hp:0.1, en:0.1, dmg:0.15}},
+                    {id: "f_nar_r1", n: "Nine-Tails Chakra Mode", r: "rare", cost: 35, dur: 3, eff: {hp:0.15, en:0.15, dmg:0.25}},
+                    {id: "f_nar_e1", n: "Six Paths Sage Mode", r: "epic", cost: 45, dur: 4, eff: {hp:0.25, en:0.25, dmg:0.4, regen: true}},
+                    {id: "f_nar_l1", n: "Baryon Mode", r: "legendary", cost: 60, dur: 2, eff: {hp:0.4, en:0.4, dmg:0.7, burn_self_dmg: 0.05}},
+                    {id: "f_nar_m1", n: "Truth-Seeking Orbs", r: "mythic", cost: 80, dur: 4, eff: {hp:0.3, en:0.3, dmg:0.6, shield_add: 50}}
+                ]
+            },
+            onepiece: {
+                name: "One Piece Forms",
+                forms: [
+                    {id: "f_op_c1", n: "Gear Second", r: "common", cost: 20, dur: 3, eff: {hp:0.05, en:0.1, dmg:0.1}},
+                    {id: "f_op_u1", n: "Gear Third", r: "uncommon", cost: 30, dur: 2, eff: {hp:0.1, en:0.05, dmg:0.2}},
+                    {id: "f_op_r1", n: "Gear Fourth: Boundman", r: "rare", cost: 40, dur: 3, eff: {hp:0.2, en:0.15, dmg:0.3}},
+                    {id: "f_op_e1", n: "Gear Fourth: Snakeman", r: "epic", cost: 50, dur: 4, eff: {hp:0.15, en:0.25, dmg:0.35, dodge: 0.2}},
+                    // Added damage_reflect_turns for Gear Five
+                    {id: "f_op_l1", n: "Gear Five", r: "legendary", cost: 80, dur: 4, eff: {hp:0.4, en:0.3, dmg:0.6, stun_chance: 0.2, damage_reflect_turns: 1}},
+                    {id: "f_op_m1", n: "Awakened Devil Fruit", r: "mythic", cost: 110, dur: 5, eff: {hp:0.5, en:0.5, dmg:0.8, all_effects_boost: true}}
+                ]
+            },
+            demonslayer: {
+                name: "Demon Slayer Forms",
+                forms: [
+                    {id: "f_ds_c1", n: "Total Concentration Breathing", r: "common", cost: 10, dur: 3, eff: {hp:0.05, en:0.05, dmg:0.05}},
+                    {id: "f_ds_u1", n: "Hinokami Kagura", r: "uncommon", cost: 25, dur: 3, eff: {hp:0.1, en:0.1, dmg:0.15, burn_chance: 0.2}},
+                    {id: "f_ds_r1", n: "Sun Breathing", r: "rare", cost: 35, dur: 4, eff: {hp:0.15, en:0.15, dmg:0.25, burn_chance: 0.4}},
+                    {id: "f_ds_e1", n: "Moon Breathing", r: "epic", cost: 45, dur: 4, eff: {hp:0.2, en:0.2, dmg:0.35, crit_chance: 0.1}},
+                    {id: "f_ds_l1", n: "Transparent World", r: "legendary", cost: 70, dur: 3, eff: {hp:0.3, en:0.3, dmg:0.5, dodge: 0.3}},
+                    {id: "f_ds_m1", n: "Demon King Transformation", r: "mythic", cost: 100, dur: 5, eff: {hp:0.6, en:0.4, dmg:0.7, regen: true, leech: 0.1}}
+                ]
+            },
+            jojo: {
+                name: "JoJo's Bizarre Adventure Forms",
+                forms: [
+                    {id: "f_jj_c1", n: "Stand Manifestation", r: "common", cost: 15, dur: 3, eff: {hp:0.05, en:0.05, dmg:0.05}},
+                    {id: "f_jj_u1", n: "Hamon Overdrive", r: "uncommon", cost: 25, dur: 3, eff: {hp:0.05, en:0.1, dmg:0.15, haste_duration: 1}},
+                    {id: "f_jj_r1", n: "Star Platinum: The World", r: "rare", cost: 40, dur: 2, eff: {hp:0.15, en:0.15, dmg:0.3, stun_on_activate: true}},
+                    {id: "f_jj_e1", n: "King Crimson", r: "epic", cost: 50, dur: 4, eff: {hp:0.1, en:0.2, dmg:0.25, dodge: 0.3, confusion_chance: 0.2}},
+                    {id: "f_jj_l1", n: "Golden Experience Requiem", r: "legendary", cost: 90, dur: 3, eff: {hp:0.5, en:0.5, dmg:0.6, reflect: 0.5}},
+                    {id: "f_jj_m1", n: "Made in Heaven", r: "mythic", cost: 120, dur: 3, eff: {hp:0.3, en:0.6, dmg:0.8, haste_duration: 2, extra_turn_chance: 0.5}}
+                ]
+            },
+            blackclover: {
+                name: "Black Clover Forms",
+                forms: [
+                    {id: "f_bc_c1", n: "Mana Zone", r: "common", cost: 15, dur: 3, eff: {hp:0.05, en:0.1, dmg:0.05}},
+                    {id: "f_bc_u1", n: "Black Asta", r: "uncommon", cost: 25, dur: 3, eff: {hp:0.15, en:0.1, dmg:0.2}},
+                    {id: "f_bc_r1", n: "Spirit Dive", r: "rare", cost: 35, dur: 4, eff: {hp:0.1, en:0.2, dmg:0.25, element_boost: true}},
+                    {id: "f_bc_e1", n: "Demon Destroyer Sword", r: "epic", cost: 45, dur: 4, eff: {hp:0.2, en:0.2, dmg:0.4, anti_magic: true}},
+                    {id: "f_bc_l1", n: "Devil Union", r: "legendary", cost: 70, dur: 5, eff: {hp:0.4, en:0.3, dmg:0.6, haste_duration: 1}},
+                    {id: "f_bc_m1", n: "True Magic", r: "mythic", cost: 100, dur: 4, eff: {hp:0.5, en:0.5, dmg:0.75, infinite_energy: true}}
+                ]
+            },
+            chainsawman: {
+                name: "Chainsaw Man Forms",
+                forms: [
+                    {id: "f_cs_c1", n: "Fiend Form", r: "common", cost: 10, dur: 3, eff: {hp:0.05, en:0.05, dmg:0.1, bleed_chance: 0.1}},
+                    {id: "f_cs_u1", n: "Crossbow Devil", r: "uncommon", cost: 20, dur: 3, eff: {hp:0.1, en:0.05, dmg:0.2, leech: 0.1}},
+                    {id: "f_cs_r1", n: "Bomb Devil", r: "rare", cost: 30, dur: 4, eff: {hp:0.2, en:0.1, dmg:0.3, bleed_chance: 0.3}},
+                    {id: "f_cs_e1", n: "Katana Devil", r: "epic", cost: 40, dur: 4, eff: {hp:0.3, en:0.15, dmg:0.4, armor_break_chance: 0.2}},
+                    {id: "f_cs_l1", n: "Chainsaw Devil", r: "legendary", cost: 60, dur: 5, eff: {hp:0.4, en:0.2, dmg:0.6}},
+                    {id: "f_cs_m1", n: "Gun Fiend", r: "mythic", cost: 90, dur: 3, eff: {hp:0.5, en:0.5, dmg:0.99, self_damage_per_turn: 0.05}}
+                ]
+            },
+            sevendeadlysins: {
+                name: "Seven Deadly Sins Forms",
+                forms: [
+                    {id: "f_sds_c1", n: "Sacred Treasure Release", r: "common", cost: 15, dur: 3, eff: {hp:0.05, en:0.05, dmg:0.05}},
+                    {id: "f_sds_u1", n: "Fox Sin's Agility", r: "uncommon", cost: 25, dur: 3, eff: {hp:0.05, en:0.1, dmg:0.1, dodge: 0.1}},
+                    {id: "f_sds_r1", n: "Giant's Wrath", r: "rare", cost: 35, dur: 4, eff: {hp:0.2, en:0.1, dmg:0.25, shield_add: 50}},
+                    {id: "f_sds_e1", n: "Demon Mark", r: "epic", cost: 45, dur: 4, eff: {hp:0.3, en:0.15, dmg:0.35, regen: true}},
+                    {id: "f_sds_l1", n: "Assault Mode", r: "legendary", cost: 70, dur: 5, eff: {hp:0.4, en:0.2, dmg:0.6}},
+                    {id: "f_sds_m1", n: "Goddess Clan Power", r: "mythic", cost: 100, dur: 4, eff: {hp:0.5, en:0.3, dmg:0.7, reflect: 0.3, heal_on_activate: true}}
+                ]
+            },
+            jujutsu: {
+                name: "Jujutsu Kaisen Forms",
+                forms: [
+                    {id: "f_jjk_c1", n: "Cursed Energy Fists", r: "common", cost: 10, dur: 3, eff: {hp:0.01, en:0.4, dmg:0.4}},
+                    {id: "f_jjk_u1", n: "Cursed Energy Defense", r: "uncommon", cost: 25, dur: 3, eff: {hp:0.2, en:0.25, dmg:0.01, pierce_dmg_bonus: 20}},
+                    {id: "f_jjk_r1", n: "Rika", r: "rare", cost: 35, dur: 4, eff: {hp:0.35, en:0.4, dmg:0.25, defense_boost: 0.1}},
+                    // Added initial_enemy_burn for Sukuna
+                    {id: "f_jjk_e1", n: "Sukuna", r: "epic", cost: 45, dur: 4, eff: {hp:0.25, en:0.25, dmg:0.4, burn_chance: 0.6, initial_enemy_burn: true}},
+                    {id: "f_jjk_l1", n: "Heavenly Restriction", r: "legendary", cost: 70, dur: 5, eff: {hp:0.4, en:0.3, dmg:0.6, haste_duration: 1}},
+                    {id: "f_jjk_m1", n: "Six Eyes", r: "mythic", cost: 100, dur: 4, eff: {hp:0.3, en:0.7, dmg:0.7, energy_gain_per_turn: 20}}
+                ]
+            },
+            mha: {
+                name: "My Hero Academia Forms",
+                forms: [
+                    {id: "f_mha_c1", n: "One For All: Full Cowling", r: "common", cost: 15, dur: 3, eff: {hp:0.05, en:0.05, dmg:0.1}},
+                    {id: "f_mha_u1", n: "Explosion Quirk Unleashed", r: "uncommon", cost: 25, dur: 3, eff: {hp:0.1, en:0.1, dmg:0.2, burn_chance: 0.2}},
+                    {id: "f_mha_r1", n: "Half-Cold Half-Hot Mastery", r: "rare", cost: 35, dur: 4, eff: {hp:0.15, en:0.15, dmg:0.25, freeze_chance: 0.2, burn_chance: 0.2}},
+                    {id: "f_mha_e1", n: "Permeation Phase", r: "epic", cost: 45, dur: 4, eff: {hp:0.1, en:0.2, dmg:0.2, dodge: 0.4}},
+                    {id: "f_mha_l1", n: "One For All: 100%", r: "legendary", cost: 80, dur: 2, eff: {hp:0.3, en:0.3, dmg:0.7, stun_chance: 0.1}},
+                    {id: "f_mha_m1", n: "Rewind Quirk Activated", r: "mythic", cost: 110, dur: 1, eff: {hp:0.8, en:0.8, dmg:0.1, full_heal: true, debuff_clear: true}}
+                ]
+            }
+        };
+
+        const packs = {
+            naruto: {
+                name: "Naruto",
+                abilities: [
+                    {n:"Kunai Throw",d:[10,20],e:8,r:"common",s:null},
+                    {n:"Shuriken Barrage",d:[5,35],e:12,r:"common",s:null},
+                    {n:"Clone Barrage",d:[20,50],e:30,r:"common",s:null},
+                    {n:"Leaf Hurricane",d:[10,50],e:20,r:"uncommon",s:null},
+                    {n:"Primary Lotus",d:[10,60],e:22,r:"uncommon",s:null},
+                    {n:"Fireball Jutsu",d:[45,60],e:28,r:"rare",s:s("burn", 0.8)},
+                    {n:"Water Dragon",d:[60,85],e:32,r:"epic",s:null},
+                    {n:"Rasengan",d:[70,90],e:40,r:"epic",s:"pierce"},
+                    {n:"Chidori",d:[90,160],e:38,r:"legendary",s:s("stun", 0.4)},
+                    {n:"Rasenshuriken",d:[90,120],e:45,r:"legendary",s:"pierce"},
+                    {n:"Amaterasu",d:[100,190],e:50,r:"legendary",s:s("burn", 1)},
+                    {n:"Infinite Tsukuyomi",d:[100,250],e:70,r:"mythic",s:s("stun", 0.75)},
+                    {n:"Ultra Big Ball Rasenshuriken",d:[120,460],e:80,r:"mythic",s:s("burn", 1)}
+                ]
+            },
+            dragonball: {
+                name: "Dragon Ball",
+                abilities: [
+                    {n:"Ki Blast",d:[1,35],e:8,r:"common",s:null},
+                    {n:"Kamehameha",d:[25,35],e:25,r:"common",s:null},
+                    {n:"Galick Gun",d:[20,35],e:25,r:"common",s:null},
+                    {n:"Kioken Kamehameha x10",d:[45,70],e:45,r:"uncommon",s:null},
+                    {n:"Destructo Disc",d:[50,65],e:35,r:"rare",s:"pierce"},
+                    {n:"Masenko",d:[40,65],e:28,r:"rare",s:null},
+                    {n:"Big Bang Attack",d:[60,90],e:45,r:"epic",s:null},
+                    {n:"Special Beam Cannon",d:[50,100],e:50,r:"epic",s:"pierce"},
+                    {n:"Solar Flare",d:[1,10],e:45,r:"legendary",s:s("confusion", 0.9)},
+                    {n:"Spirit Bomb",d:[1,400],e:90,r:"legendary",s:null},
+                    {n:"Final Flash",d:[110,220],e:90,r:"legendary",s:null},
+                    {n:"Big Bang Kamehameha",d:[170,250],e:85,r:"legendary",s:null},
+                    {n:"Hakai Bomb",d:[190,400],e:90,r:"mythic",s:null},
+                    {n:"Zeno Erase",d:[1,1000],e:250,r:"mythic",s:s("freeze", 1)},
+                ]
+            },
+            onepiece: {
+                name: "One Piece",
+                abilities: [
+                    {n:"Gomu Gomu Pistol",d:[10,20],e:8,r:"common",s:null},
+                    {n:"Gomu Gomu Bazooka",d:[34,35],e:21,r:"common",s:null},
+                    {n:"Onigiri",d:[39,40],e:29,r:"common",s:null},
+                    {n:"Tatsumaki",d:[25,35],e:18,r:"uncommon",s:null},
+                    {n:"Fire Fist",d:[35,55],e:20,r:"uncommon",s:s("burn", 0.7)},
+                    {n:"Burning Mochi",d:[60,80],e:30,r:"rare",s:s("burn", 0.8)},
+                    {n:"Gura Gura Punch",d:[60,75],e:50,r:"rare",s:null},
+                    {n:"Kong Gun",d:[60,90],e:45,r:"epic",s:null},
+                    {n:"Double Culverin",d:[70,140],e:50,r:"epic",s:"speed"},
+                    {n:"Conqueror's Haki",d:[50,100],e:40,r:"legendary",s:s("stun", 0.5)},
+                    {n:"Red Hawk",d:[100,250],e:85,r:"legendary",s:s("burn", 1)},
+                    {n:"King Kong Gatling",d:[50,500],e:80,r:"legendary",s:null},
+                    {n:"Gura Gura Kaishin",d:[300,600],e:100,r:"mythic",s:null},
+                    {n:"Bajrang Gun",d:[500,800],e:150,r:"mythic",s:null}
+                ]
+            },
+            demonslayer: {
+                name: "Demon Slayer",
+                abilities: [
+                    {n:"Water Surface Slash",d:[20,35],e:18,r:"common",s:null},
+                    {n:"Beast Fang",d:[30,45],e:20,r:"uncommon",s:null},
+                    {n:"Water Wheel",d:[40,70],e:28,r:"rare",s:null},
+                    {n:"Thunderclap And Flash",d:[60,75],e:45,r:"rare",s:null},
+                    {n:"Scattering Mist Slash",d:[40,90],e:40,r:"rare",s:null},
+                    {n:"Rumble and Flash",d:[70,110],e:60,r:"epic",s:null},
+                    {n:"Flame Tiger",d:[50,130],e:60,r:"epic",s:s("burn", 0.8)},
+                    {n:"Crecent-Shaped Slashes",d:[10,250],e:75,r:"epic",s:null},
+                    {n:"String Peformance",d:[120,180],e:90,r:"legendary",s:null},
+                    {n:"Obscuring Clouds",d:[90,190],e:100,r:"mythic",s:s("stun", 0.6)},
+                    {n:"Destructive Death",d:[100,750],e:175,r:"mythic",s:null},
+                    {n:"Sun Beathing 'Thirteenth Form'",d:[600,700],e:185,r:"mythic",s:s("burn", 1)}
+                ]
+            },
+            jojo: {
+                name: "JoJo's Bizzarre Adventure",
+                abilities: [
+                    {n:"Hammon 'Punch'",d:[20,35],e:20,r:"common",s:null},
+                    {n:"Hammon 'Ripple'",d:[10,45],e:30,r:"uncommon",s:null},
+                    {n:"Iron Fist Barrage",d:[5,65],e:35,r:"rare",s:null},
+                    {n:"Flame Vortex",d:[40,90],e:55,r:"epic",s:s("burn", 0.7)},
+                    {n:"Stand Barrage",d:[60,360],e:70,r:"legendary",s:null},
+                    {n:"Vamire Siphon",d:[70,90],e:100,r:"legendary",s:s("leech", 1)},
+                    {n:"Road-Roller Crush",d:[300,500],e:130,r:"mythic",s:s("armor-break", 1)},
+                ]
+             },
+            blackclover: {
+                name: "Black Clover",
+                abilities: [
+                    {n:"Water Jet",d:[25,35],e:20,r:"common",s:null},
+                    {n:"Wind Slash",d:[10,25],e:15,r:"common",s:null},
+                    {n:"Earth Spike",d:[25,30],e:25,r:"uncommon",s:null},
+                    {n:"Flame Shot",d:[30,40],e:30,r:"uncommon",s:null},
+                    {n:"Hurricane Slash",d:[40,150],e:60,r:"epic",s:null},
+                    {n:"Dragon King Flare",d:[150,240],e:30,r:"legendary",s:s("burn", 0.9)},
+                    {n:"Sea Dragon's Roar",d:[90,130],e:80,r:"mythic",s:s("freeze", 0.8)},
+                    {n:"Final Slash",d:[100,700],e:100,r:"mythic",s:s("bleed", 1)},
+                ]
+            },
+            chainsawman: {
+                name: "Chainsaw Man",
+                abilities: [
+                    {n:"Axe Swing",d:[10,35],e:10,r:"common",s:null},
+                    {n:"Blood Hammer",d:[40,55],e:45,r:"uncommon",s:null},
+                    {n:"Handheald Pochita",d:[25,100],e:25,r:"rare",s:s("bleed", 0.8)},
+                    {n:"Kon",d:[120,180],e:80,r:"epic",s:null},
+                    {n:"Gunstorm",d:[230,430],e:130,r:"legendary",s:s("bleed", 0.9)},
+                    {n:"Life Drain",d:[100,1000],e:250,r:"mythic",s:null},
+                ]
+            },
+            sevendeadlysins: {
+                name: "Seven Deadly Sins",
+                abilities: [
+                    {n:"Sprit Spear",d:[25,50],e:40,r:"common",s:null},
+                    {n:"Fox Hunt",d:[40,65],e:45,r:"uncommon",s:s("bleed", 0.5)},
+                    {n:"Gideon",d:[70,90],e:60,r:"rare",s:null},
+                    {n:"Trillion Dark",d:[130,240],e:80,r:"epic",s:null},
+                    {n:"Divine Axe",d:[145,370],e:45,r:"legendary",s:null},
+                    {n:"Full Counter",d:[1,500],e:100,r:"mythic",s:s("stun", 0.3)},
+                ]
+            },
+            jujutsu: {
+                name: "Jujutsu Kaisen",
+                abilities: [
+                    {n:"Cursed Strike",d:[15,25],e:10,r:"common",s:null},
+                    {n:"Divergent Fist",d:[12,22],e:9,r:"common",s:null},
+                    {n:"Piercing Blood",d:[28,38],e:22,r:"uncommon",s:s("burn", 0.6)},
+                    {n:"Black Flash",d:[40,55],e:30,r:"rare",s:null},
+                    {n:"Lapse Blue",d:[42,57],e:32,r:"rare",s:null},
+                    {n:"Nue",d:[50,65],e:30,r:"epic",s:"pierce"},
+                    {n:"Reversal Red",d:[60,70],e:40,r:"epic",s:null},
+                    {n:"Cleave",d:[70,120],e:55,r:"legendary",s:null},
+                    {n:"Hollow Purple",d:[100,270],e:65,r:"legendary",s:null},
+                    {n:"Molevolent Shrine",d:[100,220],e:70,r:"legendary",s:s("bleed", 0.8)},
+                    {n:"Reverse Curse Technique",d:[1,2],e:50,r:"mythic",s:"heal"},
+                    {n:"World Cutting Slash",d:[290,700],e:95,r:"mythic",s:s("bleed", 1)}
+                ]
+            },
+            mha: {
+                name: "My Hero Academia",
+                abilities: [
+                    {n:"Delaware Smash",d:[20,25],e:20,r:"common",s:null},
+                    {n:"Detroit Smash",d:[20,30],e:22,r:"common",s:null},
+                    {n:"Manchester Smash",d:[25,45],e:17,r:"uncommon",s:null},
+                    {n:"AP Shot",d:[35,65],e:20,r:"rare",s:s("burn", 0.5)},
+                    {n:"Recipro Burst",d:[50,85],e:35,r:"epic",s:null},
+                    {n:"Blackwhip",d:[90,110],e:48,r:"legendary",s:null},
+                    {n:"Ice Glacier",d:[90,110],e:60,r:"legendary",s:s("freeze", 0.7)},
+                    {n:"Stun Grenade",d:[40,90],e:40,r:"legendary",s:s("stun", 0.9)},
+                    {n:"120% Detroit Smash",d:[220,550],e:120,r:"mythic",s:s("stun", 0.9)},
+                ]
+            }
+        };
+
+        const weights = {common:50, uncommon:30, rare:10, epic:8, legendary:1.5, mythic:0.5};
+        const enemies = ["Bandit","Pirate","Marine","Devil Fruit User","Rouge Ninja","Admiral","Titan","Saiyan"]; // Corrected "Siayan" to "Saiyan"
+        
+        const bosses = {
+  "10": { "name": "Yamcha", "hp": 500 },
+  "20": { "name": "Nobara", "hp": 1500 },
+  "30": { "name": "Rock Lee", "hp": 3000 },
+  "40": { "name": "Light Yagami", "hp": 5000 },
+  "50": { "name": "Tanjiro", "hp": 10000 },
+  "60": { "name": "Itadori", "hp": 25000 },
+  "70": { "name": "Bakugo", "hp": 50000 },
+  "80": { "name": "Izuku", "hp": 75000 },
+  "90": { "name": "Gon", "hp": 100000 },
+  "100": { "name": "Killua", "hp": 150000 },
+  "110": { "name": "Mob Psycho", "hp": 250000 },
+  "120": { "name": "Ichigo", "hp": 500000 },
+  "130": { "name": "Kakashi", "hp": 750000 },
+  "140": { "name": "Levi Ackerman", "hp": 1000000 },
+  "150": { "name": "Zoro", "hp": 2500000 },
+  "160": { "name": "Sasuke", "hp": 5000000 },
+  "170": { "name": "Naruto", "hp": 7500000 },
+  "180": { "name": "Luffy", "hp": 10000000 },
+  "190": { "name": "Sung Jinwoo", "hp": 15000000 },
+  "200": { "name": "Saitama", "hp": 25000000 },
+  "210": { "name": "Vegeta", "hp": 50000000 },
+  "220": { "name": "Gohan", "hp": 75000000 },
+  "230": { "name": "Goku", "hp": 100000000 },
+  "240": { "name": "Gojo", "hp": 250000000 }
+};
+
+        const achievementsList = {
+            firstWin: { name: "First Victory", desc: "Win your first battle", unlocked: false },
+            legendary: { name: "One Step Closer", desc: "Roll a legendary ability", unlocked: false },
+            mythic: { name: "777", desc: "Roll a mythic ability", unlocked: false },
+            streak10: { name: "Win Streak Master", desc: "Win 10 battles in a row", unlocked: false },
+            boss: { name: "Really?", desc: "Defeat Yamcha", unlocked: false },
+            collector: { name: "Collector", desc: "Own 50 abilities", unlocked: false },
+            level50: { name: "King Of Curses", desc: "Defeat Itadori", unlocked: false }, // Corrected typo
+            level100: { name: "???%", desc: "Defeat Mob", unlocked: false }, // Corrected typo
+            level150: { name: "Pirate King", desc: "Defeat Luffy", unlocked: false }, // Corrected typo
+            level200: { name: "Solo Leveler", desc: "Defeat Sung Jinwoo", unlocked: false }, // Corrected typo
+            level250: { name: "Super Saiyan", desc: "Defeat Goku", unlocked: false }, // Corrected typo
+            roller: { name: "Gambling Addict", desc: "Roll 100 times", unlocked: false }
+        };
+
+        function init() {
+            game.abilities.push({id:0,n:"Charge",d:[0,0],e:-30,r:"starter",s:"charge",equipped:true,a:"Basic"});
+            game.equipped.push(game.abilities[0]);
+            createAbilityBanners();
+            createFormBanners();
+            loadGame();
+            game.baseMaxHp = game.maxHp;
+            game.baseMaxEnergy = game.maxEnergy;
+            update();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function switchBannerTab(tabName) {
+            document.querySelectorAll('.sub-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sub-tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[onclick="switchBannerTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-banners`).classList.add('active');
+        }
+
+        function getSpecialText(special) {
+            if (!special) return "";
+            if (typeof special === 'string') return ` (${special})`;
+            if (typeof special === 'object' && special.type && special.chance) {
+                return ` (${special.type} ${Math.round(special.chance * 100)}%)`;
+            }
+            return "";
+        }
+
+        // Helper to format form effects for display
+        function getFormEffectsText(form) {
+            let effectsTextArr = [];
+            if (form.eff.hp) effectsTextArr.push(`+${form.eff.hp*100}% HP`);
+            if (form.eff.en) effectsTextArr.push(`+${form.eff.en*100}% EN`);
+            if (form.eff.dmg) effectsTextArr.push(`+${form.eff.dmg*100}% DMG`);
+            if (form.eff.dodge) effectsTextArr.push(`${form.eff.dodge*100}% Dodge`);
+            if (form.eff.regen) effectsTextArr.push(`Regen`);
+            if (form.eff.leech) effectsTextArr.push(`Leech`);
+            if (form.eff.shield_add) effectsTextArr.push(`Shield +${form.eff.shield_add}`);
+            if (form.eff.burn_self_dmg) effectsTextArr.push(`Self Burn -${form.eff.burn_self_dmg*100}% HP/turn`);
+            if (form.eff.stun_on_activate) effectsTextArr.push(`Stun Enemy on Activate`);
+            if (form.eff.stun_chance) effectsTextArr.push(`${form.eff.stun_chance*100}% Stun Chance`);
+            if (form.eff.haste_duration) effectsTextArr.push(`Haste (${form.eff.haste_duration} turns)`);
+            if (form.eff.reflect) effectsTextArr.push(`${form.eff.reflect*100}% Reflect`);
+            if (form.eff.full_heal) effectsTextArr.push(`Full Heal`);
+            if (form.eff.debuff_clear) effectsTextArr.push(`Clear Debuffs`);
+            if (form.eff.infinite_energy) effectsTextArr.push(`Infinite Energy`);
+            if (form.eff.energy_gain_per_turn) effectsTextArr.push(`+${form.eff.energy_gain_per_turn} EN/turn`);
+            if (form.eff.crit_chance) effectsTextArr.push(`${form.eff.crit_chance*100}% Crit Chance`);
+            if (form.eff.burn_chance) effectsTextArr.push(`${form.eff.burn_chance*100}% Burn Chance`);
+            if (form.eff.freeze_chance) effectsTextArr.push(`${form.eff.freeze_chance*100}% Freeze Chance`);
+            if (form.eff.pierce_dmg_bonus) effectsTextArr.push(`Pierce +${form.eff.pierce_dmg_bonus} bonus damage`);
+            if (form.eff.armor_break_chance) effectsTextArr.push(`${form.eff.armor_break_chance*100}% Armor Break Chance`);
+            if (form.eff.self_damage_per_turn) effectsTextArr.push(`Self Dmg -${form.eff.self_damage_per_turn*100}% HP/turn`);
+            if (form.eff.heal_on_activate) effectsTextArr.push(`Heal on Activate`);
+            if (form.eff.extra_turn_chance) effectsTextArr.push(`${form.eff.extra_turn_chance*100}% Extra Turn`);
+            // New form effects display
+            if (form.eff.crit_boost) effectsTextArr.push(`Crit Boost +${form.eff.crit_boost*100}%`);
+            if (form.eff.invulnerable_turns) effectsTextArr.push(`Invulnerable (${form.eff.invulnerable_turns} turn${form.eff.invulnerable_turns > 1 ? 's' : ''})`);
+            if (form.eff.damage_reflect_turns) effectsTextArr.push(`Reflect Dmg (${form.eff.damage_reflect_turns} turn${form.eff.damage_reflect_turns > 1 ? 's' : ''})`);
+            if (form.eff.initial_enemy_burn) effectsTextArr.push(`Burn Enemy on Activate`);
+
+            return effectsTextArr.length > 0 ? effectsTextArr.join(', ') : 'No Special Effects';
+        }
+
+        function createAbilityBanners() {
+            const bannersDiv = document.getElementById('ability-banners-list');
+            bannersDiv.innerHTML = '';
+            
+            Object.entries(packs).forEach(([key, pack]) => {
+                const banner = document.createElement('div');
+                banner.className = 'banner';
+                
+                banner.innerHTML = `
+                    <div class="banner-header">
+                        <div class="banner-title">${pack.name}</div>
+                        <div class="banner-rolls">
+                            <button onclick="rollFromAbilityBanner('${key}', 1)" class="roll-1x" ${game.rolls < 1 ? 'disabled' : ''}>1x Roll</button>
+                            <button onclick="rollFromAbilityBanner('${key}', 10)" class="roll-10x" ${game.rolls < 10 ? 'disabled' : ''}>10x Roll</button>
+                        </div>
+                    </div>
+                    <button onclick="togglePreview('ability-${key}')" style="width: 100%; margin-bottom: 10px;">View All</button>
+                    <div class="banner-preview" id="preview-ability-${key}">
+                        <div class="preview-grid">
+                            ${pack.abilities.map(ability => 
+                                `<div class="ability ${ability.r}">
+                                    <strong>${ability.n}</strong> [${ability.r.toUpperCase()}]<br>
+                                    ${ability.d[0]}-${ability.d[1]} dmg | ${ability.e}e${getSpecialText(ability.s)}
+                                </div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+                bannersDiv.appendChild(banner);
+            });
+        }
+
+        function createFormBanners() {
+            const bannersDiv = document.getElementById('form-banners-list');
+            bannersDiv.innerHTML = '';
+            
+            Object.entries(formPacks).forEach(([key, pack]) => {
+                const banner = document.createElement('div');
+                banner.className = 'banner';
+                
+                banner.innerHTML = `
+                    <div class="banner-header">
+                        <div class="banner-title">${pack.name}</div>
+                        <div class="banner-rolls">
+                            <button onclick="rollFromFormBanner('${key}', 1)" class="roll-1x" ${game.rolls < 1 ? 'disabled' : ''}>1x Roll</button>
+                            <button onclick="rollFromFormBanner('${key}', 10)" class="roll-10x" ${game.rolls < 10 ? 'disabled' : ''}>10x Roll</button>
+                        </div>
+                    </div>
+                    <button onclick="togglePreview('form-${key}')" style="width: 100%; margin-bottom: 10px;">View All</button>
+                    <div class="banner-preview" id="preview-form-${key}">
+                        <div class="preview-grid">
+                            ${pack.forms.map(form => {
+                                const formattedEffectsPreview = getFormEffectsText(form);
+                                return `
+                                    <div class="form-card ${form.r}">
+                                        <strong>${form.n}</strong> [${form.r.toUpperCase()}]<br>
+                                        <small>${formattedEffectsPreview}</small>
+                                    </div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+                bannersDiv.appendChild(banner);
+            });
+        }
+
+        function togglePreview(key) {
+            const preview = document.getElementById(`preview-${key}`);
+            preview.classList.toggle('show');
+        }
+
+        function rollFromAbilityBanner(bannerKey, count) {
+            if (game.rolls < count) return;
+            
+            game.rolls -= count;
+            game.totalRolls += count;
+            
+            const pack = packs[bannerKey];
+            const results = [];
+            
+            for (let i = 0; i < count; i++) {
+                const total = Object.values(weights).reduce((a,b) => a+b, 0);
+                let rand = Math.random() * total;
+                let rarity = "common";
+                
+                for (const [r, w] of Object.entries(weights)) {
+                    rand -= w;
+                    if (rand <= 0) { rarity = r; break; }
+                }
+
+                const available = pack.abilities.filter(a => a.r === rarity);
+                const template = available[Math.floor(Math.random() * available.length)];
+                
+                const ability = {
+                    id: Date.now() + i + Math.random(),
+                    n: template.n, d: template.d, e: template.e,
+                    r: template.r, s: template.s, equipped: false, a: pack.name
+                };
+                
+                game.abilities.push(ability);
+                results.push(ability);
+                
+                if (rarity === "legendary") checkAchievement("legendary");
+                if (rarity === "mythic") checkAchievement("mythic");
+            }
+            
+            if (game.abilities.length >= 50) checkAchievement("collector");
+            if (game.totalRolls >= 100) checkAchievement("roller");
+            
+            showRollResults(results, count);
+            update();
+        }
+
+        function rollFromFormBanner(bannerKey, count) {
+            if (game.rolls < count) return;
+
+            game.rolls -= count;
+            game.totalRolls += count;
+
+            const pack = formPacks[bannerKey];
+            const results = [];
+
+            for (let i = 0; i < count; i++) {
+                const total = Object.values(weights).reduce((a, b) => a + b, 0);
+                let rand = Math.random() * total;
+                let rarity = "common";
+
+                for (const [r, w] of Object.entries(weights)) {
+                    rand -= w;
+                    if (rand <= 0) { rarity = r; break; }
+                }
+
+                const availableForms = pack.forms.filter(f => f.r === rarity);
+                if (availableForms.length > 0) {
+                    const formTemplate = availableForms[Math.floor(Math.random() * availableForms.length)];
+                    const form = { ...formTemplate };
+                    // Check if form already exists, if so, skip adding to game.forms but still show in results
+                    if (!game.forms.find(f => f.id === form.id)) {
+                        game.forms.push(form);
+                    }
+                    results.push(form);
+                } else {
+                    log(`No ${rarity} form available in this banner. Refunding roll.`);
+                    game.rolls++; // Refund roll if no form of that rarity exists
+                }
+            }
+            showRollResults(results, count);
+            update();
+        }
+
+
+        function showRollResults(results, count) {
+            const popup = document.getElementById('rollPopup');
+            const title = document.getElementById('rollTitle');
+            const resultsDiv = document.getElementById('rollResults');
+            
+            title.textContent = count === 1 ? '🎲 Single Roll Result!' : `🎲 ${count}x Roll Results!`;
+            resultsDiv.innerHTML = '';
+            
+            results.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `roll-item ${item.r}`;
+                
+                if (item.d) { // It's an ability
+                    const energyText = ` | ${item.e}e`;
+                    const damageText = `${item.d[0]}-${item.d[1]} dmg`;
+                    div.innerHTML = `
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">${item.n}</div>
+                        <div style="color: #aaa; margin-bottom: 5px;">[${item.r.toUpperCase()}]</div>
+                        <div style="font-size: 14px;">${damageText}${energyText}</div>
+                        <div style="font-size: 12px; color: #ffa500;">${getSpecialText(item.s)}</div>
+                        <div style="font-size: 11px; color: #888; margin-top: 5px;">${item.a}</div>`;
+                } else { // It's a form
+                    const formattedEffects = getFormEffectsText(item);
+                     div.innerHTML = `
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">FORM: ${item.n}</div>
+                        <div style="color: #aaa; margin-bottom: 5px;">[${item.r.toUpperCase()}]</div>
+                        <div style="font-size: 12px; color: #ffa500;">${formattedEffects}</div>`;
+                }
+                resultsDiv.appendChild(div);
+            });
+            
+            popup.classList.add('show');
+        }
+
+        function closeRollPopup() {
+            document.getElementById('rollPopup').classList.remove('show');
+        }
+
+        function toggleEquip(name, rarity) {
+            const equippedAbility = game.equipped.find(a => a.n === name && a.r === rarity);
+
+            if (equippedAbility) {
+                if (equippedAbility.n === "Charge") {
+                    log("❌ Cannot unequip Charge!");
+                    return;
+                }
+                equippedAbility.equipped = false;
+                game.equipped = game.equipped.filter(a => a.id !== equippedAbility.id);
+            } else {
+                if (game.equipped.length >= 4) {
+                    log("❌ Max 4 abilities!");
+                    return;
+                }
+                const abilityToEquip = game.abilities.find(a => a.n === name && a.r === rarity && !a.equipped);
+                if (abilityToEquip) {
+                    abilityToEquip.equipped = true;
+                    game.equipped.push(abilityToEquip);
+                }
+            }
+            update();
+        }
+
+        function equipForm(formId) {
+            if (game.equippedForm && game.equippedForm.id === formId) {
+                game.equippedForm = null;
+            } else {
+                game.equippedForm = game.forms.find(f => f.id === formId) || null;
+            }
+            update();
+        }
+
+        function use(id) {
+            if (!game.inBattle || !game.turn) return;
+            
+            const ability = game.equipped.find(a => a.id === id);
+            if (!ability) return;
+            
+            if (ability.n === "Charge") {
+                game.energy = Math.min(game.maxEnergy, game.energy + 30); // Reverted energy gain for Charge
+                log("Charged energy!");
+                endTurn();
+                return;
+            }
+            
+            if (game.energy < ability.e) {
+                log("Not enough energy!");
+                return;
+            }
+            
+            game.energy -= ability.e;
+            let baseDmg = Math.floor(Math.random() * (ability.d[1] - ability.d[0] + 1)) + ability.d[0];
+            let dmg = Math.floor(baseDmg * game.damageBonus);
+
+            // Apply active form damage boost
+            if (game.activeForm) {
+                dmg = Math.floor(dmg * (1 + (game.activeForm.eff.dmg || 0)));
+                if (game.activeForm.eff.stun_chance && Math.random() < game.activeForm.eff.stun_chance) {
+                    applyEffect('stun', 'enemy');
+                }
+            }
+            
+            // Apply crit boost from form
+            if (game.playerEffects.crit_boost > 0 && Math.random() < (game.activeForm?.eff.crit_boost || 0)) {
+                dmg = Math.floor(dmg * 1.5); // 50% critical damage bonus
+                log("💥 Critical Hit!");
+            }
+
+            if (game.enemyEffects['armor-break']) {
+                dmg = Math.floor(dmg * 1.5);
+                log("🛡️ Armor Break! Increased damage!");
+            }
+            
+            let damageDealt = dealDamage(dmg, 'enemy');
+            log(`⚔️ ${ability.n} deals ${damageDealt} damage!`);
+            
+            if (ability.s) {
+                const effectType = typeof ability.s === 'string' ? ability.s : ability.s.type;
+                const effectChance = typeof ability.s === 'object' ? ability.s.chance : 1;
+                if (Math.random() < effectChance) {
+                    applyEffect(effectType, "enemy", damageDealt);
+                } else if (typeof ability.s === 'object') {
+                    log(`💨 ${effectType} effect failed to apply!`);
+                }
+            }
+            
+            if (game.enemyHp <= 0) { victory(); return; }
+            
+            if (game.playerEffects.haste > 0 && Math.random() < 0.5) { 
+                log("⚡ Haste allows another action!");
+                game.playerEffects.haste--; 
+                update();
+            } else if (game.activeForm && game.activeForm.eff.extra_turn_chance && Math.random() < game.activeForm.eff.extra_turn_chance) {
+                log("✨ Extra Turn! Your form grants another action!");
+                update();
+            }
+            else {
+                endTurn();
+            }
+        }
+
+        function activateForm() {
+            if (!game.equippedForm || game.activeForm || !game.inBattle) return;
+            if (game.energy < game.equippedForm.cost) {
+                log("Not enough energy to transform!");
+                return;
+            }
+            
+            game.energy -= game.equippedForm.cost;
+            game.activeForm = { ...game.equippedForm, turnsLeft: game.equippedForm.dur };
+            
+            const hpBoost = Math.floor(game.baseMaxHp * (game.activeForm.eff.hp || 0));
+            const enBoost = Math.floor(game.baseMaxEnergy * (game.activeForm.eff.en || 0));
+            
+            game.maxHp = game.baseMaxHp + hpBoost;
+            game.maxEnergy = game.baseMaxEnergy + enBoost;
+            game.hp = Math.min(game.maxHp, game.hp + hpBoost); 
+            game.energy = Math.min(game.maxEnergy, game.energy + enBoost);
+
+            // Log messages for transformations
+            switch (game.activeForm.n) {
+                case "Kaio-ken": log("🔴 Your body surges with power as you activate Kaio-ken!"); break;
+                case "Super Saiyan Blue": log("🔵 Your power reaches divine levels with Super Saiyan Blue!"); break;
+                case "Ultra Instinct": log("⚪ Your movements become instinctual, dodging all attacks!"); break;
+                case "Gear Five": log("⚪ You awaken the Sun God Nika, turning imagination into reality!"); break;
+                case "Sukuna": log("🔥 The King of Curses manifests! Prepare to suffer!"); break;
+                case "Star Platinum: The World": log("⏳ Time itself stops as Star Platinum appears!"); break;
+                default: log(`TRANSFORMATION! You transformed into ${game.activeForm.n}!`);
+            }
+
+            // Handle immediate effects on activation
+            if (game.activeForm.eff.stun_on_activate) {
+                applyEffect('stun', 'enemy');
+            }
+            if (game.activeForm.eff.shield_add) {
+                game.playerShield += game.activeForm.eff.shield_add;
+                log(`🛡️ You gained a shield of ${game.activeForm.eff.shield_add}!`);
+            }
+            if (game.activeForm.eff.full_heal) {
+                game.hp = game.maxHp;
+                log("💖 Your form fully healed you!");
+            }
+            if (game.activeForm.eff.debuff_clear) {
+                game.playerEffects = {}; 
+                log("✨ All your debuffs were cleared!");
+            }
+            if (game.activeForm.eff.heal_on_activate) {
+                game.hp = Math.min(game.maxHp, game.hp + Math.floor(game.maxHp * 0.5)); 
+                log("💚 Your form healed you!");
+            }
+
+            // New: Apply temporary crit boost
+            if (game.activeForm.eff.crit_boost) {
+                game.playerEffects.crit_boost = game.activeForm.dur; // Duration equals form duration
+                log(`✨ You gain a critical hit boost for ${game.playerEffects.crit_boost} turns!`);
+            }
+
+            // New: Apply temporary invulnerability
+            if (game.activeForm.eff.invulnerable_turns) {
+                game.playerEffects.invulnerable = game.activeForm.eff.invulnerable_turns;
+                log(`🛡️ You are invulnerable for ${game.playerEffects.invulnerable} turn(s)!`);
+            }
+
+            // New: Apply temporary damage reflection
+            if (game.activeForm.eff.damage_reflect_turns) {
+                game.playerEffects.reflect = game.activeForm.eff.damage_reflect_turns; // Reuse 'reflect' effect type
+                log(`🔄 You reflect damage for ${game.playerEffects.reflect} turn(s)!`);
+            }
+
+            // New: Apply initial burn to enemy
+            if (game.activeForm.eff.initial_enemy_burn) {
+                applyEffect('burn', 'enemy');
+                log(`🔥 Enemy is immediately burned by your transformation!`);
+            }
+
+            update();
+        }
+
+        function deactivateForm() {
+            if (!game.activeForm) return;
+            log(`${game.activeForm.n} has worn off!`);
+            game.maxHp = game.baseMaxHp;
+            game.maxEnergy = game.baseMaxEnergy;
+            if (game.hp > game.maxHp) game.hp = game.maxHp;
+            if (game.energy > game.maxEnergy) game.energy = game.maxEnergy;
+            
+            // Clear specific form-related temporary effects when form deactivates
+            if (game.playerEffects.crit_boost && game.activeForm.eff.crit_boost) delete game.playerEffects.crit_boost;
+            if (game.playerEffects.invulnerable && game.activeForm.eff.invulnerable_turns) delete game.playerEffects.invulnerable;
+            if (game.playerEffects.reflect && game.activeForm.eff.damage_reflect_turns) { // only remove if it's from this form
+                 delete game.playerEffects.reflect;
+            }
+
+            game.activeForm = null;
+            update();
+        }
+
+        function dealDamage(amount, target) {
+            let actualDamage = amount;
+            if (target === 'player') {
+                // If player is invulnerable, take no damage
+                if (game.playerEffects.invulnerable > 0) {
+                    log("🚫 You are invulnerable! No damage taken!");
+                    return 0; 
+                }
+                if (game.playerShield > 0) {
+                    const shieldDmg = Math.min(game.playerShield, actualDamage);
+                    game.playerShield -= shieldDmg;
+                    actualDamage -= shieldDmg;
+                    log(`🛡️ Your shield absorbed ${shieldDmg} damage!`);
+                }
+                game.hp = Math.max(0, game.hp - actualDamage);
+            } else {
+                if (game.enemyShield > 0) {
+                    const shieldDmg = Math.min(game.enemyShield, actualDamage);
+                    game.enemyShield -= shieldDmg;
+                    actualDamage -= shieldDmg;
+                    log(`🛡️ Enemy shield absorbed ${shieldDmg} damage!`);
+                }
+                game.enemyHp = Math.max(0, game.enemyHp - actualDamage);
+            }
+            return amount; // Return original amount for logging/leech purposes
+        }
+
+        function applyEffect(effect, target, damageDealt = 0) {
+            const isPlayer = target === "player";
+            const effects = isPlayer ? game.playerEffects : game.enemyEffects;
+            const targetName = isPlayer ? "You are" : "Enemy is";
+            
+            switch (effect) {
+                case "burn": effects.burn = (effects.burn || 0) + 3; log(`🔥 ${targetName} burning!`); break;
+                case "freeze": effects.freeze = (effects.freeze || 0) + 1; log(`🧊 ${targetName} frozen!`); break;
+                case "stun": effects.stun = (effects.stun || 0) + 1; log(`⚡ ${targetName} stunned!`); break;
+                case "bleed": effects.bleed = (effects.bleed || 0) + 4; log(`🩸 ${targetName} bleeding!`); break;
+                case "poison": effects.poison = (effects.poison || 0) + 3; log(`☠️ ${targetName} poisoned!`); break;
+                case "weaken": effects.weaken = (effects.weaken || 0) + 3; log(`💪 ${targetName} weakened!`); break;
+                case "armor-break": effects['armor-break'] = (effects['armor-break'] || 0) + 2; log(`🛡️ ${targetName} armor broken!`); break;
+                case "confusion": effects.confusion = (effects.confusion || 0) + 1; log(`😵 ${targetName} confused!`); break;
+                case "shield": 
+                    if(isPlayer) game.playerShield += 50; else game.enemyShield += 50;
+                    log(`🛡️ ${targetName} shielded!`); break;
+                case "regen": effects.regen = (effects.regen || 0) + 3; log(`💚 ${targetName} regenerating!`); break;
+                case "reflect": effects.reflect = (effects.reflect || 0) + 2; log(`🔄 ${targetName} reflecting damage!`); break;
+                case "haste": effects.haste = (effects.haste || 0) + 2; log(`⚡ ${targetName} hasted!`); break;
+                case "leech":
+                    const healed = Math.floor(damageDealt * 0.25);
+                    game.hp = Math.min(game.maxHp, game.hp + healed);
+                    log(`🧛 You leeched ${healed} HP!`);
+                    break;
+                case "energy-drain":
+                    const drained = 20;
+                    // This logic for enemy energy needs a more robust system if enemies had energy
+                    game.energy = Math.min(game.maxEnergy, game.energy + drained);
+                    log(`🔋 You drained ${drained} energy!`);
+                    break;
+                case "pierce": if (!isPlayer) { dealDamage(20, 'enemy'); log("Pierce! +20 bonus damage!"); } break;
+                case "heal": if (isPlayer) { game.hp = game.maxHp; log("You healed to full!"); } break;
+                case "speed": if (isPlayer) { effects.speed = (effects.speed || 0) + 2; log("Speed boost active!"); } break;
+            }
+        }
+
+        function endTurn() {
+            if (game.activeForm) {
+                game.activeForm.turnsLeft--;
+                if (game.activeForm.eff.burn_self_dmg) {
+                    const selfDmg = Math.floor(game.maxHp * game.activeForm.eff.burn_self_dmg);
+                    dealDamage(selfDmg, 'player');
+                    log(`🔥 Your form is hurting you for ${selfDmg} HP!`);
+                }
+                if (game.activeForm.eff.energy_gain_per_turn) {
+                    game.energy = Math.min(game.maxEnergy, game.energy + game.activeForm.eff.energy_gain_per_turn);
+                    log(`⚡ Your form generated ${game.activeForm.eff.energy_gain_per_turn} energy!`);
+                }
+                if (game.activeForm.turnsLeft <= 0) {
+                    deactivateForm();
+                }
+            }
+            game.turn = false;
+            setTimeout(enemyTurn, 1000);
+            update();
+        }
+
+        function enemyTurn() {
+            if (!game.inBattle) return;
+            
+            if (game.enemyEffects.stun > 0 || game.enemyEffects.freeze > 0) {
+                log("Enemy is stunned and cannot act!");
+                game.turn = true;
+                processEffects();
+                update();
+                return;
+            }
+
+            if (game.enemyEffects.confusion > 0 && Math.random() < 0.5) {
+                log("😵 Enemy is confused and hits itself!");
+                dealDamage(30, 'enemy');
+                game.turn = true;
+                processEffects();
+                update();
+                return;
+            }
+
+            // Check if player form grants dodge (e.g., Ultra Instinct)
+            if (game.activeForm && game.activeForm.eff.dodge && Math.random() < game.activeForm.eff.dodge) {
+                log("✨ You dodged the attack!");
+                game.turn = true;
+                processEffects();
+                update();
+                return;
+            }
+            
+            let dmg = Math.floor(Math.random() * 25) + (game.enemyLv * 6);
+            if (bosses[game.enemyLv]) {
+                dmg += 20;
+                if (Math.random() < 0.4) {
+                    log(`💀 ${game.enemyName} uses special attack!`);
+                    dmg *= 1.8;
+                }
+            }
+            if (game.enemyEffects.weaken > 0) {
+                dmg = Math.floor(dmg * 0.5);
+                log("💪 Enemy is weakened! Reduced damage!");
+            }
+            
+            // Check for player's haste effect for potential dodge chance
+            if (game.playerEffects.haste > 0 && Math.random() < 0.2) { 
+                log("💨 Haste dodge!");
+                game.turn = true;
+                processEffects();
+                update();
+                return;
+            }
+
+            // Check for player's reflect effect (from abilities or forms)
+            if (game.playerEffects.reflect > 0) {
+                const reflectDmg = Math.floor(dmg * 0.5); // Reflect 50% of incoming damage
+                log(`🔄 You reflect ${reflectDmg} damage back at the enemy!`);
+                dealDamage(reflectDmg, 'enemy');
+            }
+            
+            dealDamage(dmg, 'player');
+            log(`👹 ${game.enemyName} attacks for ${dmg} damage!`);
+            
+            if (game.hp <= 0) { gameOver(); return; }
+            if (game.enemyHp <= 0) { victory(); return; }
+            
+            game.turn = true;
+            processEffects();
+            update();
+        }
+
+        function processEffects() {
+            for (const effect in game.playerEffects) {
+                if (game.playerEffects[effect] > 0) {
+                    switch(effect) {
+                        case "burn": dealDamage(8, 'player'); log("🔥 You take burn damage!"); break;
+                        case "bleed": dealDamage(5, 'player'); log("🩸 You take bleed damage!"); break;
+                        case "poison": dealDamage(6, 'player'); log("☠️ You take poison damage!"); break;
+                        case "regen": game.hp = Math.min(game.maxHp, game.hp + 10); log("💚 You regenerate health!"); break;
+                    }
+                    game.playerEffects[effect]--; // Decrement duration
+                }
+                if (game.playerEffects[effect] <= 0) delete game.playerEffects[effect];
+            }
+            
+            for (const effect in game.enemyEffects) {
+                if (game.enemyEffects[effect] > 0) {
+                     switch(effect) {
+                        case "burn": dealDamage(8, 'enemy'); log("🔥 Enemy takes burn damage!"); break;
+                        case "bleed": dealDamage(5, 'enemy'); log("🩸 Enemy takes bleed damage!"); break;
+                        case "poison": dealDamage(6, 'enemy'); log("☠️ Enemy takes poison damage!"); break;
+                        case "regen": game.enemyHp = Math.min(game.enemyMaxHp, game.enemyHp + 10); log("💚 Enemy regenerates health!"); break;
+                    }
+                    game.enemyEffects[effect]--; // Decrement duration
+                }
+                 if (game.enemyEffects[effect] <= 0) delete game.enemyEffects[effect];
+            }
+
+            if (game.hp <= 0) gameOver();
+            else if (game.enemyHp <= 0) victory();
+        }
+
+        function startBattle() {
+            game.inBattle = true;
+            game.turn = true;
+            game.playerEffects = {};
+            game.enemyEffects = {};
+            game.playerShield = 0;
+            game.enemyShield = 0;
+            game.hp = game.maxHp;
+            game.energy = game.maxEnergy;
+            
+            if (bosses[game.enemyLv]) {
+                const boss = bosses[game.enemyLv];
+                game.enemyName = boss.name;
+                game.enemyMaxHp = boss.hp;
+                document.getElementById("enemyTitle").className = "boss-enemy";
+            } else {
+                game.enemyName = enemies[Math.min(game.enemyLv - 1, enemies.length - 1)];
+                game.enemyMaxHp = 50 + (game.enemyLv * 30);
+                document.getElementById("enemyTitle").className = "";
+            }
+            
+            game.enemyHp = game.enemyMaxHp;
+            document.getElementById("battleBtn").style.display = "none";
+            log(`⚔️ Battle vs ${game.enemyName}!`);
+            update();
+        }
+
+        function victory() {
+            game.inBattle = false;
+            if (game.activeForm) deactivateForm();
+            const isBoss = bosses[game.enemyLv];
+            
+            if (isBoss) {
+                game.level += 1;
+                game.rolls += 9;
+                game.bossesDefeated++;
+                log(`Boss Defeated! +1 levels, +10 rolls!`);
+                checkAchievement("boss");
+            } else {
+                game.level++;
+                game.rolls++;
+                log(`Victory! Level ${game.level}!`);
+            }
+            
+            game.statPoints += 3;
+            log(`✨ You gained 3 stat points!`);
+
+            game.hp = game.maxHp;
+            game.energy = game.maxEnergy;
+            game.winStreak++;
+            game.totalWins++;
+            
+            if (game.winStreak > game.bestStreak) game.bestStreak = game.winStreak;
+            
+            game.enemyLv++;
+            
+            if (game.totalWins === 1) checkAchievement("firstWin");
+            if (game.winStreak >= 10) checkAchievement("streak10");
+            
+            document.getElementById("battleBtn").style.display = "block";
+            update();
+        }
+
+        function gameOver() {
+            game.inBattle = false;
+            if (game.activeForm) deactivateForm();
+            game.winStreak = 0;
+            log("💀 Game Over! Win streak reset!");
+            document.getElementById("battleBtn").textContent = "Restart";
+            document.getElementById("battleBtn").onclick = restart;
+            document.getElementById("battleBtn").style.display = "block";
+            update();
+        }
+
+        function restart() {
+            const best = game.bestStreak;
+            game = {
+                level: 1, hp: 100, maxHp: 100, energy: 50, maxEnergy: 50, rolls: 10,
+                abilities: [], equipped: [], inBattle: false,
+                enemyLv: 1, enemyHp: 50, enemyMaxHp: 50, enemyName: "Bandit",
+                turn: true, playerEffects: {}, enemyEffects: {},
+                achievements: {}, winStreak: 0, bestStreak: best, totalWins: 0,
+                bossesDefeated: 0, totalRolls: 0,
+                statPoints: 0, damageBonus: 1,
+                playerShield: 0, enemyShield: 0,
+                forms: [], equippedForm: null, activeForm: null,
+                baseMaxHp: 100, baseMaxEnergy: 50
+            };
+            document.getElementById("battleBtn").textContent = "Start Battle";
+            document.getElementById("battleBtn").onclick = startBattle;
+            document.getElementById("enemyTitle").className = "";
+            document.getElementById("log").innerHTML = "";
+            init();
+        }
+
+        function checkAchievement(id) {
+            if (game.achievements[id] || !achievementsList[id]) return;
+            
+            game.achievements[id] = true;
+            log(`🏆 Achievement Unlocked: ${achievementsList[id].name}!`);
+            
+            // Grant rewards for achievements
+            switch (id) {
+                case "firstWin": game.rolls += 9; break;
+                case "legendary": game.maxHp += 50; game.hp = game.maxHp; break;
+                case "mythic": game.maxHp += 100; game.maxEnergy += 25; game.hp = game.maxHp; game.energy = game.maxEnergy; break;
+                case "streak10": game.rolls += 9; break;
+                case "boss": game.rolls += 9; break;
+                case "collector": game.rolls += 10; break;
+                case "level50": game.rolls += 50; break;
+                case "level100": game.rolls += 50; break;
+                case "level150": game.rolls += 50; break;
+                case "level200": game.rolls += 50; break;
+                case "level250": game.rolls += 50; break;
+                case "roller": game.rolls += 10; break;
+            }
+            
+            update();
+        }
+
+        function invest(stat) {
+            if (game.statPoints <= 0) {
+                log("❌ No stat points available!");
+                return;
+            }
+
+            game.statPoints--;
+            switch(stat) {
+                case 'hp':
+                    game.baseMaxHp = Math.floor(game.baseMaxHp * 1.25);
+                    game.maxHp = game.baseMaxHp;
+                    game.hp = game.maxHp;
+                    log(`❤️ Max HP increased to ${game.maxHp}!`);
+                    break;
+                case 'energy':
+                    game.baseMaxEnergy = Math.floor(game.baseMaxEnergy * 1.25);
+                    game.maxEnergy = game.baseMaxEnergy;
+                    game.energy = game.maxEnergy;
+                    log(`⚡ Max Energy increased to ${game.maxEnergy}!`);
+                    break;
+                case 'damage':
+                    game.damageBonus += 0.05;
+                    log(`💥 Damage bonus increased to ${Math.round(game.damageBonus * 100)}%!`);
+                    break;
+            }
+            update();
+        }
+
+        function saveGame() {
+            localStorage.setItem('animeRPG', JSON.stringify(game));
+            log("💾 Game saved!");
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('animeRPG');
+            if (saved) {
+                const loadedGame = JSON.parse(saved);
+                const defaults = {
+                    statPoints: 0, damageBonus: 1, playerShield: 0, enemyShield: 0,
+                    forms: [], equippedForm: null, activeForm: null,
+                    baseMaxHp: 100, baseMaxEnergy: 50
+                };
+                // Merge loaded game with defaults to ensure new properties are initialized
+                game = { ...game, ...defaults, ...loadedGame };
+                log("📁 Game loaded!");
+                createAbilityBanners();
+                createFormBanners();
+                update();
+            }
+        }
+
+        function update() {
+            document.getElementById("level").textContent = game.level;
+            document.getElementById("hp").textContent = game.hp;
+            document.getElementById("maxHp").textContent = game.maxHp;
+            document.getElementById("energy").textContent = game.energy;
+            document.getElementById("maxEnergy").textContent = game.maxEnergy;
+            document.getElementById("enemyLv").textContent = game.enemyLv;
+            document.getElementById("enemyName").textContent = game.enemyName;
+            document.getElementById("enemyHp").textContent = game.enemyHp;
+            document.getElementById("enemyMaxHp").textContent = game.enemyMaxHp;
+            document.getElementById("winStreak").textContent = game.winStreak;
+            
+            if (document.getElementById("rolls")) document.getElementById("rolls").textContent = game.rolls;
+            
+            createAbilityBanners(); // Recreate banners to update roll buttons disabled state
+            createFormBanners(); // Recreate form banners to update roll buttons disabled state
+            
+            document.getElementById("playerHpBar").style.width = (game.hp / game.maxHp * 100) + "%";
+            document.getElementById("playerEnergyBar").style.width = (game.energy / game.maxEnergy * 100) + "%";
+            document.getElementById("enemyHpBar").style.width = (game.enemyHp / game.enemyMaxHp * 100) + "%";
+            document.getElementById("playerHpText").textContent = `${game.hp}/${game.maxHp}`;
+            document.getElementById("playerEnergyText").textContent = `${game.energy}/${game.maxEnergy}`;
+            
+            // Render Abilities
+            const collection = document.getElementById("collection");
+            if (collection) {
+                collection.innerHTML = "";
+                const abilityGroups = {};
+                game.abilities.forEach(ability => {
+                    const key = ability.n + '|' + ability.r;
+                    if (!abilityGroups[key]) abilityGroups[key] = { template: ability, total: 0, equippedCount: 0 };
+                    abilityGroups[key].total++;
+                    if (ability.equipped) abilityGroups[key].equippedCount++;
+                });
+                Object.values(abilityGroups).forEach(group => {
+                    const ability = group.template;
+                    const div = document.createElement("div");
+                    div.className = `ability ${ability.r} ${group.equippedCount > 0 ? 'equipped' : ''}`;
+                    div.onclick = () => toggleEquip(ability.n, ability.r);
+                    const countText = group.total > 1 ? ` (x${group.total})` : "";
+                    div.innerHTML = `<strong>${ability.n}${countText}</strong> [${ability.r.toUpperCase()}]<br>
+                        ${ability.n === "Charge" ? "Restores Energy" : `${ability.d[0]}-${ability.d[1]}dmg | ${ability.e}e`}${getSpecialText(ability.s)}<br>
+                        <span class="anime">${ability.a}</span><br>
+                        <span style="color: #00aaff;">[${group.equippedCount}/${group.total} Equipped]</span>`;
+                    collection.appendChild(div);
+                });
+            }
+            
+            const equippedDisplay = document.getElementById("equipped-display");
+            if (equippedDisplay) {
+                equippedDisplay.innerHTML = "";
+                game.equipped.forEach(ability => {
+                    const div = document.createElement("div");
+                    div.className = `ability ${ability.r} equipped`;
+                    div.onclick = () => toggleEquip(ability.n, ability.r);
+                    div.innerHTML = `<strong>${ability.n}</strong> [${ability.r.toUpperCase()}]<br>
+                        ${ability.n === "Charge" ? "Restores Energy" : `${ability.d[0]}-${ability.d[1]}dmg | ${ability.e}e`}${getSpecialText(ability.s)}`;
+                    equippedDisplay.appendChild(div);
+                });
+            }
+            
+            // Render Forms
+            const formsCollection = document.getElementById("forms-collection");
+            if (formsCollection) {
+                formsCollection.innerHTML = "";
+                game.forms.forEach(form => {
+                    const div = document.createElement("div");
+                    const isEquipped = game.equippedForm && game.equippedForm.id === form.id;
+                    div.className = `form-card ${form.r} ${isEquipped ? 'equipped' : ''}`;
+                    div.onclick = () => equipForm(form.id);
+                    const formattedEffectsSmall = getFormEffectsText(form);
+                    div.innerHTML = `<strong>${form.n}</strong> [${form.r.toUpperCase()}]<br>
+                                     <small>${formattedEffectsSmall}</small>`;
+                    formsCollection.appendChild(div);
+                });
+            }
+
+            const equippedFormDisplay = document.getElementById("equipped-form-display");
+            if (equippedFormDisplay) {
+                equippedFormDisplay.innerHTML = "";
+                if (game.equippedForm) {
+                    const form = game.equippedForm;
+                    const div = document.createElement("div");
+                    div.className = `form-card ${form.r} equipped`;
+                    div.onclick = () => equipForm(form.id);
+                    const formattedEffectsSmall = getFormEffectsText(form);
+                    div.innerHTML = `<strong>${form.n}</strong> [${form.r.toUpperCase()}]<br>
+                                     <small>${formattedEffectsSmall}</small>`;
+                    equippedFormDisplay.appendChild(div);
+                }
+            }
+
+            // Render Battle Buttons
+            const equipped = document.getElementById("equipped");
+            if (equipped) {
+                equipped.innerHTML = "";
+                game.equipped.forEach(ability => {
+                    const btn = document.createElement("button");
+                    btn.textContent = ability.n === "Charge" ? `${ability.n}` : `${ability.n} (${ability.e}e)`;
+                    btn.onclick = () => use(ability.id);
+                    btn.disabled = !game.inBattle || !game.turn || (ability.n !== "Charge" && game.energy < ability.e);
+                    if (ability.n === "Charge") btn.className = "charge-btn";
+                    equipped.appendChild(btn);
+                });
+            }
+
+            const formActivation = document.getElementById("form-activation");
+            if (formActivation) {
+                formActivation.innerHTML = "";
+                if (game.equippedForm && game.inBattle) {
+                    const btn = document.createElement("button");
+                    btn.textContent = `Activate ${game.equippedForm.n} (${game.equippedForm.cost}e)`;
+                    btn.className = "form-btn";
+                    btn.onclick = activateForm;
+                    btn.disabled = !game.turn || !!game.activeForm || game.energy < game.equippedForm.cost;
+                    formActivation.appendChild(btn);
+                }
+            }
+            
+            // Render Stats Page
+            if (document.getElementById("statLevel")) {
+                document.getElementById("statLevel").textContent = game.level;
+                document.getElementById("statMaxHp").textContent = game.baseMaxHp;
+                document.getElementById("statMaxEnergy").textContent = game.baseMaxEnergy;
+                document.getElementById("statAbilities").textContent = game.abilities.length;
+                document.getElementById("statWins").textContent = game.totalWins;
+                document.getElementById("statBestStreak").textContent = game.bestStreak;
+                document.getElementById("statDamageBonus").textContent = `${Math.round(game.damageBonus * 100)}%`;
+                document.getElementById("statTotalRolls").textContent = game.totalRolls;
+                document.getElementById("statPoints").textContent = game.statPoints;
+                const disabled = game.statPoints <= 0;
+                document.getElementById("investHpBtn").disabled = disabled;
+                document.getElementById("investEnergyBtn").disabled = disabled;
+                document.getElementById("investDamageBtn").disabled = disabled;
+            }
+            
+            const achievementsDiv = document.getElementById("achievementsList");
+            if (achievementsDiv) {
+                achievementsDiv.innerHTML = "";
+                Object.entries(achievementsList).forEach(([id, achievement]) => {
+                    const div = document.createElement("div");
+                    div.className = `achievement ${game.achievements[id] ? 'unlocked' : ''}`;
+                    div.innerHTML = `<strong>${achievement.name}</strong><br>${achievement.desc}`;
+                    achievementsDiv.appendChild(div);
+                });
+            }
+            
+            updateStatus();
+        }
+
+        function updateStatus() {
+            const playerStatus = document.getElementById("playerStatus");
+            const enemyStatus = document.getElementById("enemyStatus");
+            
+            if (playerStatus) {
+                playerStatus.innerHTML = "";
+                if (game.activeForm) {
+                    const span = document.createElement("span");
+                    span.className = "effect active-form";
+                    span.textContent = `${game.activeForm.n} (${game.activeForm.turnsLeft})`;
+                    playerStatus.appendChild(span);
+                }
+                if (game.playerShield > 0) {
+                    const span = document.createElement("span");
+                    span.className = "effect shield";
+                    span.textContent = `Shield (${game.playerShield})`;
+                    playerStatus.appendChild(span);
+                }
+                // New: Display Crit Boost status
+                if (game.playerEffects.crit_boost > 0) {
+                    const span = document.createElement("span");
+                    span.className = "effect crit-boost";
+                    span.textContent = `Crit Boost (${game.playerEffects.crit_boost})`;
+                    playerStatus.appendChild(span);
+                }
+                // New: Display Invulnerable status
+                if (game.playerEffects.invulnerable > 0) {
+                    const span = document.createElement("span");
+                    span.className = "effect invulnerable";
+                    span.textContent = `Invulnerable (${game.playerEffects.invulnerable})`;
+                    playerStatus.appendChild(span);
+                }
+                 // New: Display Reflect status
+                if (game.playerEffects.reflect > 0) {
+                    const span = document.createElement("span");
+                    span.className = "effect reflect";
+                    span.textContent = `Reflect (${game.playerEffects.reflect})`;
+                    playerStatus.appendChild(span);
+                }
+
+                for (const [effect, duration] of Object.entries(game.playerEffects)) {
+                    // Avoid double-displaying effects already handled above (crit_boost, invulnerable, reflect)
+                    if (['crit_boost', 'invulnerable', 'reflect'].includes(effect)) continue;
+
+                    const span = document.createElement("span");
+                    span.className = `effect ${effect}`;
+                    span.textContent = `${effect} (${duration})`;
+                    playerStatus.appendChild(span);
+                }
+            }
+            
+            if (enemyStatus) {
+                enemyStatus.innerHTML = "";
+                 if (game.enemyShield > 0) {
+                    const span = document.createElement("span");
+                    span.className = "effect shield";
+                    span.textContent = `Shield (${game.enemyShield})`;
+                    enemyStatus.appendChild(span);
+                }
+                for (const [effect, duration] of Object.entries(game.enemyEffects)) {
+                    const span = document.createElement("span");
+                    span.className = `effect ${effect.replace('-', '')}`;
+                    span.textContent = `${effect} (${duration})`;
+                    enemyStatus.appendChild(span);
+                }
+            }
+        }
+
+        function log(msg) {
+            const logDiv = document.getElementById("log");
+            if (logDiv) {
+                const div = document.createElement("div");
+                div.textContent = msg;
+                logDiv.appendChild(div);
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+        }
+
+        document.getElementById('rollPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRollPopup();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
