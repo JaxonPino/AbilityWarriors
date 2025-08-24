@@ -33,8 +33,38 @@
             box-shadow: 0 0 8px #f44336;
         }
 
-        .tabs { display: flex; margin-bottom: 20px; background: #16213e; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; background: #0f3460; border: none; color: #eee; transition: background 0.3s; font-weight: bold; }
+        .tabs { 
+            display: flex; 
+            margin-bottom: 20px; 
+            background: #16213e; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            overflow-x: auto; /* Enable horizontal scrolling */
+            white-space: nowrap; /* Prevent tabs from wrapping */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        .tabs::-webkit-scrollbar {
+            height: 5px;
+        }
+        .tabs::-webkit-scrollbar-track {
+            background: #16213e;
+        }
+        .tabs::-webkit-scrollbar-thumb {
+            background: #533483;
+            border-radius: 10px;
+        }
+
+        .tab { 
+            flex: 0 0 auto; /* Let tabs take their natural width */
+            padding: 15px 20px; 
+            text-align: center; 
+            cursor: pointer; 
+            background: #0f3460; 
+            border: none; 
+            color: #eee; 
+            transition: background 0.3s; 
+            font-weight: bold; 
+        }
         .tab:hover { background: #533483; }
         .tab.active { background: linear-gradient(45deg, #e94560, #ff6347); }
         .tab:disabled { background: #222; color: #555; cursor: not-allowed; }
