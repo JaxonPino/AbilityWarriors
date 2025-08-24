@@ -223,6 +223,13 @@
             </div>
         </div>
     </div>
+     <div id="dungeonRewardsModal" class="modal">
+        <div class="modal-content">
+            <h2 id="dungeonRewardsTitle">Dungeon Complete!</h2>
+            <div id="dungeonRewardsContent"></div>
+            <button class="close-btn" onclick="closeModal('dungeonRewardsModal')">Claim</button>
+        </div>
+    </div>
 
     <!-- Shop Tab -->
     <div id="shop" class="tab-content active">
@@ -270,9 +277,14 @@
     
     <!-- Dungeons Tab -->
     <div id="dungeons" class="tab-content">
-        <div class="panel">
-            <h3>Select a Dungeon</h3>
-            <div id="dungeon-list"></div>
+        <div id="dungeon-selection-screen">
+            <div class="panel">
+                <h3>Select a Dungeon</h3>
+                <div id="dungeon-list"></div>
+            </div>
+        </div>
+        <div id="dungeon-battle-screen" style="display: none;">
+            <!-- Battle UI will be injected here -->
         </div>
     </div>
 
@@ -347,6 +359,12 @@
                 <input type="range" id="volumeSlider" min="0" max="100" value="50">
                 <button onclick="toggleMute()" id="muteBtn">Mute</button>
             </div>
+             <div class="setting-item">
+                <h3>Redeem Code</h3>
+                <input type="text" id="codeInput" placeholder="Enter Code">
+                <button onclick="redeemCode()">Redeem</button>
+                <p id="codeStatus" style="margin-top: 10px;"></p>
+            </div>
             <div class="setting-item">
                 <button onclick="resetGameWithConfirm()">Reset Game Data</button>
             </div>
@@ -372,6 +390,7 @@
 
         async function initializeFirebase() {
             try {
+                if (Object.keys(firebaseConfig).length === 0) throw new Error("Firebase config not found");
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -403,7 +422,9 @@
             forms: [], equippedForm: null, activeForm: null,
             baseMaxHp: 100, baseMaxEnergy: 50,
             formUsedThisBattle: false, bounty: 0,
-            friends: {}, chargeAmount: 50
+            friends: {}, chargeAmount: 50,
+            inDungeon: false, dungeonState: {},
+            redeemedCodes: []
         };
 
         const s = (type, chance) => ({ type, chance });
@@ -456,6 +477,7 @@
         window.addFriend = addFriend;
         window.toggleMute = toggleMute;
         window.resetGameWithConfirm = resetGameWithConfirm;
+        window.redeemCode = redeemCode;
         // --- End global functions ---
 
         function init() {
@@ -1086,7 +1108,7 @@
                         statPoints: 0, damageBonus: 1, playerShield: 0, enemyShield: 0,
                         forms: [], equippedForm: null, activeForm: null,
                         baseMaxHp: 100, baseMaxEnergy: 50, formUsedThisBattle: false,
-                        bounty: 0, friends: {}, chargeAmount: 50
+                        bounty: 0, friends: {}, chargeAmount: 50, redeemedCodes: []
                     };
                     game = { ...defaults, ...loadedGame };
                     log("📁 Game loaded!");
@@ -1370,6 +1392,36 @@
             document.getElementById('confirmNoBtn').onclick = () => {
                 confirmModal.classList.remove('show');
             };
+        }
+
+        function redeemCode() {
+            const input = document.getElementById('codeInput');
+            const code = input.value.toUpperCase().trim();
+            const status = document.getElementById('codeStatus');
+            const codes = {
+                'UPDATE!': { type: 'rolls', amount: 25 }
+            };
+
+            if (game.redeemedCodes.includes(code)) {
+                status.textContent = "Code already redeemed!";
+                status.style.color = '#f44336';
+                return;
+            }
+
+            if (codes[code]) {
+                const reward = codes[code];
+                if (reward.type === 'rolls') {
+                    game.rolls += reward.amount;
+                }
+                game.redeemedCodes.push(code);
+                status.textContent = `Success! You received ${reward.amount} ${reward.type}!`;
+                status.style.color = '#4caf50';
+                update();
+            } else {
+                status.textContent = "Invalid code.";
+                status.style.color = '#f44336';
+            }
+            input.value = '';
         }
 
         window.onYouTubeIframeAPIReady = function() {
