@@ -7,10 +7,38 @@
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #1a1a2e; color: #eee; }
         
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        #connection-status {
+            display: flex;
+            align-items: center;
+            background: #0f3460;
+            padding: 5px 10px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            transition: background-color 0.5s;
+        }
+        .status-dot.online {
+            background-color: #4caf50; /* Green */
+            box-shadow: 0 0 8px #4caf50;
+        }
+        .status-dot.offline {
+            background-color: #f44336; /* Red */
+            box-shadow: 0 0 8px #f44336;
+        }
+
         .tabs { display: flex; margin-bottom: 20px; background: #16213e; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; background: #0f3460; border: none; color: #eee; transition: background 0.3s; font-weight: bold; }
         .tab:hover { background: #533483; }
         .tab.active { background: linear-gradient(45deg, #e94560, #ff6347); }
+        .tab:disabled { background: #222; color: #555; cursor: not-allowed; }
+
 
         .sub-tabs { display: flex; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid #0f3460; }
         .sub-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; background: #16213e; border: none; color: #ccc; transition: background 0.3s; font-size: 14px; }
@@ -115,7 +143,13 @@
 <body>
     <div id="player-container" style="display: none;"></div>
 
-    <h1>Ability Warriors</h1>
+    <div class="header-container">
+        <h1>Ability Warriors</h1>
+        <div id="connection-status">
+            <span id="status-dot" class="status-dot"></span>
+            <span id="status-text">Connecting...</span>
+        </div>
+    </div>
     
     <div class="stats">
         <div class="stat">Floor: <span id="level">1</span></div>
@@ -315,6 +349,7 @@
                     if (user) {
                         userId = user.uid;
                         document.getElementById('userIdDisplay').textContent = userId;
+                        updateConnectionStatus(true);
                         init();
                     } else {
                         await signInAnonymously(auth);
@@ -322,7 +357,8 @@
                 });
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
-                document.body.innerHTML = "<h1>Error</h1><p>Could not connect to the game servers. Please try again later.</p>";
+                updateConnectionStatus(false);
+                init();
             }
         }
         
@@ -419,10 +455,13 @@
         }
 
         function switchTab(tabName) {
+            const tabButton = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
+            if (tabButton.disabled) return;
+
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            tabButton.classList.add('active');
             document.getElementById(tabName).classList.add('active');
         }
 
@@ -1233,7 +1272,29 @@
             logDiv.scrollTop = logDiv.scrollHeight;
         }
         
-        // --- Settings ---
+        // --- Settings & Status ---
+        function updateConnectionStatus(isConnected) {
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+            const multiPlayerTab = document.querySelector('[onclick="switchTab(\'multiplayer\')"]');
+            const socialTab = document.querySelector('[onclick="switchTab(\'social\')"]');
+
+            if (isConnected) {
+                dot.className = 'status-dot online';
+                text.textContent = 'Online';
+                multiPlayerTab.disabled = false;
+                socialTab.disabled = false;
+            } else {
+                dot.className = 'status-dot offline';
+                text.textContent = 'Offline';
+                multiPlayerTab.disabled = true;
+                socialTab.disabled = true;
+                if (multiPlayerTab.classList.contains('active') || socialTab.classList.contains('active')) {
+                    switchTab('shop');
+                }
+            }
+        }
+
         function setupSettings() {
             const volumeSlider = document.getElementById('volumeSlider');
             volumeSlider.addEventListener('input', (e) => {
