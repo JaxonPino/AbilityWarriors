@@ -1274,8 +1274,8 @@
             game.rolls++;
             log(`Victory! Floor ${game.level}!`);
             
-            game.statPoints += 1; // Changed from 3 to 1
-            log(`✨ You gained 1 stat point!`);
+            game.statPoints += 2; // Changed from 3 to 1
+            log(`✨ You gained 2 stat point!`);
             updateQuestProgress('win_story', 1);
 
             game.hp = game.maxHp;
@@ -2312,5 +2312,6 @@
     </script>
 </body>
 </html>
+
 
 
