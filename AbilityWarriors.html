@@ -1,0 +1,2314 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ability Warriors</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #1a1a2e; 
+            color: #eee; 
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* --- Animation Styles --- */
+        #animation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .hit-flash {
+            animation: hit-flash 0.3s ease-out;
+        }
+        @keyframes hit-flash {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.05); filter: brightness(2.5); }
+        }
+
+        .screen-shake {
+            animation: screen-shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes screen-shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .transform-flash { animation: transform-flash 0.8s ease-out; }
+        @keyframes transform-flash {
+            0% { opacity: 0; }
+            50% { opacity: 0.8; background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,235,59,0.8) 50%, rgba(255,193,7,0) 100%); transform: scale(1.5); }
+            100% { opacity: 0; }
+        }
+
+        .kamehameha-flash { animation: kamehameha-flash 0.5s ease-out; }
+        @keyframes kamehameha-flash {
+            0% { opacity: 0; }
+            50% { opacity: 0.7; background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(0,150,255,0.5) 50%, rgba(0,50,200,0) 100%); }
+            100% { opacity: 0; }
+        }
+        .rasengan-flash { animation: rasengan-flash 0.6s ease-in-out; }
+        @keyframes rasengan-flash {
+            0% { opacity: 0.7; background: radial-gradient(circle, white 5%, #89f7fe 20%, #66a6ff 60%, transparent 80%); transform: scale(0) rotate(0deg); }
+            100% { opacity: 0; transform: scale(1.5) rotate(360deg); }
+        }
+        .amaterasu-flash { animation: amaterasu-flash 0.7s ease-out; }
+        @keyframes amaterasu-flash {
+            0% { opacity: 0.8; background: radial-gradient(circle, #ff4800 5%, #ff0000 20%, #4d0000 60%, black 80%); }
+            100% { opacity: 0; }
+        }
+        .hollow-purple-flash { animation: hollow-purple-flash 0.8s ease-out; }
+        @keyframes hollow-purple-flash {
+            0% { opacity: 0; }
+            40% { opacity: 0.9; background: radial-gradient(circle, white 2%, #ff0055 10%, #9d4edd 40%, transparent 70%); transform: scale(0.5); }
+            100% { opacity: 0; transform: scale(2); }
+        }
+        .final-flash { animation: final-flash 0.7s ease-out; }
+        @keyframes final-flash {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 0.9; background: radial-gradient(circle, white 10%, #FFEB3B 40%, #FFC107 70%, transparent 90%); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+        .spirit-bomb-flash { animation: spirit-bomb-flash 1.2s ease-in; }
+        @keyframes spirit-bomb-flash {
+            0% { opacity: 0.9; background: radial-gradient(circle, #80deea 50%, #00bcd4 80%, transparent 100%); transform: scale(0.1); }
+            100% { opacity: 0; transform: scale(2); }
+        }
+        .detroit-smash-flash { animation: detroit-smash-flash 0.5s ease-out; }
+        @keyframes detroit-smash-flash {
+            0% { opacity: 0; }
+            50% { opacity: 0.8; background: radial-gradient(circle, white 5%, #4CAF50 30%, #1B5E20 70%, transparent 90%); }
+            100% { opacity: 0; }
+        }
+        .cleave-flash { animation: cleave-flash 0.4s ease-out; }
+        @keyframes cleave-flash {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.9; background: linear-gradient(45deg, transparent 48%, #311b92 49%, #311b92 51%, transparent 52%); }
+        }
+        /* --- End Animation Styles --- */
+
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        #connection-status {
+            display: flex;
+            align-items: center;
+            background: #0f3460;
+            padding: 5px 10px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            transition: background-color: 0.5s;
+        }
+        .status-dot.online {
+            background-color: #4caf50; /* Green */
+            box-shadow: 0 0 8px #4caf50;
+        }
+        .status-dot.offline {
+            background-color: #f44336; /* Red */
+            box-shadow: 0 0 8px #f44336;
+        }
+
+        .tabs { 
+            display: flex; 
+            margin-bottom: 20px; 
+            background: #16213e; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            overflow-x: auto; /* Enable horizontal scrolling */
+            white-space: nowrap; /* Prevent tabs from wrapping */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        .tabs::-webkit-scrollbar {
+            height: 5px;
+        }
+        .tabs::-webkit-scrollbar-track {
+            background: #16213e;
+        }
+        .tabs::-webkit-scrollbar-thumb {
+            background: #533483;
+            border-radius: 10px;
+        }
+
+        .tab { 
+            flex: 0 0 auto; /* Let tabs take their natural width */
+            padding: 15px 20px; 
+            text-align: center; 
+            cursor: pointer; 
+            background: #0f3460; 
+            border: none; 
+            color: #eee; 
+            transition: background 0.3s; 
+            font-weight: bold; 
+        }
+        .tab:hover { background: #533483; }
+        .tab.active { background: linear-gradient(45deg, #e94560, #ff6347); }
+        .tab:disabled { background: #222; color: #555; cursor: not-allowed; }
+
+
+        .sub-tabs { display: flex; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid #0f3460; }
+        .sub-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; background: #16213e; border: none; color: #ccc; transition: background 0.3s; font-size: 14px; }
+        .sub-tab:hover { background: #533483; }
+        .sub-tab.active { background: #e94560; color: white; font-weight: bold; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .sub-tab-content { display: none; }
+        .sub-tab-content.active { display: block; }
+        
+        .stats { display: flex; justify-content: space-around; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat { background: #0f3460; padding: 10px 15px; border-radius: 8px; text-align: center; margin: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        .panel { background: #16213e; border: 2px solid #0f3460; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        
+        .ability, .form-card, .passive-card { background: #0f3460; border: 1px solid #533483; border-radius: 8px; padding: 15px; margin: 5px 0; cursor: pointer; transition: all 0.2s ease-in-out; }
+        .ability:hover, .form-card:hover, .passive-card:hover { background: #533483; transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .ability.equipped, .form-card.equipped, .passive-card.equipped { border-color: #e94560; background: #533483; }
+        
+        .common { border-left: 5px solid #9e9e9e; }
+        .uncommon { border-left: 5px solid #4caf50; }
+        .rare { border-left: 5px solid #2196f3; }
+        .epic { border-left: 5px solid #9c27b0; }
+        .legendary { border-left: 5px solid #ff9800; }
+        .mythic { border-left: 5px solid #f44336; }
+        
+        button { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 16px; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        button:hover { background: #c73650; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        button:disabled { background: #666; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .charge-btn { background: #00aaff !important; }
+        .charge-btn:hover { background: #0088cc !important; }
+        .form-btn { background: #9d4edd !important; width: 100%; margin-top: 10px; }
+        .form-btn:hover { background: #7b2cbf !important; }
+        
+        .bar-container { position: relative; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
+        .bar-text { position: absolute; color: white; text-shadow: 1px 1px 2px black; font-size: 14px; pointer-events: none; }
+        .bar { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; }
+        .bar-fill { height: 100%; transition: width 0.3s; }
+        .health { background: linear-gradient(to right, #e94560, #ff6347); }
+        .energy { background: linear-gradient(to right, #00aaff, #2196f3); }
+        
+        .log { height: 200px; overflow-y: auto; background: #0f3460; padding: 10px; border-radius: 5px; margin-top: 10px; border: 1px solid #533483; }
+        .status { display: flex; gap: 5px; margin: 5px 0; flex-wrap: wrap; justify-content: center; min-height: 25px; }
+        .effect { background: #e94560; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+        
+        .active-form { background: linear-gradient(45deg, #ff9800, #9c27b0); border: 1px solid white; animation: glow-form 2s infinite alternate; }
+        
+        .boss-enemy { color: #ff9800; font-weight: bold; text-shadow: 0 0 10px #ff9800; font-size: 1.2em; }
+        
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .stat-card { background: #0f3460; padding: 15px; border-radius: 10px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #e94560; }
+        
+        .anime { font-size: 12px; color: #aaa; font-style: italic; }
+        
+        /* Mastery UI */
+        .mastery-bar-container { background: #222; border-radius: 5px; height: 8px; margin-top: 8px; overflow: hidden; }
+        .mastery-bar-fill { background: linear-gradient(to right, #ff9800, #ffeb3b); height: 100%; }
+        .mastery-level { font-size: 12px; color: #ffeb3b; font-weight: bold; }
+
+        /* Quest UI */
+        .quest-item { background: #0f3460; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .quest-progress-bar { background: #222; border-radius: 5px; height: 10px; margin-top: 8px; overflow: hidden; }
+        .quest-progress-fill { background: linear-gradient(to right, #4caf50, #8bc34a); height: 100%; }
+
+        /* Modals */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 1000; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: #16213e; border: 3px solid #e94560; border-radius: 15px; padding: 30px; max-width: 90%; max-height: 90%; overflow-y: auto; text-align: center; }
+        
+        .roll-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+        .roll-item { background: #0f3460; border-radius: 10px; padding: 15px; text-align: center; min-width: 150px; }
+        .roll-item.legendary { border: 3px solid #ff9800; box-shadow: 0 0 20px #ff9800; animation: glow-legendary 1.5s infinite; }
+        .roll-item.mythic { border: 3px solid #f44336; box-shadow: 0 0 20px #f44336; animation: glow-mythic 1s infinite alternate; }
+        .roll-item.epic { border: 2px solid #9c27b0; box-shadow: 0 0 15px #9c27b0; animation: glow-epic 2s infinite; }
+        
+        .close-btn { background: #e94560; }
+        
+        input[type="text"], input[type="range"] { background: #0f3460; border: 1px solid #533483; color: white; padding: 8px; border-radius: 5px; margin: 5px; }
+        
+        .friend-item, .dungeon-card { background: #0f3460; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .dungeon-card { flex-direction: column; cursor: pointer; transition: all 0.2s; }
+        .dungeon-card:hover { border-color: #e94560; transform: translateY(-5px); }
+        .dungeon-difficulties button { padding: 5px 10px; font-size: 14px; }
+        
+        .setting-item { margin: 15px 0; }
+        
+        .banner-separator { height: 2px; background: #0f3460; margin: 25px 0; border-radius: 1px; }
+        
+        @keyframes glow-form { from { box-shadow: 0 0 10px #fff, 0 0 20px #ff9800, 0 0 30px #9c27b0; } to { box-shadow: 0 0 20px #fff, 0 0 30px #ff9800, 0 0 40px #9c27b0; } }
+        @keyframes glow-legendary { from { box-shadow: 0 0 10px #ff9800; } to { box-shadow: 0 0 25px #ff9800; } }
+        @keyframes glow-mythic { from { box-shadow: 0 0 15px #f44336; transform: scale(1); } to { box-shadow: 0 0 35px #f44336; transform: scale(1.05); } }
+        @keyframes glow-epic { from { box-shadow: 0 0 8px #9c27b0; } to { box-shadow: 0 0 20px #9c27b0; } }
+
+        @media (max-width: 768px) {
+            .roll-grid { grid-template-columns: repeat(2, 1fr); }
+            .banner-rolls { flex-direction: column; }
+            .pvp-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="animation-overlay"></div>
+    <div class="header-container">
+        <h1>Ability Warriors</h1>
+        <div id="connection-status">
+            <span id="status-dot" class="status-dot"></span>
+            <span id="status-text">Connecting...</span>
+        </div>
+    </div>
+    
+    <div class="stats">
+        <div class="stat">Floor: <span id="level">1</span></div>
+        <div class="stat">Health: <span id="hp">100</span>/<span id="maxHp">100</span></div>
+        <div class="stat">Energy: <span id="energy">50</span>/<span id="maxEnergy">50</span></div>
+        <div class="stat">Enemy Lv: <span id="enemyLv">1</span></div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('shop')">Banners</button>
+        <button class="tab" onclick="switchTab('moves')">Moveset</button>
+        <button class="tab" onclick="switchTab('battle')">Story</button>
+        <button class="tab" onclick="switchTab('dungeons')">Dungeons</button>
+        <button class="tab" onclick="switchTab('quests')">Quests</button>
+        <button class="tab" onclick="switchTab('multiplayer')">Multiplayer</button>
+        <button class="tab" onclick="switchTab('social')">Social</button>
+        <button class="tab" onclick="switchTab('stats')">Stats</button>
+        <button class="tab" onclick="switchTab('settings')">Settings</button>
+    </div>
+
+    <!-- Modals -->
+    <div id="rollPopup" class="modal">
+        <div class="modal-content">
+            <h2 id="rollTitle">Roll Results</h2>
+            <div id="rollResults" class="roll-grid"></div>
+            <button class="close-btn" onclick="closeModal('rollPopup')">Close</button>
+        </div>
+    </div>
+    <div id="tradeModal" class="modal"></div>
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h2 id="confirmTitle">Are you sure?</h2>
+            <p id="confirmText"></p>
+            <div>
+                <button id="confirmYesBtn">Yes</button>
+                <button class="close-btn" id="confirmNoBtn">No</button>
+            </div>
+        </div>
+    </div>
+     <div id="dungeonRewardsModal" class="modal">
+        <div class="modal-content">
+            <h2 id="dungeonRewardsTitle">Dungeon Complete!</h2>
+            <div id="dungeonRewardsContent"></div>
+            <button class="close-btn" onclick="closeModal('dungeonRewardsModal')">Claim</button>
+        </div>
+    </div>
+    <div id="dailyRewardModal" class="modal">
+        <div class="modal-content">
+            <h2>Daily Login Reward!</h2>
+            <p>Thanks for playing! Here are 5 free rolls!</p>
+            <button class="close-btn" onclick="closeModal('dailyRewardModal')">Awesome!</button>
+        </div>
+    </div>
+
+    <!-- Shop Tab -->
+    <div id="shop" class="tab-content active">
+        <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="stat">Rolls: <span id="rolls">4</span></div>
+                <h3 id="banner-countdown" style="margin: 0;"></h3>
+            </div>
+            <div id="banners-list"></div>
+        </div>
+    </div>
+
+    <!-- Moves Tab -->
+    <div id="moves" class="tab-content">
+        <div class="panel">
+            <h3>Synergy Bonus</h3>
+            <div id="synergy-display">No active synergy. Equip 3 abilities from the same anime to get a bonus!</div>
+        </div>
+        <div class="container">
+            <div class="panel"><h3>Collection</h3><div id="collection" style="max-height: 400px; overflow-y: auto;"></div></div>
+            <div class="panel"><h3>Equipped Moves (Max 4)</h3><div id="equipped-display"></div></div>
+            <div class="panel"><h3>Forms</h3><div id="forms-collection" style="max-height: 400px; overflow-y: auto;"></div></div>
+            <div class="panel"><h3>Equipped Form</h3><div id="equipped-form-display"></div></div>
+            <div class="panel"><h3>Passives</h3><div id="passives-collection" style="max-height: 400px; overflow-y: auto;"></div></div>
+            <div class="panel"><h3>Equipped Passive</h3><div id="equipped-passive-display"></div></div>
+        </div>
+    </div>
+
+    <!-- Battle Tab -->
+    <div id="battle" class="tab-content">
+        <div class="panel">
+            <div style="text-align: center;">
+                <h4 id="enemyTitle">Enemy: <span id="enemyName">Bandit</span></h4>
+                <div id="enemy-panel"> <!-- Added wrapper for hit flash -->
+                    <div class="bar-container"><div class="bar"><div class="bar-fill health" id="enemyHpBar" style="width: 100%"></div></div></div>
+                    <div>HP: <span id="enemyHp">80</span>/<span id="enemyMaxHp">80</span></div>
+                    <div class="status" id="enemyStatus"></div>
+                </div>
+                <button onclick="startBattle()" id="battleBtn" style="display:block;">Start Battle</button>
+                <h4>Your Status</h4>
+                <div class="bar-container"><div class="bar"><div class="bar-fill health" id="playerHpBar" style="width: 100%"></div></div><span id="playerHpText" class="bar-text">100/100</span></div>
+                <div class="bar-container"><div class="bar"><div class="bar-fill energy" id="playerEnergyBar" style="width: 100%"></div></div><span id="playerEnergyText" class="bar-text">50/50</span></div>
+                <div class="status" id="playerStatus"></div>
+            </div>
+            <h4>Battle Actions</h4>
+            <div id="equipped"></div>
+            <button onclick="toggleCamp()" id="campBtn" style="display:none;">Auto-Continue: OFF</button>
+            <div id="form-activation"></div>
+            <div class="log" id="log"></div>
+        </div>
+    </div>
+    
+    <!-- Dungeons Tab -->
+    <div id="dungeons" class="tab-content">
+        <div id="dungeon-selection-screen">
+            <div class="panel">
+                <h3>Select a Dungeon</h3>
+                <div id="dungeon-list"></div>
+            </div>
+        </div>
+        <div id="dungeon-battle-screen" style="display: none;">
+            <!-- Battle UI will be injected here -->
+        </div>
+    </div>
+
+    <!-- Quests Tab -->
+    <div id="quests" class="tab-content">
+        <div class="panel">
+            <h3>Daily Quests</h3>
+            <div id="daily-quests-list"></div>
+        </div>
+    </div>
+
+    <!-- Multiplayer Tab -->
+    <div id="multiplayer" class="tab-content">
+        <div class="panel">
+            <h3>Player vs Player</h3>
+            <div id="pvp-matchmaking">
+                <div><input type="text" id="displayNameInput" placeholder="Enter your name"><button onclick="setDisplayName()">Set Name</button></div>
+                <p>Your Name: <strong id="displayNameDisplay">Warrior</strong></p>
+                <p>Your Bounty: <strong id="bountyDisplay">0</strong></p>
+                <p style="font-size: 12px; color: #aaa;">User ID: <span id="userIdDisplay"></span></p>
+                <button id="findMatchBtn" onclick="findMatch()">Find Random Match</button>
+                <p id="pvpStatus">Ready to battle!</p>
+            </div>
+            <div id="pvp-battle-area" style="display: none;">
+                <div class="pvp-container">
+                    <div><h4 id="pvpPlayerName">You</h4><div class="bar-container"><div class="bar"><div class="bar-fill health" id="pvpPlayerHpBar"></div></div></div><div id="pvpPlayerHpText"></div><div class="bar-container"><div class="bar"><div class="bar-fill energy" id="pvpPlayerEnergyBar"></div></div></div><div id="pvpPlayerEnergyText"></div><div class="status" id="pvpPlayerStatus"></div></div>
+                    <div><h4 id="pvpOpponentName">Opponent</h4><div class="bar-container"><div class="bar"><div class="bar-fill health" id="pvpOpponentHpBar"></div></div></div><div id="pvpOpponentHpText"></div><div class="bar-container"><div class="bar"><div class="bar-fill energy" id="pvpOpponentEnergyBar"></div></div></div><div id="pvpOpponentEnergyText"></div><div class="status" id="pvpOpponentStatus"></div></div>
+                </div>
+                <h4>Battle Actions</h4><div id="pvpEquipped"></div><div id="pvpFormActivation"></div><div class="log" id="pvpLog"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Social Tab -->
+    <div id="social" class="tab-content">
+        <div class="panel">
+            <h3>Friends</h3>
+            <div>
+                <input type="text" id="friendIdInput" placeholder="Enter Friend's User ID">
+                <button onclick="addFriend()">Add Friend</button>
+            </div>
+            <div id="friendsList" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <!-- Stats Tab -->
+    <div id="stats" class="tab-content">
+        <div class="panel">
+            <div style="margin-bottom: 30px; border-bottom: 2px solid #0f3460; padding-bottom: 20px;">
+                <h3>Stat Points</h3>
+                <div class="stat-card" style="max-width: 200px; margin: auto;"><div>Available Points</div><div class="stat-value" id="statPoints">0</div></div>
+                <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                    <button id="investHpBtn" onclick="invest('hp')">+100 Health</button>
+                    <button id="investEnergyBtn" onclick="invest('energy')">+50 Energy</button>
+                    <button id="investDamageBtn" onclick="invest('damage')">+5% Damage</button>
+                    <button id="investChargeBtn" onclick="invest('charge')">+50 Charge</button>
+                </div>
+            </div>
+            <h3>Player Statistics</h3>
+            <div class="stat-grid">
+                <div class="stat-card"><div>Floor</div><div class="stat-value" id="statLevel">1</div></div>
+                <div class="stat-card"><div>Max Health</div><div class="stat-value" id="statMaxHp">100</div></div>
+                <div class="stat-card"><div>Max Energy</div><div class="stat-value" id="statMaxEnergy">50</div></div>
+                <div class="stat-card"><div>Charge Amount</div><div class="stat-value" id="statCharge">50</div></div>
+                <div class="stat-card"><div>Moves</div><div class="stat-value" id="statAbilities">1</div></div>
+                <div class="stat-card"><div>Battles Won</div><div class="stat-value" id="statWins">0</div></div>
+                <div class="stat-card"><div>Damage Bonus</div><div class="stat-value" id="statDamageBonus">100%</div></div>
+                <div class="stat-card"><div>Total Rolls</div><div class="stat-value" id="statTotalRolls">0</div></div>
+                <div class="stat-card"><div>PvP Bounty</div><div class="stat-value" id="statBounty">0</div></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Tab -->
+    <div id="settings" class="tab-content">
+        <div class="panel">
+            <h3>Game Settings</h3>
+             <div class="setting-item">
+                <h3>Redeem Code</h3>
+                <input type="text" id="codeInput" placeholder="Enter Code">
+                <button onclick="redeemCode()">Redeem</button>
+                <p id="codeStatus" style="margin-top: 10px;"></p>
+            </div>
+            <div class="setting-item">
+                <button onclick="resetGameWithConfirm()">Reset Game Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, addDoc, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ability-warriors-default';
+
+        let app, auth, db, userId;
+        let pvpGameId = null;
+        let pvpListener = null;
+        let queueListener = null;
+        let displayName = "Warrior";
+        let isRolling = false;
+        let bannerInterval;
+
+        async function initializeFirebase() {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) throw new Error("Firebase config not found");
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('userIdDisplay').textContent = userId;
+                        updateConnectionStatus(true);
+                        init();
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                updateConnectionStatus(false);
+                init();
+            }
+        }
+        
+        let game = {
+            level: 1, hp: 100, maxHp: 100, energy: 50, maxEnergy: 50, rolls: 10,
+            abilities: [], equipped: [], inBattle: false, isCamped: false,
+            enemyLv: 1, enemyHp: 80, enemyMaxHp: 80, enemyName: "Bandit",
+            turn: true, playerEffects: {}, enemyEffects: {},
+            totalWins: 0, bossesDefeated: 0, totalRolls: 0,
+            statPoints: 0, baseDamageBonus: 1, inBattleDamageBonus: 1, tempDamageBonus: 1,
+            playerShield: 0, enemyShield: 0,
+            forms: [], equippedForm: null, activeForm: null,
+            passives: [], equippedPassive: null,
+            baseMaxHp: 100, baseMaxEnergy: 50,
+            formUsedThisBattle: false, bounty: 0,
+            friends: {}, chargeAmount: 50,
+            inDungeon: false, dungeonState: {},
+            redeemedCodes: [],
+            currentEnemy: {},
+            revivedThisBattle: false,
+            masteryLevels: {}, // { 'ability-id': { level: 0, xp: 0 } }
+            formMastery: {}, // { 'form-id': { level: 0, xp: 0 } }
+            lastLoginDate: null,
+            dailyQuests: [],
+            synergyBonus: {}
+        };
+
+        const s = (type, chance) => ({ type, chance });
+        
+        const packs = {
+            naruto: { 
+                name: "Naruto", 
+                content: [
+                    // Abilities
+                    {type:'ability', n:"Kunai Throw",d:[10,20],e:8,r:"common",s:null}, {type:'ability', n:"Shuriken Barrage",d:[5,35],e:12,r:"common",s:null}, {type:'ability', n:"Clone Barrage",d:[20,50],e:30,r:"common",s:null}, {type:'ability', n:"Leaf Hurricane",d:[10,50],e:20,r:"uncommon",s:null}, {type:'ability', n:"Primary Lotus",d:[10,60],e:22,r:"uncommon",s:null}, {type:'ability', n:"Fireball Jutsu",d:[45,60],e:28,r:"rare",s:s("burn", 0.8)}, {type:'ability', n:"Water Dragon",d:[50,75],e:32,r:"epic",s:s("freeze", 0.3)}, {type:'ability', n:"Rasengan",d:[70,90],e:40,r:"epic",s:"pierce"}, {type:'ability', n:"Chidori",d:[90,160],e:38,r:"legendary",s:s("stun", 0.4)}, {type:'ability', n:"Rasenshuriken",d:[90,120],e:45,r:"legendary",s:s("bleed", 0.7)}, {type:'ability', n:"Amaterasu",d:[100,190],e:50,r:"legendary",s:s("burn", 1)}, {type:'ability', n:"Infinite Tsukuyomi",d:[100,250],e:70,r:"mythic",s:s("stun", 0.75)}, {type:'ability', n:"Truth-Seeking Orbs",d:[150,300],e:80,r:"mythic",s:s("armor-break", 1)},
+                    // Forms
+                    {type:'form', id: "f_n_c1", n: "One-Tailed Cloak", r: "common", cost: 20, dur: 4, eff: {hp:0.15, en:0, dmg:0.1}}, {type:'form', id: "f_n_u1", n: "Sage Mode", r: "uncommon", cost: 35, dur: 3, eff: {hp:0.2, en:0.1, dmg:0.25}}, {type:'form', id: "f_n_r1", n: "KCM1", r: "rare", cost: 45, dur: 4, eff: {hp:0.3, en:0.3, dmg:0.35}}, {type:'form', id: "f_n_e1", n: "KCM2", r: "epic", cost: 60, dur: 4, eff: {hp:0.4, en:0.4, dmg:0.5}}, {type:'form', id: "f_n_l1", n: "Six Paths Sage Mode", r: "legendary", cost: 80, dur: 5, eff: {hp:0.6, en:0.6, dmg:0.7}}, {type:'form', id: "f_n_m1", n: "Baryon Mode", r: "mythic", cost: 120, dur: 3, eff: {hp:0.2, en:0.2, dmg:1.5}}
+                ]
+            },
+            dragonball: { 
+                name: "Dragon Ball", 
+                content: [
+                    {type:'ability', n:"Ki Blast",d:[1,35],e:8,r:"common",s:null}, {type:'ability', n:"Kamehameha",d:[25,35],e:25,r:"common",s:null}, {type:'ability', n:"Galick Gun",d:[20,35],e:25,r:"common",s:null}, {type:'ability', n:"Kioken Kamehameha x10",d:[45,70],e:45,r:"uncommon",s:null}, {type:'ability', n:"Destructo Disc",d:[50,65],e:35,r:"rare",s:"pierce"}, {type:'ability', n:"Masenko",d:[40,65],e:28,r:"rare",s:s("weaken", 0.2)}, {type:'ability', n:"Big Bang Attack",d:[60,90],e:45,r:"epic",s:s("stun", 0.2)}, {type:'ability', n:"Special Beam Cannon",d:[50,100],e:50,r:"epic",s:"pierce"}, {type:'ability', n:"Solar Flare",d:[1,10],e:45,r:"legendary",s:s("confusion", 0.9)}, {type:'ability', n:"Spirit Bomb",d:[1,400],e:90,r:"legendary",s:s("armor-break", 0.5)}, {type:'ability', n:"Final Flash",d:[110,220],e:90,r:"legendary",s:s("armor-break", 0.8)}, {type:'ability', n:"Hakai",d:[200,350],e:90,r:"mythic",s:s("bleed", 0.5)}, {type:'ability', n:"Zeno Erase",d:[1,1000],e:250,r:"mythic",s:s("freeze", 1)},
+                    {type:'form', id: "f_db_c1", n: "Kaio-ken", r: "common", cost: 20, dur: 3, eff: {hp:0.1, en:0.1, dmg:0.15}}, {type:'form', id: "f_db_u1", n: "Super Saiyan", r: "uncommon", cost: 30, dur: 3, eff: {hp:0.15, en:0.15, dmg:0.2}}, {type:'form', id: "f_db_r1", n: "Super Saiyan 2", r: "rare", cost: 40, dur: 4, eff: {hp:0.25, en:0.25, dmg:0.3}}, {type:'form', id: "f_db_e1", n: "Super Saiyan God", r: "epic", cost: 50, dur: 4, eff: {hp:0.4, en:0.4, dmg:0.45}}, {type:'form', id: "f_db_l1", n: "Super Saiyan Blue", r: "legendary", cost: 70, dur: 5, eff: {hp:0.5, en:0.5, dmg:0.6}}, {type:'form', id: "f_db_m1", n: "Ultra Instinct", r: "mythic", cost: 100, dur: 5, eff: {hp:0.5, en:0.5, dmg:0.75, dodge: 0.5}}
+                ]
+            },
+            onepiece: { 
+                name: "One Piece", 
+                content: [
+                    {type:'ability', n:"Gomu Gomu Pistol",d:[10,20],e:8,r:"common",s:null}, {type:'ability', n:"Gomu Gomu Bazooka",d:[34,35],e:21,r:"common",s:null}, {type:'ability', n:"Onigiri",d:[39,40],e:29,r:"common",s:null}, {type:'ability', n:"Tatsumaki",d:[25,35],e:18,r:"uncommon",s:null}, {type:'ability', n:"Fire Fist",d:[35,55],e:20,r:"uncommon",s:s("burn", 0.7)}, {type:'ability', n:"Gura Gura Punch",d:[60,75],e:50,r:"rare",s:s("stun", 0.3)}, {type:'ability', n:"Kong Gun",d:[60,90],e:45,r:"epic",s:s("weaken", 0.4)}, {type:'ability', n:"Double Culverin",d:[70,140],e:50,r:"epic",s:"haste"}, {type:'ability', n:"Conqueror's Haki",d:[50,100],e:40,r:"legendary",s:s("stun", 0.5)}, {type:'ability', n:"Red Hawk",d:[100,250],e:85,r:"legendary",s:s("burn", 1)}, {type:'ability', n:"King Kong Gatling",d:[50,500],e:80,r:"legendary",s:s("bleed", 0.5)}, {type:'ability', n:"Gura Gura Kaishin",d:[300,600],e:100,r:"mythic",s:s("stun", 0.8)}, {type:'ability', n:"Bajrang Gun",d:[500,800],e:150,r:"mythic",s:s("armor-break", 1)},
+                    {type:'form', id: "f_op_c1", n: "Gear Second", r: "common", cost: 15, dur: 5, eff: {hp:0.05, en:0.05, dmg:0.1, haste: 0.2}}, {type:'form', id: "f_op_u1", n: "Gear Third", r: "uncommon", cost: 25, dur: 3, eff: {hp:0.1, en:0.1, dmg:0.3}}, {type:'form', id: "f_op_r1", n: "Gear Fourth: Boundman", r: "rare", cost: 40, dur: 4, eff: {hp:0.3, en:0.2, dmg:0.4}}, {type:'form', id: "f_op_e1", n: "Gear Fourth: Snakeman", r: "epic", cost: 55, dur: 5, eff: {hp:0.2, en:0.3, dmg:0.55, haste: 0.3}}, {type:'form', id: "f_op_l1", n: "Gear Fifth", r: "legendary", cost: 90, dur: 5, eff: {hp:0.7, en:0.7, dmg:0.8, dodge: 0.2}}, {type:'form', id: "f_op_m1", n: "Sun God Nika", r: "mythic", cost: 150, dur: 4, eff: {hp:1.0, en:1.0, dmg:1.2, dodge: 0.3}}
+                ]
+            },
+            demonslayer: { 
+                name: "Demon Slayer", 
+                content: [
+                    {type:'ability', n:"Water Surface Slash",d:[20,35],e:18,r:"common",s:null}, {type:'ability', n:"Beast Fang",d:[30,45],e:20,r:"uncommon",s:null}, {type:'ability', n:"Water Wheel",d:[40,70],e:28,r:"rare",s:s("bleed", 0.3)}, {type:'ability', n:"Thunderclap And Flash",d:[60,75],e:45,r:"rare",s:s("stun", 0.3)}, {type:'ability', n:"Scattering Mist Slash",d:[40,90],e:40,r:"rare",s:s("confusion", 0.2)}, {type:'ability', n:"Rumble and Flash",d:[70,110],e:60,r:"epic",s:s("stun", 0.5)}, {type:'ability', n:"Flame Tiger",d:[50,130],e:60,r:"epic",s:s("burn", 0.8)}, {type:'ability', n:"Moonbow",d:[10,250],e:75,r:"epic",s:s("bleed", 0.4)}, {type:'ability', n:"String Performance",d:[120,180],e:90,r:"legendary",s:s("bleed", 0.8)}, {type:'ability', n:"Obscuring Clouds",d:[90,190],e:100,r:"mythic",s:s("confusion", 0.8)}, {type:'ability', n:"Destructive Death",d:[100,750],e:175,r:"mythic",s:s("armor-break", 0.7)}, {type:'ability', n:"Thirteenth Form",d:[600,700],e:185,r:"mythic",s:s("burn", 1)},
+                    {type:'passive', id: "p_e1", n: "Final Stand", r: "epic", desc: "When you die, revive with 50% HP, full energy, and 2x damage. (Once per battle)", trigger: "onDeath", effect: {type: "finalStand"}}
+                ]
+            },
+            jujutsu: { 
+                name: "Jujutsu Kaisen", 
+                content: [
+                    {type:'ability', n:"Cursed Strike",d:[15,25],e:10,r:"common",s:null}, {type:'ability', n:"Divergent Fist",d:[12,22],e:9,r:"common",s:null}, {type:'ability', n:"Piercing Blood",d:[28,38],e:22,r:"uncommon",s:s("burn", 0.6)}, {type:'ability', n:"Black Flash",d:[40,55],e:30,r:"rare",s:s("weaken", 0.5)}, {type:'ability', n:"Lapse Blue",d:[42,57],e:32,r:"rare",s:s("freeze", 0.2)}, {type:'ability', n:"Nue",d:[50,65],e:30,r:"epic",s:"pierce"}, {type:'ability', n:"Reversal Red",d:[60,70],e:40,r:"epic",s:s("burn", 0.7)}, {type:'ability', n:"Chimera Shadow Garden",d:[1,10],e:50,r:"legendary",s:s("stun", 0.7)}, {type:'ability', n:"Cleave",d:[70,120],e:55,r:"legendary",s:s("bleed", 0.6)}, {type:'ability', n:"Hollow Purple",d:[100,270],e:65,r:"legendary",s:s("armor-break", 0.6)}, {type:'ability', n:"Malevolent Shrine",d:[100,220],e:70,r:"mythic",s:s("bleed", 0.9)}, {type:'ability', n:"Infinite Void",d:[49,50],e:85,r:"mythic",s:s("stun", 1)}, {type:'ability', n:"World Cutting Slash",d:[290,700],e:95,r:"mythic",s:s("bleed", 1)},
+                    {type:'passive', id: "p_l1", n: "Sparks of Black", r: "legendary", desc: "30% chance to deal 2x damage on an attack.", trigger: "onAttack", chance: 0.3, effect: {type: "crit", value: 2}}
+                ]
+            },
+            mha: { 
+                name: "My Hero Academia", 
+                content: [
+                    {type:'ability', n:"Delaware Smash",d:[20,25],e:20,r:"common",s:null}, {type:'ability', n:"Detroit Smash",d:[20,30],e:22,r:"common",s:null}, {type:'ability', n:"Manchester Smash",d:[25,45],e:17,r:"uncommon",s:null}, {type:'ability', n:"AP Shot",d:[35,65],e:20,r:"rare",s:s("burn", 0.5)}, {type:'ability', n:"Recipro Burst",d:[50,85],e:35,r:"epic",s:"haste"}, {type:'ability', n:"Blackwhip",d:[90,110],e:48,r:"legendary",s:s("stun", 0.4)}, {type:'ability', n:"Prominence Burn",d:[120,200],e:70,r:"legendary",s:s("burn", 1)}, {type:'ability', n:"Ice Glacier",d:[90,110],e:20,r:"mythic",s:s("freeze", 0.9)}, {type:'ability', n:"Stun Grenade",d:[20,70],e:10,r:"mythic",s:s("stun", 1)}
+                ]
+            }
+        };
+        const weights = {common:50, uncommon:30, rare:10, epic:8, legendary:1.5, mythic:0.5};
+        const storyEnemies = [
+            { name: "Wind Slime", baseHp: 60, hpPerLvl: 25 },
+            { name: "Cursed Spirit", baseHp: 70, hpPerLvl: 30 },
+            { name: "Automaton Doll", baseHp: 100, hpPerLvl: 40 },
+            { name: "Enchanted Beast", baseHp: 150, hpPerLvl: 50 },
+            { name: "Void Walker", baseHp: 120, hpPerLvl: 60 }
+        ];
+        const storyMinibosses = [
+            { name: "Slime King", baseHp: 500, hpPerLvl: 100, isMiniboss: true },
+            { name: "Archon of Curses", baseHp: 700, hpPerLvl: 150, isMiniboss: true },
+            { name: "Rogue Mecha", baseHp: 1000, hpPerLvl: 200, isMiniboss: true },
+            { name: "Gatekeeper of the Abyss", baseHp: 1500, hpPerLvl: 250, isMiniboss: true }
+        ];
+        
+        const dungeons = {
+            one_piece: {
+                name: "One Piece",
+                enemies: [ { name: "Bandit", hp: 100, dmg: 10 }, { name: "Marine", hp: 150, dmg: 15 }, { name: "Admiral", hp: 300, dmg: 25 }, { name: "Warlord", hp: 500, dmg: 35 } ],
+                minibosses: [
+                    { name: "White Beard", hp: 1000, dmg: 40, drop: {n:"Gura Gura Punch",d:[60,75],e:50,r:"rare",s:s("stun", 0.3)} },
+                    { name: "Big Mom", hp: 1500, dmg: 50, drop: {n:"Soul Pocus",d:[50,100],e:60,r:"epic",s:s("weaken", 0.5)} },
+                    { name: "Kaido", hp: 2000, dmg: 60, drop: {n:"Thunder Bagua",d:[100,150],e:70,r:"epic",s:s("stun", 0.4)} }
+                ],
+                boss: { name: "Luffy", hp: 5000, dmg: 80, drop: {n:"Gomu Gomu no Bajrang Gun",d:[500,800],e:150,r:"mythic",s:s("armor-break", 1)} }
+            }
+        };
+
+        const questTemplates = [
+            { id: 'win_story_3', type: 'win_story', description: 'Win 3 Story Battles', target: 3, reward: { type: 'rolls', amount: 3 } },
+            { id: 'use_abilities_10', type: 'use_ability', description: 'Use 10 abilities', target: 10, reward: { type: 'rolls', amount: 2 } },
+            { id: 'complete_dungeon_1', type: 'complete_dungeon', description: 'Complete any Dungeon', target: 1, reward: { type: 'rolls', amount: 5 } },
+            { id: 'use_form_5', type: 'use_form', description: 'Activate your Form 5 times', target: 5, reward: { type: 'rolls', amount: 3 } },
+            { id: 'defeat_enemies_10', type: 'defeat_enemy', description: 'Defeat 10 enemies', target: 10, reward: { type: 'rolls', amount: 2 } },
+        ];
+
+        // --- Make functions global so HTML can access them ---
+        window.switchTab = switchTab;
+        window.rollFromBanner = rollFromBanner;
+        window.closeModal = closeModal;
+        window.toggleEquip = toggleEquip;
+        window.equipForm = equipForm;
+        window.equipPassive = equipPassive;
+        window.use = use;
+        window.activateForm = activateForm;
+        window.startBattle = startBattle;
+        window.toggleCamp = toggleCamp;
+        window.invest = invest;
+        window.findMatch = findMatch;
+        window.usePvpAbility = usePvpAbility;
+        window.setDisplayName = setDisplayName;
+        window.addFriend = addFriend;
+        window.resetGameWithConfirm = resetGameWithConfirm;
+        window.redeemCode = redeemCode;
+        window.startDungeon = startDungeon;
+        window.useDungeonAbility = useDungeonAbility;
+        window.leaveDungeon = leaveDungeon;
+        window.claimQuestReward = claimQuestReward;
+        // --- End global functions ---
+
+        function init() {
+            game.abilities.push({id:0,n:"Charge",d:[0,0],e:-game.chargeAmount,r:"starter",s:"charge",equipped:true,a:"Basic", type: 'ability'});
+            game.equipped.push(game.abilities[0]);
+            loadGame();
+            createBanners();
+            startBannerCountdown();
+            game.baseMaxHp = game.maxHp;
+            game.baseMaxEnergy = game.maxEnergy;
+            
+            const savedName = localStorage.getItem('displayName');
+            if (savedName) {
+                displayName = savedName;
+                document.getElementById('displayNameInput').value = displayName;
+                document.getElementById('displayNameDisplay').textContent = displayName;
+            }
+            
+            renderDungeons();
+            checkDailyReset();
+            updateQuestsUI();
+            update();
+        }
+
+        function switchTab(tabName) {
+            const tabButton = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
+            if (tabButton.disabled) return;
+
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            tabButton.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function getSpecialText(special) {
+            if (!special) return "";
+            if (typeof special === 'string') return ` (${special})`;
+            if (typeof special === 'object' && special.type && special.chance) {
+                return ` (${special.type} ${Math.round(special.chance * 100)}%)`;
+            }
+            return "";
+        }
+
+        function createBanners() {
+            const bannersDiv = document.getElementById('banners-list');
+            bannersDiv.innerHTML = '';
+            
+            const now = new Date();
+            const hour = now.getHours();
+
+            const bannerSchedule = [
+                ['naruto', 'dragonball', 'mha'],
+                ['onepiece', 'demonslayer', 'jujutsu']
+            ];
+            const activeBannerKeys = bannerSchedule[hour % bannerSchedule.length];
+
+            activeBannerKeys.forEach((key, index) => {
+                const pack = packs[key];
+                if (!pack) return;
+                const banner = document.createElement('div');
+                banner.className = 'banner';
+                
+                banner.innerHTML = `
+                    <div class="banner-header">
+                        <div class="banner-title">${pack.name}</div>
+                        <div class="banner-rolls">
+                            <button onclick="rollFromBanner('${key}', 1)" class="roll-1x">1x Roll</button>
+                            <button onclick="rollFromBanner('${key}', 10)" class="roll-10x">10x Roll</button>
+                        </div>
+                    </div>
+                `;
+                bannersDiv.appendChild(banner);
+                if (index < activeBannerKeys.length - 1) {
+                    const separator = document.createElement('div');
+                    separator.className = 'banner-separator';
+                    bannersDiv.appendChild(separator);
+                }
+            });
+        }
+        
+        function startBannerCountdown() {
+            if (bannerInterval) clearInterval(bannerInterval);
+
+            bannerInterval = setInterval(() => {
+                const now = new Date();
+                const minutes = 59 - now.getMinutes();
+                const seconds = 59 - now.getSeconds();
+
+                document.getElementById('banner-countdown').textContent = `New Banners In: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (minutes === 0 && seconds === 0) {
+                    createBanners();
+                }
+            }, 1000);
+        }
+
+        function rollFromBanner(bannerKey, count) {
+            if (isRolling || game.rolls < count) return;
+            
+            isRolling = true;
+            game.rolls -= count;
+            game.totalRolls += count;
+
+            const pack = packs[bannerKey];
+            const results = [];
+            
+            for (let i = 0; i < count; i++) {
+                const total = Object.values(weights).reduce((a,b) => a+b, 0);
+                let rand = Math.random() * total;
+                let rarity = "common";
+                
+                for (const [r, w] of Object.entries(weights)) {
+                    rand -= w;
+                    if (rand <= 0) { rarity = r; break; }
+                }
+
+                const available = pack.content.filter(a => a.r === rarity);
+                const template = available[Math.floor(Math.random() * available.length)];
+                
+                if (template.type === 'ability') {
+                    const ability = { ...template, id: Date.now() + i + Math.random(), equipped: false, a: pack.name };
+                    game.abilities.push(ability);
+                    results.push(ability);
+                } else if (template.type === 'form') {
+                    if (!game.forms.find(f => f.id === template.id)) {
+                        game.forms.push({ ...template, a: pack.name });
+                    }
+                    results.push({ ...template, a: pack.name });
+                } else if (template.type === 'passive') {
+                     if (!game.passives.find(p => p.id === template.id)) {
+                        game.passives.push({ ...template, a: pack.name });
+                    }
+                    results.push({ ...template, a: pack.name });
+                }
+            }
+            
+            showRollResults(results, count);
+            isRolling = false;
+            update();
+        }
+
+        function showRollResults(results, count) {
+            const popup = document.getElementById('rollPopup');
+            const title = document.getElementById('rollTitle');
+            const resultsDiv = document.getElementById('rollResults');
+            
+            title.textContent = count === 1 ? '🎲 Single Roll Result!' : `🎲 ${count}x Roll Results!`;
+            resultsDiv.innerHTML = '';
+            
+            const rarityOrder = { 'mythic': 6, 'legendary': 5, 'epic': 4, 'rare': 3, 'uncommon': 2, 'common': 1 };
+            results.sort((a, b) => (rarityOrder[b.r] || 0) - (rarityOrder[a.r] || 0));
+
+            results.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `roll-item ${item.r}`;
+                
+                if (item.type === 'ability') {
+                    const energyText = ` | ${item.e}e`;
+                    const damageText = `${item.d[0]}-${item.d[1]} dmg`;
+                    div.innerHTML = `<div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">${item.n}</div><div style="color: #aaa; margin-bottom: 5px;">[${item.r.toUpperCase()}]</div><div style="font-size: 14px;">${damageText}${energyText}</div><div style="font-size: 12px; color: #ffa500;">${getSpecialText(item.s)}</div><div style="font-size: 11px; color: #888; margin-top: 5px;">${item.a}</div>`;
+                } else if (item.type === 'form') {
+                     div.innerHTML = `<div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">FORM: ${item.n}</div><div style="color: #aaa; margin-bottom: 5px;">[${item.r.toUpperCase()}]</div><div style="font-size: 12px; color: #ffa500;">A new transformation!</div>`;
+                } else { // Passive
+                    div.innerHTML = `<div style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">PASSIVE: ${item.n}</div><div style="color: #aaa; margin-bottom: 5px;">[${item.r.toUpperCase()}]</div><div style="font-size: 12px; color: #ffa500;">${item.desc}</div>`;
+                }
+                resultsDiv.appendChild(div);
+            });
+            
+            popup.classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function toggleEquip(name, rarity) {
+            const equippedAbility = game.equipped.find(a => a.n === name && a.r === rarity);
+
+            if (equippedAbility) {
+                if (equippedAbility.n === "Charge") {
+                    log("❌ Cannot unequip Charge!");
+                    return;
+                }
+                equippedAbility.equipped = false;
+                game.equipped = game.equipped.filter(a => a.id !== equippedAbility.id);
+            } else {
+                if (game.equipped.length >= 4) {
+                    log("❌ Max 4 abilities!");
+                    return;
+                }
+                const abilityToEquip = game.abilities.find(a => a.n === name && a.r === rarity && !a.equipped);
+                if (abilityToEquip) {
+                    abilityToEquip.equipped = true;
+                    game.equipped.push(abilityToEquip);
+                }
+            }
+            updateSynergyBonus();
+            update();
+        }
+
+        function equipForm(formId) {
+            if (game.equippedForm && game.equippedForm.id === formId) {
+                game.equippedForm = null;
+            } else {
+                game.equippedForm = game.forms.find(f => f.id === formId) || null;
+            }
+            update();
+        }
+        
+        function equipPassive(passiveId) {
+            if (game.equippedPassive && game.equippedPassive.id === passiveId) {
+                game.equippedPassive = null;
+            } else {
+                game.equippedPassive = game.passives.find(p => p.id === passiveId) || null;
+            }
+            update();
+        }
+
+        function use(id) {
+            if (!game.inBattle || !game.turn || game.inDungeon) return;
+            
+            const ability = game.equipped.find(a => a.id === id);
+            if (!ability) return;
+            
+            playAbilityAnimation(ability.n);
+            
+            if (ability.n === "Charge") {
+                game.energy = Math.min(game.maxEnergy, game.energy + game.chargeAmount);
+                log(`Charged ${game.chargeAmount} energy!`);
+                endTurn();
+                return;
+            }
+            
+            if (game.energy < ability.e) {
+                log("Not enough energy!");
+                return;
+            }
+            
+            game.energy -= ability.e;
+            updateQuestProgress('use_ability', 1);
+            
+            const mastery = game.masteryLevels[ability.id] || { level: 0, xp: 0 };
+            const masteryBonus = 1 + (mastery.level * 0.05);
+            let baseDmg = (Math.floor(Math.random() * (ability.d[1] - ability.d[0] + 1)) + ability.d[0]) * masteryBonus;
+            let dmg = Math.floor(baseDmg * game.inBattleDamageBonus * game.tempDamageBonus);
+
+            // --- Passive Check: onAttack ---
+            if (game.equippedPassive && game.equippedPassive.trigger === 'onAttack' && Math.random() < game.equippedPassive.chance) {
+                if (game.equippedPassive.effect.type === 'crit') {
+                    dmg *= game.equippedPassive.effect.value;
+                    log(`⚡ Sparks of Black! A critical hit deals ${dmg} damage!`);
+                }
+            } else {
+                 log(`⚔️ ${ability.n} deals ${dmg} damage!`);
+            }
+            
+            if (game.activeForm) {
+                dmg = Math.floor(dmg * (1 + game.activeForm.eff.dmg));
+            }
+            if (game.enemyEffects['armor-break']) {
+                dmg = Math.floor(dmg * 1.5);
+                log("🛡️ Armor Break! Increased damage!");
+            }
+            
+            let damageDealt = dealDamage(dmg, 'enemy');
+            gainMasteryXp('ability', ability.id, 10);
+
+            if (ability.s) {
+                const effectType = typeof ability.s === 'string' ? ability.s : ability.s.type;
+                const effectChance = typeof ability.s === 'object' ? ability.s.chance : 1;
+                if (Math.random() < effectChance) {
+                    applyEffect(effectType, "enemy", damageDealt);
+                } else if (typeof ability.s === 'object') {
+                    log(`💨 ${effectType} effect failed to apply!`);
+                }
+            }
+            
+            if (game.enemyHp <= 0) { victory(); return; }
+            
+            if (game.playerEffects.haste > 0 && Math.random() < 0.5) {
+                log("⚡ Haste allows another action!");
+                game.playerEffects.haste--;
+                update();
+            } else {
+                endTurn();
+            }
+        }
+
+        function activateForm() {
+            if (!game.equippedForm || game.activeForm || !game.inBattle) return;
+            if (game.formUsedThisBattle) {
+                log("❌ You can only use your form once per battle!");
+                return;
+            }
+            if (game.energy < game.equippedForm.cost) {
+                log("Not enough energy to transform!");
+                return;
+            }
+            
+            playFormAnimation();
+            game.energy -= game.equippedForm.cost;
+            game.activeForm = { ...game.equippedForm, turnsLeft: game.equippedForm.dur };
+            game.formUsedThisBattle = true;
+            updateQuestProgress('use_form', 1);
+            
+            const mastery = game.formMastery[game.activeForm.id] || { level: 0, xp: 0 };
+            const masteryBonus = 1 + (mastery.level * 0.05);
+
+            const hpBoost = Math.floor(game.baseMaxHp * game.activeForm.eff.hp * masteryBonus);
+            const enBoost = Math.floor(game.baseMaxEnergy * game.activeForm.eff.en * masteryBonus);
+            
+            game.maxHp = game.baseMaxHp + hpBoost;
+            game.maxEnergy = game.baseMaxEnergy + enBoost;
+            game.hp += hpBoost;
+            game.energy += enBoost;
+
+            if (game.activeForm.eff.haste) {
+                applyEffect('haste', 'player');
+            }
+
+            const currentLog = game.inDungeon ? dungeonLog : log;
+            currentLog(`TRANSFORMATION! You transformed into ${game.activeForm.n}!`);
+            update();
+        }
+
+        function deactivateForm() {
+            if (!game.activeForm) return;
+            const currentLog = game.inDungeon ? dungeonLog : log;
+            currentLog(`${game.activeForm.n} has worn off!`);
+            game.maxHp = game.baseMaxHp;
+            game.maxEnergy = game.baseMaxEnergy;
+            if (game.hp > game.maxHp) game.hp = game.maxHp;
+            if (game.energy > game.maxEnergy) game.energy = game.maxEnergy;
+            game.activeForm = null;
+            update();
+        }
+
+        function dealDamage(amount, target) {
+            let actualDamage = amount;
+            if (target === 'player') {
+                if (game.playerEffects.invincible && game.playerEffects.invincible > 0) {
+                    log("🛡️ Limitless! You are invincible and take no damage!");
+                    return 0; 
+                }
+
+                if ((!game.playerEffects.invincible || game.playerEffects.invincible <= 0) && game.equippedPassive && game.equippedPassive.trigger === 'onDamage' && game.equippedPassive.effect.type === 'invincible' && Math.random() < game.equippedPassive.chance) {
+                    applyEffect('invincible', 'player');
+                }
+
+                if (game.playerShield > 0) {
+                    const shieldDmg = Math.min(game.playerShield, actualDamage);
+                    game.playerShield -= shieldDmg;
+                    actualDamage -= shieldDmg;
+                    log(`🛡️ Your shield absorbed ${shieldDmg} damage!`);
+                }
+                game.hp = Math.max(0, game.hp - actualDamage);
+
+                if (game.hp <= 0 && !game.revivedThisBattle) {
+                    if (game.equippedPassive && game.equippedPassive.trigger === 'onDeath') {
+                        if (game.equippedPassive.effect.type === 'revive') {
+                            game.hp = game.equippedPassive.effect.value;
+                            game.revivedThisBattle = true;
+                            log("👊 Hard Headed! You cling to life with 1 HP for a final attack!");
+                            update();
+                            return actualDamage; 
+                        }
+                        if (game.equippedPassive.effect.type === 'finalStand') {
+                            game.hp = Math.floor(game.maxHp * 0.5);
+                            game.energy = game.maxEnergy;
+                            game.inBattleDamageBonus *= 2; 
+                            game.revivedThisBattle = true;
+                            log("🔥 FINAL STAND! You are revived with immense power!");
+                            applyEffect('damage-boost', 'player'); 
+                            update();
+                            return actualDamage; 
+                        }
+                    }
+                }
+                
+                if (game.equippedPassive && game.equippedPassive.trigger === 'onDamage' && game.equippedPassive.effect.type === 'reflect' && Math.random() < game.equippedPassive.chance) {
+                    const reflectDmg = Math.floor(amount * game.equippedPassive.effect.value);
+                    dealDamage(reflectDmg, 'enemy');
+                    log(`💥 Thorns activated! Reflected ${reflectDmg} damage!`);
+                }
+
+            } else {
+                const enemyPanel = document.getElementById('enemy-panel');
+                if (enemyPanel) {
+                    enemyPanel.classList.add('hit-flash');
+                    setTimeout(() => enemyPanel.classList.remove('hit-flash'), 300);
+                }
+                if (game.enemyShield > 0) {
+                    const shieldDmg = Math.min(game.enemyShield, actualDamage);
+                    game.enemyShield -= shieldDmg;
+                    actualDamage -= shieldDmg;
+                    log(`🛡️ Enemy shield absorbed ${shieldDmg} damage!`);
+                }
+                game.enemyHp = Math.max(0, game.enemyHp - actualDamage);
+            }
+            return actualDamage;
+        }
+
+        function applyEffect(effect, target, damageDealt = 0) {
+            const isPlayer = target === "player";
+            const effects = isPlayer ? game.playerEffects : game.enemyEffects;
+            const targetName = isPlayer ? "You are" : "Enemy is";
+            
+            switch (effect) {
+                case "burn": effects.burn = 3; log(`🔥 ${targetName} burning!`); break;
+                case "freeze": effects.freeze = 2; log(`🧊 ${targetName} frozen!`); break;
+                case "stun": effects.stun = 1; log(`⚡ ${targetName} stunned!`); break;
+                case "bleed": effects.bleed = 4; log(`🩸 ${targetName} bleeding!`); break;
+                case "poison": effects.poison = 3; log(`☠️ ${targetName} poisoned!`); break;
+                case "weaken": effects.weaken = 3; log(`💪 ${targetName} weakened!`); break;
+                case "armor-break": effects['armor-break'] = 2; log(`🛡️ ${targetName} armor broken!`); break;
+                case "confusion": effects.confusion = 1; log(`😵 ${targetName} confused!`); break;
+                case "shield": 
+                    if(isPlayer) game.playerShield += 50; else game.enemyShield += 50;
+                    log(`🛡️ ${targetName} shielded!`); break;
+                case "regen": effects.regen = 3; log(`💚 ${targetName} regenerating!`); break;
+                case "reflect": effects.reflect = 2; log(`🔄 ${targetName} reflecting damage!`); break;
+                case "haste": effects.haste = 2; log(`⚡ ${targetName} hasted!`); break;
+                case "leech":
+                    const healed = Math.floor(damageDealt * 0.25);
+                    game.hp = Math.min(game.maxHp, game.hp + healed);
+                    log(`🧛 You leeched ${healed} HP!`);
+                    break;
+                case "energy-drain":
+                    const drained = 20;
+                    game.enemyEffects.energy = Math.max(0, game.enemyEffects.energy - drained);
+                    game.energy = Math.min(game.maxEnergy, game.energy + drained);
+                    log(`🔋 You drained ${drained} energy!`);
+                    break;
+                case "pierce": if (!isPlayer) { dealDamage(20, 'enemy'); log("Pierce! +20 bonus damage!"); } break;
+                case "heal": if (isPlayer) { game.hp = game.maxHp; log("You healed to full!"); } break;
+                case "speed": if (isPlayer) { effects.speed = 2; log("Speed boost active!"); } break;
+                case "invincible": if(isPlayer) effects.invincible = 4; log(`🛡️ ${targetName} invincible!`); break;
+                case "damage-boost": if(isPlayer) effects['damage-boost'] = 99; log(`🔥 ${targetName} damage boosted!`); break;
+                case "gambler-up": if(isPlayer) effects['gambler-up'] = 1; break;
+                case "gambler-down": if(isPlayer) effects['gambler-down'] = 1; break;
+            }
+        }
+
+        function endTurn() {
+            if (game.activeForm) {
+                game.activeForm.turnsLeft--;
+                gainMasteryXp('form', game.activeForm.id, 15);
+                if (game.activeForm.turnsLeft <= 0) {
+                    deactivateForm();
+                }
+            }
+            game.tempDamageBonus = 1; // Reset gambler bonus
+            delete game.playerEffects['gambler-up'];
+            delete game.playerEffects['gambler-down'];
+            game.turn = false;
+            setTimeout(enemyTurn, 1000);
+            update();
+        }
+
+        function enemyTurn() {
+            if (!game.inBattle || game.inDungeon) return;
+            
+            if (game.enemyEffects.stun > 0 || game.enemyEffects.freeze > 0) {
+                log("Enemy is stunned and cannot act!");
+                startPlayerTurn();
+                return;
+            }
+
+            if (game.enemyEffects.confusion > 0 && Math.random() < 0.5) {
+                log("😵 Enemy is confused and hits itself!");
+                dealDamage(30, 'enemy');
+                startPlayerTurn();
+                return;
+            }
+
+            if (game.activeForm && game.activeForm.eff.dodge && Math.random() < game.activeForm.eff.dodge) {
+                log("✨ You dodged the attack!");
+                startPlayerTurn();
+                return;
+            }
+            
+            let dmg = Math.floor(Math.random() * 25) + (game.enemyLv * 6);
+            if (game.enemyEffects.weaken > 0) {
+                dmg = Math.floor(dmg * 0.5);
+                log("💪 Enemy is weakened! Reduced damage!");
+            }
+            if (game.playerEffects.speed > 0 && Math.random() < 0.5) {
+                log("💨 Speed dodge!");
+                game.playerEffects.speed--;
+                startPlayerTurn();
+                return;
+            }
+            if (game.playerEffects.reflect > 0) {
+                const reflectDmg = Math.floor(dmg * 0.5);
+                log(`🔄 You reflect ${reflectDmg} damage!`);
+                dealDamage(reflectDmg, 'enemy');
+            }
+            
+            dealDamage(dmg, 'player');
+            log(`👹 ${game.enemyName} attacks for ${dmg} damage!`);
+            
+            if (game.hp <= 0) { gameOver(); return; }
+            if (game.enemyHp <= 0) { victory(); return; }
+            
+            startPlayerTurn();
+        }
+        
+        function startPlayerTurn() {
+            if (game.equippedPassive && game.equippedPassive.trigger === 'onTurnStart' && game.equippedPassive.effect.type === 'gambler') {
+                if (Math.random() < 0.5) {
+                    game.tempDamageBonus = 1.5;
+                    log("🎲 Gambler's Luck! You feel powerful! (+50% Damage)");
+                    applyEffect('gambler-up', 'player');
+                } else {
+                    game.tempDamageBonus = 0.5;
+                    log("🎲 Gambler's Folly! You feel weak... (-50% Damage)");
+                    applyEffect('gambler-down', 'player');
+                }
+            }
+            
+            game.turn = true;
+            processEffects();
+            update();
+        }
+
+        function processEffects() {
+            for (const effect in game.playerEffects) {
+                if (game.playerEffects[effect] > 0) {
+                    switch(effect) {
+                        case "burn": dealDamage(8, 'player'); log("🔥 You take burn damage!"); break;
+                        case "bleed": dealDamage(5, 'player'); log("🩸 You take bleed damage!"); break;
+                        case "poison": dealDamage(6, 'player'); log("☠️ You take poison damage!"); break;
+                        case "regen": game.hp = Math.min(game.maxHp, game.hp + 10); log("💚 You regenerate health!"); break;
+                    }
+                    if (effect !== 'damage-boost') game.playerEffects[effect]--;
+                }
+                if (game.playerEffects[effect] <= 0) delete game.playerEffects[effect];
+            }
+            
+            for (const effect in game.enemyEffects) {
+                if (game.enemyEffects[effect] > 0) {
+                     switch(effect) {
+                        case "burn": dealDamage(8, 'enemy'); log("🔥 Enemy takes burn damage!"); break;
+                        case "bleed": dealDamage(5, 'enemy'); log("🩸 Enemy takes bleed damage!"); break;
+                        case "poison": dealDamage(6, 'enemy'); log("☠️ Enemy takes poison damage!"); break;
+                        case "regen": game.enemyHp = Math.min(game.enemyMaxHp, game.enemyHp + 10); log("💚 Enemy regenerates health!"); break;
+                    }
+                    game.enemyEffects[effect]--;
+                }
+                 if (game.enemyEffects[effect] <= 0) delete game.enemyEffects[effect];
+            }
+
+            if (game.hp <= 0) gameOver();
+            else if (game.enemyHp <= 0) victory();
+        }
+
+        function startBattle() {
+            if (game.inDungeon) return;
+            
+            const campBtn = document.getElementById('campBtn');
+            campBtn.style.display = 'inline-block';
+            campBtn.textContent = game.isCamped ? "Auto-Continue: OFF" : "Auto-Continue: ON";
+
+            game.inBattle = true;
+            game.turn = true;
+            game.playerEffects = {};
+            game.enemyEffects = {};
+            game.playerShield = 0;
+            game.enemyShield = 0;
+            game.hp = game.maxHp;
+            game.energy = game.maxEnergy;
+            game.formUsedThisBattle = false;
+            game.revivedThisBattle = false;
+            game.tempDamageBonus = 1;
+            game.inBattleDamageBonus = game.baseDamageBonus; // Reset battle damage bonus
+            
+            let enemyTemplate;
+            if (game.level > 0 && game.level % 10 === 0) {
+                const bossIndex = Math.min(Math.floor(game.level / 10) - 1, storyMinibosses.length - 1);
+                enemyTemplate = storyMinibosses[bossIndex];
+                game.enemyMaxHp = enemyTemplate.baseHp + (enemyTemplate.hpPerLvl * game.level);
+                document.getElementById("enemyTitle").className = "boss-enemy";
+            } else {
+                const enemyIndex = Math.min(Math.floor((game.level-1) / 5), storyEnemies.length - 1);
+                enemyTemplate = storyEnemies[enemyIndex];
+                game.enemyMaxHp = enemyTemplate.baseHp + (enemyTemplate.hpPerLvl * game.level);
+                document.getElementById("enemyTitle").className = "";
+            }
+
+            game.enemyName = enemyTemplate.name;
+            game.currentEnemy = { ...enemyTemplate };
+            game.enemyHp = game.enemyMaxHp;
+            
+            document.getElementById("battleBtn").style.display = "none";
+            log(`⚔️ Battle vs ${game.enemyName}!`);
+            update();
+        }
+        
+        function toggleCamp() {
+            game.isCamped = !game.isCamped;
+            const campBtn = document.getElementById('campBtn');
+            if (game.isCamped) {
+                campBtn.textContent = "Auto-Continue: OFF";
+                log("🏕️ Auto-continue is now OFF. The story will pause after this battle.");
+            } else {
+                campBtn.textContent = "Auto-Continue: ON";
+                log("▶️ Auto-continue is now ON. The next battle will start automatically.");
+            }
+            update();
+        }
+
+        function victory() {
+            game.inBattle = false;
+            if (game.activeForm) deactivateForm();
+            
+            if (game.currentEnemy && game.currentEnemy.isMiniboss) {
+                log("🏆 Miniboss defeated! You earned 5 bonus rolls!");
+                game.rolls += 5;
+            }
+            game.currentEnemy = {};
+            updateQuestProgress('defeat_enemy', 1);
+
+            game.level++;
+            game.rolls++;
+            log(`Victory! Floor ${game.level}!`);
+            
+            game.statPoints += 1; // Changed from 3 to 1
+            log(`✨ You gained 1 stat point!`);
+            updateQuestProgress('win_story', 1);
+
+            game.hp = game.maxHp;
+            game.energy = game.maxEnergy;
+            game.totalWins++;
+            game.enemyLv++;
+            
+            if (game.isCamped) {
+                log("You are camped. Press 'Start Next Floor' to continue.");
+                const battleBtn = document.getElementById('battleBtn');
+                battleBtn.textContent = "Start Next Floor";
+                battleBtn.style.display = 'block';
+            } else {
+                log("Continuing to the next floor automatically...");
+                setTimeout(startBattle, 2000);
+            }
+            
+            update();
+        }
+
+        function gameOver() {
+            game.inBattle = false;
+            if (game.activeForm) deactivateForm();
+            log("💀 You were defeated! Try again.");
+            game.currentEnemy = {};
+            document.getElementById("battleBtn").textContent = "Try Again";
+            document.getElementById("battleBtn").style.display = "block";
+            document.getElementById("campBtn").style.display = 'inline-block';
+            update();
+        }
+
+        function invest(stat) {
+            if (game.statPoints <= 0) {
+                log("❌ No stat points available!");
+                return;
+            }
+
+            game.statPoints--;
+            switch(stat) {
+                case 'hp':
+                    game.baseMaxHp += 100;
+                    game.maxHp = game.baseMaxHp;
+                    game.hp = game.maxHp;
+                    log(`❤️ Max HP increased to ${game.maxHp}!`);
+                    break;
+                case 'energy':
+                    game.baseMaxEnergy += 50;
+                    game.maxEnergy = game.baseMaxEnergy;
+                    game.energy = game.maxEnergy;
+                    log(`⚡ Max Energy increased to ${game.maxEnergy}!`);
+                    break;
+                case 'damage':
+                    game.baseDamageBonus += 0.05; // Changed from 0.10 to 0.05
+                    log(`💥 Damage bonus increased to ${Math.round(game.baseDamageBonus * 100)}%!`);
+                    break;
+                case 'charge':
+                    game.chargeAmount += 50;
+                    log(`🔋 Charge amount increased to ${game.chargeAmount}!`);
+                    break;
+            }
+            update();
+        }
+
+        function saveGame() {
+            try {
+                localStorage.setItem('animeRPG-save', JSON.stringify(game));
+            } catch (e) { console.error("Failed to save game:", e); }
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('animeRPG-save');
+            if (saved) {
+                try {
+                    const loadedGame = JSON.parse(saved);
+                    const defaults = {
+                        statPoints: 0, baseDamageBonus: 1, inBattleDamageBonus: 1, tempDamageBonus: 1, playerShield: 0, enemyShield: 0,
+                        forms: [], equippedForm: null, activeForm: null,
+                        passives: [], equippedPassive: null,
+                        baseMaxHp: 100, baseMaxEnergy: 50, formUsedThisBattle: false,
+                        bounty: 0, friends: {}, chargeAmount: 50, redeemedCodes: [], currentEnemy: {},
+                        isCamped: false, revivedThisBattle: false, masteryLevels: {}, formMastery: {},
+                        lastLoginDate: null, dailyQuests: [], synergyBonus: {}
+                    };
+                    game = { ...defaults, ...loadedGame };
+                    log("📁 Game loaded!");
+                } catch (e) {
+                    console.error("Failed to load saved game:", e);
+                    log("Could not load save file. Starting new game.");
+                }
+            }
+        }
+        
+        // --- Mastery System ---
+        function gainMasteryXp(type, id, amount) {
+            let masteryData, name;
+            if (type === 'ability') {
+                masteryData = game.masteryLevels;
+                name = game.abilities.find(a => a.id === id)?.n || 'Ability';
+            } else { // form
+                masteryData = game.formMastery;
+                name = game.forms.find(f => f.id === id)?.n || 'Form';
+            }
+
+            if (!masteryData[id]) {
+                masteryData[id] = { level: 0, xp: 0 };
+            }
+
+            masteryData[id].xp += amount;
+            const xpToNextLevel = 100 * Math.pow(1.5, masteryData[id].level);
+
+            if (masteryData[id].xp >= xpToNextLevel) {
+                masteryData[id].level++;
+                masteryData[id].xp -= xpToNextLevel;
+                const currentLog = game.inDungeon ? dungeonLog : log;
+                currentLog(`🌟 ${name} has reached Mastery Level ${masteryData[id].level}!`);
+            }
+        }
+        
+        // --- Dungeons ---
+        function renderDungeons() {
+            const list = document.getElementById('dungeon-list');
+            list.innerHTML = '';
+            Object.entries(dungeons).forEach(([id, dungeon]) => {
+                const card = document.createElement('div');
+                card.className = 'dungeon-card';
+                card.innerHTML = `
+                    <h3>${dungeon.name}</h3>
+                    <div class="dungeon-difficulties">
+                        <button onclick="startDungeon('${id}', 'easy')">Easy</button>
+                        <button onclick="startDungeon('${id}', 'normal')">Normal</button>
+                        <button onclick="startDungeon('${id}', 'hard')">Hard</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function startDungeon(dungeonId, difficulty) {
+            if (game.inBattle && !game.isCamped) {
+                log("❌ Cannot start a dungeon while in a story battle. Turn off Auto-Continue first!");
+                return;
+            }
+
+            const dungeonData = dungeons[dungeonId];
+            if (!dungeonData) return;
+
+            game.inDungeon = true;
+            game.inBattle = true;
+            game.turn = true;
+            game.playerEffects = {};
+            game.playerShield = 0;
+            game.hp = game.maxHp;
+            game.energy = game.maxEnergy;
+            game.formUsedThisBattle = false; 
+
+            const difficultyMultipliers = {
+                easy: { hp: 0.8, dmg: 0.8, rolls: 1 },
+                normal: { hp: 1, dmg: 1, rolls: 3 },
+                hard: { hp: 1.5, dmg: 1.5, rolls: 5 }
+            };
+            const multiplier = difficultyMultipliers[difficulty];
+
+            const processedEnemies = dungeonData.enemies.map(e => ({
+                ...e,
+                hp: Math.floor(e.hp * multiplier.hp),
+                maxHp: Math.floor(e.hp * multiplier.hp),
+                dmg: Math.floor(e.dmg * multiplier.dmg)
+            }));
+            
+            let processedMinibosses = [];
+            if (dungeonData.minibosses) {
+                processedMinibosses = dungeonData.minibosses.map(e => ({
+                    ...e,
+                    hp: Math.floor(e.hp * multiplier.hp),
+                    maxHp: Math.floor(e.hp * multiplier.hp),
+                    dmg: Math.floor(e.dmg * multiplier.dmg),
+                    isMiniboss: true,
+                    drop: e.drop
+                }));
+            }
+
+            const processedBoss = {
+                ...dungeonData.boss,
+                hp: Math.floor(dungeonData.boss.hp * multiplier.hp),
+                maxHp: Math.floor(dungeonData.boss.hp * multiplier.hp),
+                dmg: Math.floor(dungeonData.boss.dmg * multiplier.dmg),
+                isBoss: true,
+                drop: dungeonData.boss.drop
+            };
+
+            game.dungeonState = {
+                id: dungeonId,
+                difficulty: difficulty,
+                stage: 0,
+                enemies: [...processedEnemies, ...processedMinibosses, processedBoss],
+                rewards: { rolls: multiplier.rolls, abilities: [] }
+            };
+
+            document.getElementById('dungeon-selection-screen').style.display = 'none';
+            const battleScreen = document.getElementById('dungeon-battle-screen');
+            battleScreen.style.display = 'block';
+            battleScreen.innerHTML = `
+                <div class="panel">
+                    <div style="text-align: center;">
+                        <h4 id="dungeonEnemyTitle">Enemy: <span id="dungeonEnemyName"></span></h4>
+                        <div class="bar-container"><div class="bar"><div class="bar-fill health" id="dungeonEnemyHpBar" style="width: 100%"></div></div></div>
+                        <div>HP: <span id="dungeonEnemyHp"></span>/<span id="dungeonEnemyMaxHp"></span></div>
+                        <div class="status" id="dungeonEnemyStatus"></div>
+                        <h4>Your Status</h4>
+                        <div class="bar-container"><div class="bar"><div class="bar-fill health" id="dungeonPlayerHpBar" style="width: 100%"></div></div><span id="dungeonPlayerHpText" class="bar-text"></span></div>
+                        <div class="bar-container"><div class="bar"><div class="bar-fill energy" id="dungeonPlayerEnergyBar" style="width: 100%"></div></div><span id="dungeonPlayerEnergyText" class="bar-text"></span></div>
+                        <div class="status" id="dungeonPlayerStatus"></div>
+                    </div>
+                    <h4>Battle Actions</h4>
+                    <div id="dungeonEquipped"></div>
+                    <div id="dungeonFormActivation"></div>
+                    <div class="log" id="dungeonLog"></div>
+                    <button onclick="leaveDungeon()" style="margin-top: 15px;">Leave Dungeon</button>
+                </div>
+            `;
+            
+            setupDungeonBattle();
+        }
+
+        function setupDungeonBattle() {
+            const state = game.dungeonState;
+            if (state.stage >= state.enemies.length) {
+                dungeonVictory();
+                return;
+            }
+
+            const enemy = state.enemies[state.stage];
+            state.currentEnemy = enemy;
+            state.enemyEffects = {};
+            state.enemyShield = 0;
+
+            dungeonLog(`A wild ${enemy.name} appears!`);
+            updateDungeonUI();
+        }
+
+        function useDungeonAbility(id) {
+            if (!game.inDungeon || !game.turn) return;
+            
+            const ability = game.equipped.find(a => a.id === id);
+            if (!ability || !game.dungeonState.currentEnemy) return;
+            
+            if (ability.n === "Charge") {
+                game.energy = Math.min(game.maxEnergy, game.energy + game.chargeAmount);
+                dungeonLog(`Charged ${game.chargeAmount} energy!`);
+                endDungeonTurn();
+                return;
+            }
+            
+            if (game.energy < ability.e) {
+                dungeonLog("Not enough energy!");
+                return;
+            }
+            
+            game.energy -= ability.e;
+            const mastery = game.masteryLevels[ability.id] || { level: 0, xp: 0 };
+            const masteryBonus = 1 + (mastery.level * 0.05);
+            let baseDmg = (Math.floor(Math.random() * (ability.d[1] - ability.d[0] + 1)) + ability.d[0]) * masteryBonus;
+            let dmg = Math.floor(baseDmg * game.inBattleDamageBonus);
+
+            if (game.activeForm) {
+                dmg = Math.floor(dmg * (1 + game.activeForm.eff.dmg));
+            }
+            
+            game.dungeonState.currentEnemy.hp = Math.max(0, game.dungeonState.currentEnemy.hp - dmg);
+            dungeonLog(`⚔️ ${ability.n} deals ${dmg} damage to ${game.dungeonState.currentEnemy.name}!`);
+            gainMasteryXp('ability', ability.id, 10);
+            
+            if (game.dungeonState.currentEnemy.hp <= 0) {
+                dungeonLog(`${game.dungeonState.currentEnemy.name} defeated!`);
+                updateQuestProgress('defeat_enemy', 1);
+                if (game.dungeonState.currentEnemy.drop && Math.random() < 0.2) { // 20% drop chance for minibosses/boss
+                    const droppedAbility = { ...game.dungeonState.currentEnemy.drop, id: Date.now() + Math.random(), equipped: false, a: "Dungeon Drop" };
+                    game.abilities.push(droppedAbility);
+                    game.dungeonState.rewards.abilities.push(droppedAbility);
+                    dungeonLog(`⭐ ${game.dungeonState.currentEnemy.name} dropped ${droppedAbility.n}!`);
+                }
+                game.dungeonState.stage++;
+                update(); // update main game state after drop
+                setTimeout(setupDungeonBattle, 1500);
+                return;
+            }
+            
+            endDungeonTurn();
+        }
+
+        function endDungeonTurn() {
+            if (game.activeForm) {
+                game.activeForm.turnsLeft--;
+                gainMasteryXp('form', game.activeForm.id, 15);
+                if (game.activeForm.turnsLeft <= 0) {
+                    deactivateForm();
+                }
+            }
+            game.turn = false;
+            setTimeout(dungeonEnemyTurn, 1000);
+            updateDungeonUI();
+        }
+
+        function dungeonEnemyTurn() {
+            if (!game.inDungeon) return;
+            
+            const enemy = game.dungeonState.currentEnemy;
+            let dmg = enemy.dmg;
+            dealDamage(dmg, 'player');
+            dungeonLog(`👹 ${enemy.name} attacks for ${dmg} damage!`);
+            
+            if (game.hp <= 0) {
+                dungeonGameOver();
+                return;
+            }
+            
+            game.turn = true;
+            updateDungeonUI();
+        }
+
+        function dungeonVictory() {
+            dungeonLog("🎉 Dungeon Cleared! You are victorious!");
+            updateQuestProgress('complete_dungeon', 1);
+            
+            const rewards = game.dungeonState.rewards;
+            game.rolls += rewards.rolls;
+            
+            const rewardsModal = document.getElementById('dungeonRewardsModal');
+            const rewardsTitle = document.getElementById('dungeonRewardsTitle');
+            const rewardsContent = document.getElementById('dungeonRewardsContent');
+            
+            rewardsTitle.textContent = `Dungeon Cleared! (${game.dungeonState.difficulty})`;
+            let rewardsHTML = `<p>You earned ${rewards.rolls} rolls!</p>`;
+            if (rewards.abilities.length > 0) {
+                rewardsHTML += '<h4>Abilities Found:</h4>';
+                rewards.abilities.forEach(a => {
+                    rewardsHTML += `<div class="ability ${a.r}">${a.n}</div>`;
+                });
+            }
+            rewardsContent.innerHTML = rewardsHTML;
+            rewardsModal.classList.add('show');
+
+            resetDungeonState();
+        }
+
+        function dungeonGameOver() {
+            dungeonLog("💀 You were defeated in the dungeon!");
+            resetDungeonState();
+        }
+
+        function leaveDungeon() {
+            dungeonLog("You have left the dungeon.");
+            resetDungeonState();
+        }
+
+        function resetDungeonState() {
+            if (game.activeForm) deactivateForm();
+            game.inDungeon = false;
+            game.inBattle = false;
+            game.dungeonState = {};
+            document.getElementById('dungeon-selection-screen').style.display = 'block';
+            const battleScreen = document.getElementById('dungeon-battle-screen');
+            battleScreen.style.display = 'none';
+            battleScreen.innerHTML = '';
+            update();
+        }
+
+        function updateDungeonUI() {
+            if (!game.inDungeon || !game.dungeonState.currentEnemy) return;
+            const enemy = game.dungeonState.currentEnemy;
+            
+            document.getElementById('dungeonEnemyName').textContent = enemy.name;
+            document.getElementById('dungeonEnemyHp').textContent = enemy.hp;
+            document.getElementById('dungeonEnemyMaxHp').textContent = enemy.maxHp;
+            document.getElementById('dungeonEnemyHpBar').style.width = (enemy.hp / enemy.maxHp * 100) + "%";
+
+            document.getElementById('dungeonPlayerHpBar').style.width = (game.hp / game.maxHp * 100) + "%";
+            document.getElementById('dungeonPlayerHpText').textContent = `${game.hp}/${game.maxHp}`;
+            document.getElementById('dungeonPlayerEnergyBar').style.width = (game.energy / game.maxEnergy * 100) + "%";
+            document.getElementById('dungeonPlayerEnergyText').textContent = `${game.energy}/${game.maxEnergy}`;
+            
+            const equippedDiv = document.getElementById('dungeonEquipped');
+            if (equippedDiv) {
+                equippedDiv.innerHTML = "";
+                game.equipped.forEach(ability => {
+                    const btn = document.createElement("button");
+                    btn.textContent = ability.n === "Charge" ? `${ability.n} (+${game.chargeAmount}e)` : `${ability.n} (${ability.e}e)`;
+                    btn.onclick = () => useDungeonAbility(ability.id);
+                    btn.disabled = !game.turn || (ability.n !== "Charge" && game.energy < ability.e);
+                    if (ability.n === "Charge") btn.className = "charge-btn";
+                    equippedDiv.appendChild(btn);
+                });
+            }
+
+            const dungeonFormActivation = document.getElementById("dungeonFormActivation");
+            if (dungeonFormActivation) {
+                dungeonFormActivation.innerHTML = "";
+                if (game.equippedForm && game.inDungeon) {
+                    const btn = document.createElement("button");
+                    btn.textContent = `Activate ${game.equippedForm.n} (${game.equippedForm.cost}e)`;
+                    btn.className = "form-btn";
+                    btn.onclick = activateForm;
+                    btn.disabled = !game.turn || !!game.activeForm || game.energy < game.equippedForm.cost || game.formUsedThisBattle;
+                    dungeonFormActivation.appendChild(btn);
+                }
+            }
+        }
+
+        function dungeonLog(msg) {
+            const logDiv = document.getElementById("dungeonLog");
+            if (logDiv) {
+                const div = document.createElement("div");
+                div.textContent = msg;
+                logDiv.appendChild(div);
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+        }
+        
+        // --- Social Features ---
+        async function addFriend() {
+            const friendId = document.getElementById('friendIdInput').value.trim();
+            if (!friendId || friendId === userId) {
+                alert("Invalid User ID.");
+                return;
+            }
+            game.friends[friendId] = { name: "Friend" }; 
+            update();
+            alert("Friend added! (Simplified for this demo)");
+        }
+        
+        // --- PVP ---
+        function setDisplayName() {
+            const input = document.getElementById('displayNameInput');
+            const newName = input.value.trim();
+            if (newName && newName.length > 2 && newName.length < 16) {
+                displayName = newName;
+                localStorage.setItem('displayName', displayName);
+                document.getElementById('displayNameDisplay').textContent = displayName;
+            } else {
+                alert("Name must be between 3 and 15 characters.");
+            }
+        }
+
+        async function findMatch() {
+            if (!userId) { pvpLog("You must be signed in to play online."); return; }
+            
+            const pvpStatus = document.getElementById('pvpStatus');
+            pvpStatus.textContent = "Searching for an opponent...";
+            document.getElementById('findMatchBtn').disabled = true;
+
+            const queueRef = collection(db, `/artifacts/${appId}/public/data/pvp_queue`);
+            const q = query(queueRef, where("status", "==", "waiting"));
+            const querySnapshot = await getDocs(q);
+
+            let opponent = null;
+            querySnapshot.forEach(doc => {
+                if (doc.data().playerId !== userId && !opponent) {
+                    opponent = { id: doc.id, ...doc.data() };
+                }
+            });
+
+            if (opponent) {
+                await deleteDoc(doc(db, `/artifacts/${appId}/public/data/pvp_queue`, opponent.id));
+                const gameData = {
+                    player1Id: userId, player2Id: opponent.playerId,
+                    player1Name: displayName, player2Name: opponent.playerData.displayName,
+                    player1Bounty: game.bounty, player2Bounty: opponent.playerData.bounty,
+                    player1: { hp: game.maxHp, maxHp: game.maxHp, energy: game.maxEnergy, maxEnergy: game.maxEnergy, damageBonus: game.baseDamageBonus, equipped: game.equipped },
+                    player2: { hp: opponent.playerData.maxHp, maxHp: opponent.playerData.maxHp, energy: opponent.playerData.maxEnergy, maxEnergy: opponent.playerData.maxEnergy, damageBonus: opponent.playerData.damageBonus, equipped: opponent.playerData.equipped },
+                    turn: Math.random() < 0.5 ? userId : opponent.playerId,
+                    status: 'active', log: [`Game started between ${displayName} and ${opponent.playerData.displayName}!`],
+                    createdAt: serverTimestamp()
+                };
+                const gameDocRef = await addDoc(collection(db, `/artifacts/${appId}/public/data/pvp_games`), gameData);
+                pvpGameId = gameDocRef.id;
+                startPvpGame(pvpGameId);
+            } else {
+                const playerData = { maxHp: game.maxHp, maxEnergy: game.maxEnergy, damageBonus: game.baseDamageBonus, equipped: game.equipped, displayName: displayName, bounty: game.bounty };
+                await addDoc(queueRef, { playerId: userId, status: 'waiting', playerData: playerData, createdAt: serverTimestamp() });
+                const gamesRef = collection(db, `/artifacts/${appId}/public/data/pvp_games`);
+                const gameQuery = query(gamesRef, where("player2Id", "==", userId), where("status", "==", "active"));
+                queueListener = onSnapshot(gameQuery, (snapshot) => {
+                    if (!snapshot.empty) {
+                        const gameDoc = snapshot.docs[0];
+                        pvpGameId = gameDoc.id;
+                        startPvpGame(pvpGameId);
+                        if (queueListener) queueListener();
+                    }
+                });
+            }
+        }
+
+        function startPvpGame(gameId) {
+            pvpLog("Opponent found! Starting game...");
+            document.getElementById('pvp-matchmaking').style.display = 'none';
+            document.getElementById('pvp-battle-area').style.display = 'block';
+            const gameDocRef = doc(db, `/artifacts/${appId}/public/data/pvp_games`, gameId);
+            pvpListener = onSnapshot(gameDocRef, (doc) => {
+                if (doc.exists()) { updatePvpUI(doc.data()); } 
+                else { endPvpGame("Opponent left the game."); }
+            });
+        }
+
+        function endPvpGame(message) {
+            pvpLog(message);
+            if (pvpListener) pvpListener();
+            pvpGameId = null;
+            setTimeout(() => {
+                document.getElementById('pvp-matchmaking').style.display = 'block';
+                document.getElementById('pvp-battle-area').style.display = 'none';
+                document.getElementById('pvpStatus').textContent = "Ready to battle!";
+                document.getElementById('findMatchBtn').disabled = false;
+                document.getElementById('pvpLog').innerHTML = "";
+            }, 3000);
+        }
+
+        function updatePvpUI(pvpData) {
+            if (pvpData.status === 'finished') {
+                const isPlayer1 = pvpData.player1Id === userId;
+                const opponentBounty = isPlayer1 ? pvpData.player2Bounty : pvpData.player1Bounty;
+                if (pvpData.winner === userId) {
+                    const rollsWon = opponentBounty > 0 ? opponentBounty : 1;
+                    game.rolls += rollsWon;
+                    game.bounty++;
+                    endPvpGame(`You won! You claimed a bounty of ${rollsWon} rolls!`);
+                } else {
+                    game.bounty = 0;
+                    endPvpGame("You lost! Your bounty has been reset.");
+                }
+                update();
+                return;
+            }
+            const isPlayer1 = pvpData.player1Id === userId;
+            const player = isPlayer1 ? pvpData.player1 : pvpData.player2;
+            const opponent = isPlayer1 ? pvpData.player2 : pvpData.player1;
+            const opponentName = isPlayer1 ? pvpData.player2Name : pvpData.player1Name;
+            document.getElementById('pvpPlayerName').textContent = displayName;
+            document.getElementById('pvpPlayerHpBar').style.width = (player.hp / player.maxHp * 100) + '%';
+            document.getElementById('pvpPlayerHpText').textContent = `HP: ${player.hp}/${player.maxHp}`;
+            document.getElementById('pvpPlayerEnergyBar').style.width = (player.energy / player.maxEnergy * 100) + '%';
+            document.getElementById('pvpPlayerEnergyText').textContent = `Energy: ${player.energy}/${player.maxEnergy}`;
+            document.getElementById('pvpOpponentName').textContent = opponentName;
+            document.getElementById('pvpOpponentHpBar').style.width = (opponent.hp / opponent.maxHp * 100) + '%';
+            document.getElementById('pvpOpponentHpText').textContent = `HP: ${opponent.hp}/${opponent.maxHp}`;
+            document.getElementById('pvpOpponentEnergyBar').style.width = (opponent.energy / opponent.maxEnergy * 100) + '%';
+            document.getElementById('pvpOpponentEnergyText').textContent = `Energy: ${opponent.energy}/${opponent.maxEnergy}`;
+            const pvpEquippedDiv = document.getElementById('pvpEquipped');
+            pvpEquippedDiv.innerHTML = '';
+            player.equipped.forEach(ability => {
+                const btn = document.createElement("button");
+                btn.textContent = ability.n === "Charge" ? `${ability.n}` : `${ability.n} (${ability.e}e)`;
+                btn.onclick = () => usePvpAbility(ability);
+                btn.disabled = pvpData.turn !== userId || (ability.n !== "Charge" && player.energy < ability.e);
+                if (ability.n === "Charge") btn.className = "charge-btn";
+                pvpEquippedDiv.appendChild(btn);
+            });
+            const pvpLogDiv = document.getElementById('pvpLog');
+            pvpLogDiv.innerHTML = pvpData.log.join('<br>');
+            pvpLogDiv.scrollTop = pvpLogDiv.scrollHeight;
+        }
+
+        async function usePvpAbility(ability) {
+            if (!pvpGameId) return;
+            const gameDocRef = doc(db, `/artifacts/${appId}/public/data/pvp_games`, pvpGameId);
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const gameDoc = await transaction.get(gameDocRef);
+                    if (!gameDoc.exists() || gameDoc.data().turn !== userId) return;
+                    
+                    let pvpData = gameDoc.data();
+                    const isPlayer1 = pvpData.player1Id === userId;
+                    let player = isPlayer1 ? pvpData.player1 : pvpData.player2;
+                    let opponent = isPlayer1 ? pvpData.player2 : pvpData.player1;
+                    
+                    if (ability.n === "Charge") {
+                        player.energy = Math.min(player.maxEnergy, player.energy + game.chargeAmount);
+                        pvpData.log.push(`${displayName} charged energy.`);
+                    } else {
+                        if (player.energy < ability.e) return;
+                        player.energy -= ability.e;
+                        let dmg = Math.floor(Math.random() * (ability.d[1] - ability.d[0] + 1)) + ability.d[0];
+                        dmg = Math.floor(dmg * player.damageBonus);
+                        opponent.hp = Math.max(0, opponent.hp - dmg);
+                        pvpData.log.push(`${displayName} used ${ability.n} for ${dmg} damage!`);
+                    }
+                    
+                    pvpData.turn = isPlayer1 ? pvpData.player2Id : pvpData.player1Id;
+                    if (opponent.hp <= 0) {
+                        pvpData.status = 'finished';
+                        pvpData.winner = userId;
+                    }
+                    transaction.update(gameDocRef, pvpData);
+                });
+            } catch (e) { console.error("PvP transaction failed: ", e); }
+        }
+
+        function pvpLog(msg) {
+            const logDiv = document.getElementById("pvpLog");
+            const div = document.createElement("div");
+            div.textContent = msg;
+            logDiv.appendChild(div);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        // --- Animation ---
+        function playFormAnimation() {
+            const overlay = document.getElementById('animation-overlay');
+            overlay.className = '';
+            setTimeout(() => {
+                overlay.classList.add('transform-flash');
+            }, 10);
+        }
+
+        function playAbilityAnimation(abilityName) {
+            const overlay = document.getElementById('animation-overlay');
+            const body = document.body;
+            
+            overlay.className = '';
+            body.classList.remove('screen-shake');
+
+            setTimeout(() => {
+                switch(abilityName) {
+                    case 'Kamehameha': overlay.classList.add('kamehameha-flash'); break;
+                    case 'Rasengan': overlay.classList.add('rasengan-flash'); break;
+                    case 'Amaterasu': overlay.classList.add('amaterasu-flash'); break;
+                    case 'Hollow Purple': overlay.classList.add('hollow-purple-flash'); break;
+                    case 'Final Flash': overlay.classList.add('final-flash'); break;
+                    case 'Spirit Bomb': overlay.classList.add('spirit-bomb-flash'); break;
+                    case 'Detroit Smash': overlay.classList.add('detroit-smash-flash'); body.classList.add('screen-shake'); break;
+                    case 'Cleave': case 'World Cutting Slash': overlay.classList.add('cleave-flash'); break;
+                    case 'Gura Gura Punch': body.classList.add('screen-shake'); break;
+                }
+            }, 10);
+        }
+
+        // --- Settings & Status ---
+        function updateConnectionStatus(isConnected) {
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+            const multiPlayerTab = document.querySelector('[onclick="switchTab(\'multiplayer\')"]');
+            const socialTab = document.querySelector('[onclick="switchTab(\'social\')"]');
+
+            if (isConnected) {
+                dot.className = 'status-dot online';
+                text.textContent = 'Online';
+                multiPlayerTab.disabled = false;
+                socialTab.disabled = false;
+            } else {
+                dot.className = 'status-dot offline';
+                text.textContent = 'Offline';
+                multiPlayerTab.disabled = true;
+                socialTab.disabled = true;
+                if (multiPlayerTab.classList.contains('active') || socialTab.classList.contains('active')) {
+                    switchTab('shop');
+                }
+            }
+        }
+
+        function setupSettings() {
+            // Settings setup can be expanded here
+        }
+        
+        function resetGameWithConfirm() {
+            const confirmModal = document.getElementById('confirmModal');
+            document.getElementById('confirmText').textContent = "This will erase all your progress, including abilities, forms, and stats. This action cannot be undone.";
+            confirmModal.classList.add('show');
+
+            document.getElementById('confirmYesBtn').onclick = () => {
+                localStorage.removeItem('animeRPG-save');
+                localStorage.removeItem('displayName');
+                location.reload();
+            };
+            document.getElementById('confirmNoBtn').onclick = () => {
+                confirmModal.classList.remove('show');
+            };
+        }
+
+        function redeemCode() {
+            const input = document.getElementById('codeInput');
+            const code = input.value.toUpperCase().trim();
+            const status = document.getElementById('codeStatus');
+            const codes = {
+                'UPDATE!': { type: 'rolls', amount: 25 }
+            };
+
+            if (game.redeemedCodes.includes(code)) {
+                status.textContent = "Code already redeemed!";
+                status.style.color = '#f44336';
+                return;
+            }
+
+            if (codes[code]) {
+                const reward = codes[code];
+                if (reward.type === 'rolls') {
+                    game.rolls += reward.amount;
+                }
+                game.redeemedCodes.push(code);
+                status.textContent = `Success! You received ${reward.amount} ${reward.type}!`;
+                status.style.color = '#4caf50';
+                update();
+            } else {
+                status.textContent = "Invalid code.";
+                status.style.color = '#f44336';
+            }
+            input.value = '';
+        }
+
+        // --- Daily Quests & Login ---
+        function checkDailyReset() {
+            const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            if (game.lastLoginDate !== today) {
+                game.lastLoginDate = today;
+                document.getElementById('dailyRewardModal').classList.add('show');
+                game.rolls += 5;
+                generateNewQuests();
+                update();
+            }
+        }
+
+        function generateNewQuests() {
+            game.dailyQuests = [];
+            const shuffledQuests = [...questTemplates].sort(() => 0.5 - Math.random());
+            for (let i = 0; i < 3; i++) {
+                game.dailyQuests.push({ ...shuffledQuests[i], progress: 0, completed: false });
+            }
+        }
+
+        function updateQuestProgress(type, amount) {
+            if (!game.dailyQuests) return;
+            game.dailyQuests.forEach(quest => {
+                if (quest.type === type && !quest.completed) {
+                    quest.progress += amount;
+                    if (quest.progress >= quest.target) {
+                        quest.progress = quest.target;
+                    }
+                }
+            });
+            updateQuestsUI();
+        }
+
+        function claimQuestReward(questId) {
+            const quest = game.dailyQuests.find(q => q.id === questId);
+            if (quest && quest.progress >= quest.target && !quest.completed) {
+                quest.completed = true;
+                if (quest.reward.type === 'rolls') {
+                    game.rolls += quest.reward.amount;
+                }
+                log(`🎉 Quest Complete! You earned ${quest.reward.amount} rolls!`);
+                updateQuestsUI();
+                update();
+            }
+        }
+
+        function updateQuestsUI() {
+            const list = document.getElementById('daily-quests-list');
+            list.innerHTML = '';
+            if (!game.dailyQuests || game.dailyQuests.length === 0) {
+                list.innerHTML = '<p>Come back tomorrow for new quests!</p>';
+                return;
+            }
+
+            game.dailyQuests.forEach(quest => {
+                const item = document.createElement('div');
+                item.className = 'quest-item';
+                const progressPercent = (quest.progress / quest.target) * 100;
+                item.innerHTML = `
+                    <p>${quest.description} (${quest.progress}/${quest.target})</p>
+                    <div class="quest-progress-bar">
+                        <div class="quest-progress-fill" style="width: ${progressPercent}%"></div>
+                    </div>
+                    <button onclick="claimQuestReward('${quest.id}')" ${quest.progress < quest.target || quest.completed ? 'disabled' : ''}>
+                        ${quest.completed ? 'Claimed' : 'Claim'}
+                    </button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // --- Synergy System ---
+        function updateSynergyBonus() {
+            game.synergyBonus = {};
+            const counts = {};
+            game.equipped.forEach(ability => {
+                if (ability.a !== 'Basic') {
+                    counts[ability.a] = (counts[ability.a] || 0) + 1;
+                }
+            });
+
+            let synergyText = 'No active synergy. Equip 3 abilities from the same anime to get a bonus!';
+            for (const [anime, count] of Object.entries(counts)) {
+                if (count >= 3) {
+                    switch(anime) {
+                        case 'Naruto': game.synergyBonus.energy = 0.1; synergyText = `<strong>Naruto Synergy:</strong> +10% Max Energy`; break;
+                        case 'Dragon Ball': game.synergyBonus.damage = 0.05; synergyText = `<strong>Dragon Ball Synergy:</strong> +5% Damage`; break;
+                        case 'One Piece': game.synergyBonus.hp = 0.1; synergyText = `<strong>One Piece Synergy:</strong> +10% Max HP`; break;
+                        case 'Demon Slayer': game.synergyBonus.critChance = 0.1; synergyText = `<strong>Demon Slayer Synergy:</strong> +10% Crit Chance (Not implemented)`; break;
+                        case 'Jujutsu Kaisen': game.synergyBonus.statusDamage = 0.15; synergyText = `<strong>Jujutsu Kaisen Synergy:</strong> +15% Status Damage (Not implemented)`; break;
+                        case 'My Hero Academia': game.synergyBonus.charge = 10; synergyText = `<strong>My Hero Academia Synergy:</strong> +10 Charge Amount`; break;
+                    }
+                }
+            }
+            document.getElementById('synergy-display').innerHTML = synergyText;
+        }
+
+        function update() {
+            document.getElementById("level").textContent = game.level;
+            document.getElementById("hp").textContent = game.hp;
+            document.getElementById("maxHp").textContent = game.maxHp;
+            document.getElementById("energy").textContent = game.energy;
+            document.getElementById("maxEnergy").textContent = game.maxEnergy;
+            document.getElementById("enemyLv").textContent = game.enemyLv;
+            document.getElementById("enemyName").textContent = game.enemyName;
+            document.getElementById("enemyHp").textContent = game.enemyHp;
+            document.getElementById("enemyMaxHp").textContent = game.enemyMaxHp;
+            document.getElementById("rolls").textContent = game.rolls;
+            document.getElementById("bountyDisplay").textContent = game.bounty;
+            
+            document.getElementById("playerHpBar").style.width = (game.hp / game.maxHp * 100) + "%";
+            document.getElementById("playerEnergyBar").style.width = (game.energy / game.maxEnergy * 100) + "%";
+            document.getElementById("enemyHpBar").style.width = (game.enemyHp / game.enemyMaxHp * 100) + "%";
+            document.getElementById("playerHpText").textContent = `${game.hp}/${game.maxHp}`;
+            document.getElementById("playerEnergyText").textContent = `${game.energy}/${game.maxEnergy}`;
+            
+            const collection = document.getElementById("collection");
+            collection.innerHTML = "";
+            const abilityGroups = {};
+            game.abilities.forEach(ability => {
+                const key = ability.n + '|' + ability.r;
+                if (!abilityGroups[key]) abilityGroups[key] = { template: ability, total: 0, equippedCount: 0 };
+                abilityGroups[key].total++;
+                if (ability.equipped) abilityGroups[key].equippedCount++;
+            });
+            Object.values(abilityGroups).forEach(group => {
+                const ability = group.template;
+                const div = document.createElement("div");
+                div.className = `ability ${ability.r} ${group.equippedCount > 0 ? 'equipped' : ''}`;
+                div.onclick = () => toggleEquip(ability.n, ability.r);
+                const countText = group.total > 1 ? ` (x${group.total})` : "";
+                
+                const mastery = game.masteryLevels[ability.id] || { level: 0, xp: 0 };
+                const xpToNextLevel = 100 * Math.pow(1.5, mastery.level);
+                const masteryHTML = `
+                    <div class="mastery-level">Mastery Lvl: ${mastery.level}</div>
+                    <div class="mastery-bar-container">
+                        <div class="mastery-bar-fill" style="width: ${mastery.xp / xpToNextLevel * 100}%"></div>
+                    </div>
+                `;
+
+                div.innerHTML = `<strong>${ability.n}${countText}</strong> [${ability.r.toUpperCase()}]<br>${ability.n === "Charge" ? `Restores ${game.chargeAmount} Energy` : `${ability.d[0]}-${ability.d[1]}dmg | ${ability.e}e`}${getSpecialText(ability.s)}<br><span class="anime">${ability.a}</span><br><span style="color: #00aaff;">[${group.equippedCount}/${group.total} Equipped]</span>${masteryHTML}`;
+                collection.appendChild(div);
+            });
+            
+            const equippedDisplay = document.getElementById("equipped-display");
+            equippedDisplay.innerHTML = "";
+            game.equipped.forEach(ability => {
+                const div = document.createElement("div");
+                div.className = `ability ${ability.r} equipped`;
+                div.onclick = () => toggleEquip(ability.n, ability.r);
+                div.innerHTML = `<strong>${ability.n}</strong> [${ability.r.toUpperCase()}]<br>${ability.n === "Charge" ? `Restores ${game.chargeAmount} Energy` : `${ability.d[0]}-${ability.d[1]}dmg | ${ability.e}e`}${getSpecialText(ability.s)}`;
+                equippedDisplay.appendChild(div);
+            });
+            
+            const formsCollection = document.getElementById("forms-collection");
+            formsCollection.innerHTML = "";
+            game.forms.forEach(form => {
+                const div = document.createElement("div");
+                const isEquipped = game.equippedForm && game.equippedForm.id === form.id;
+                div.className = `form-card ${form.r} ${isEquipped ? 'equipped' : ''}`;
+                div.onclick = () => equipForm(form.id);
+                let effectsText = `+${form.eff.hp*100}% HP, +${form.eff.en*100}% EN, +${form.eff.dmg*100}% DMG`;
+                if(form.eff.dodge) effectsText += `, ${form.eff.dodge*100}% Dodge`;
+                if(form.eff.haste) effectsText += `, ${form.eff.haste*100}% Haste`;
+
+                const mastery = game.formMastery[form.id] || { level: 0, xp: 0 };
+                const xpToNextLevel = 100 * Math.pow(1.5, mastery.level);
+                const masteryHTML = `
+                    <div class="mastery-level">Mastery Lvl: ${mastery.level}</div>
+                    <div class="mastery-bar-container">
+                        <div class="mastery-bar-fill" style="width: ${mastery.xp / xpToNextLevel * 100}%"></div>
+                    </div>
+                `;
+
+                div.innerHTML = `<strong>${form.n}</strong> [${form.r.toUpperCase()}]<br><small>${effectsText}</small>${masteryHTML}`;
+                formsCollection.appendChild(div);
+            });
+
+            const equippedFormDisplay = document.getElementById("equipped-form-display");
+            equippedFormDisplay.innerHTML = "";
+            if (game.equippedForm) {
+                const form = game.equippedForm;
+                const div = document.createElement("div");
+                div.className = `form-card ${form.r} equipped`;
+                div.onclick = () => equipForm(form.id);
+                let effectsText = `+${form.eff.hp*100}% HP, +${form.eff.en*100}% EN, +${form.eff.dmg*100}% DMG`;
+                if(form.eff.dodge) effectsText += `, ${form.eff.dodge*100}% Dodge`;
+                if(form.eff.haste) effectsText += `, ${form.eff.haste*100}% Haste`;
+                div.innerHTML = `<strong>${form.n}</strong> [${form.r.toUpperCase()}]<br><small>${effectsText}</small>`;
+                equippedFormDisplay.appendChild(div);
+            }
+            
+            const passivesCollection = document.getElementById("passives-collection");
+            passivesCollection.innerHTML = "";
+            game.passives.forEach(passive => {
+                const div = document.createElement("div");
+                const isEquipped = game.equippedPassive && game.equippedPassive.id === passive.id;
+                div.className = `passive-card ${passive.r} ${isEquipped ? 'equipped' : ''}`;
+                div.onclick = () => equipPassive(passive.id);
+                div.innerHTML = `<strong>${passive.n}</strong> [${passive.r.toUpperCase()}]<br><small>${passive.desc}</small>`;
+                passivesCollection.appendChild(div);
+            });
+
+            const equippedPassiveDisplay = document.getElementById("equipped-passive-display");
+            equippedPassiveDisplay.innerHTML = "";
+            if (game.equippedPassive) {
+                const passive = game.equippedPassive;
+                const div = document.createElement("div");
+                div.className = `passive-card ${passive.r} equipped`;
+                div.onclick = () => equipPassive(passive.id);
+                div.innerHTML = `<strong>${passive.n}</strong> [${passive.r.toUpperCase()}]<br><small>${passive.desc}</small>`;
+                equippedPassiveDisplay.appendChild(div);
+            }
+
+
+            const equipped = document.getElementById("equipped");
+            equipped.innerHTML = "";
+            game.equipped.forEach(ability => {
+                const btn = document.createElement("button");
+                btn.textContent = ability.n === "Charge" ? `${ability.n} (+${game.chargeAmount}e)` : `${ability.n} (${ability.e}e)`;
+                btn.onclick = () => use(ability.id);
+                btn.disabled = !game.inBattle || !game.turn || (ability.n !== "Charge" && game.energy < ability.e);
+                if (ability.n === "Charge") btn.className = "charge-btn";
+                equipped.appendChild(btn);
+            });
+
+            const formActivation = document.getElementById("form-activation");
+            formActivation.innerHTML = "";
+            if (game.equippedForm && game.inBattle) {
+                const btn = document.createElement("button");
+                btn.textContent = `Activate ${game.equippedForm.n} (${game.equippedForm.cost}e)`;
+                btn.className = "form-btn";
+                btn.onclick = activateForm;
+                btn.disabled = !game.turn || !!game.activeForm || game.energy < game.equippedForm.cost || game.formUsedThisBattle;
+                formActivation.appendChild(btn);
+            }
+            
+            document.getElementById("statLevel").textContent = game.level;
+            document.getElementById("statMaxHp").textContent = game.baseMaxHp;
+            document.getElementById("statMaxEnergy").textContent = game.baseMaxEnergy;
+            document.getElementById("statCharge").textContent = game.chargeAmount;
+            document.getElementById("statAbilities").textContent = game.abilities.length;
+            document.getElementById("statWins").textContent = game.totalWins;
+            document.getElementById("statDamageBonus").textContent = `${Math.round(game.baseDamageBonus * 100)}%`;
+            document.getElementById("statTotalRolls").textContent = game.totalRolls;
+            document.getElementById("statBounty").textContent = game.bounty;
+            document.getElementById("statPoints").textContent = game.statPoints;
+            const disabled = game.statPoints <= 0;
+            document.getElementById("investHpBtn").disabled = disabled;
+            document.getElementById("investEnergyBtn").disabled = disabled;
+            document.getElementById("investDamageBtn").disabled = disabled;
+            document.getElementById("investChargeBtn").disabled = disabled;
+            
+            // Update roll buttons in banners
+            document.querySelectorAll('.roll-1x, .roll-10x').forEach(btn => {
+                const requiredRolls = btn.classList.contains('roll-10x') ? 10 : 1;
+                btn.disabled = game.rolls < requiredRolls || isRolling;
+            });
+
+            updateStatus();
+            if (game.inDungeon) updateDungeonUI();
+            saveGame();
+        }
+
+        function updateStatus() {
+            const playerStatus = document.getElementById("playerStatus");
+            const enemyStatus = document.getElementById("enemyStatus");
+            
+            playerStatus.innerHTML = "";
+            if (game.activeForm) {
+                const span = document.createElement("span");
+                span.className = "effect active-form";
+                span.textContent = `${game.activeForm.n} (${game.activeForm.turnsLeft})`;
+                playerStatus.appendChild(span);
+            }
+            if (game.playerShield > 0) {
+                const span = document.createElement("span");
+                span.className = "effect shield";
+                span.textContent = `Shield (${game.playerShield})`;
+                playerStatus.appendChild(span);
+            }
+            for (const [effect, duration] of Object.entries(game.playerEffects)) {
+                if(duration > 0) {
+                    const span = document.createElement("span");
+                    span.className = `effect ${effect}`;
+                    span.textContent = `${effect} (${duration})`;
+                    playerStatus.appendChild(span);
+                }
+            }
+            
+            enemyStatus.innerHTML = "";
+             if (game.enemyShield > 0) {
+                const span = document.createElement("span");
+                span.className = "effect shield";
+                span.textContent = `Shield (${game.enemyShield})`;
+                enemyStatus.appendChild(span);
+            }
+            for (const [effect, duration] of Object.entries(game.enemyEffects)) {
+                if(duration > 0) {
+                    const span = document.createElement("span");
+                    span.className = `effect ${effect.replace('-', '')}`;
+                    span.textContent = `${effect} (${duration})`;
+                    enemyStatus.appendChild(span);
+                }
+            }
+        }
+
+        function log(msg) {
+            const logDiv = document.getElementById("log");
+            if (logDiv) {
+                const div = document.createElement("div");
+                div.textContent = msg;
+                logDiv.appendChild(div);
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+        }
+
+        document.getElementById('rollPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal('rollPopup');
+            }
+        });
+
+        initializeFirebase();
+
+    </script>
+</body>
+</html>
