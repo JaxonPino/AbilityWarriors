@@ -441,9 +441,21 @@
     
     <!-- Quests Tab -->
     <div id="quests" class="tab-content">
-        <div class="panel">
-            <h3>Daily Quests</h3>
-            <div id="daily-quests-list"></div>
+        <div class="sub-tabs">
+            <button class="sub-tab active" onclick="switchQuestTab('daily')">Daily</button>
+            <button class="sub-tab" onclick="switchQuestTab('story')">Story</button>
+        </div>
+        <div id="daily-quests" class="sub-tab-content active">
+            <div class="panel">
+                <h3>Daily Quests</h3>
+                <div id="daily-quests-list"></div>
+            </div>
+        </div>
+        <div id="story-quests" class="sub-tab-content">
+            <div class="panel">
+                <h3>Story Quests</h3>
+                <div id="story-quests-list"></div>
+            </div>
         </div>
     </div>
 
@@ -588,6 +600,7 @@
             formMastery: {}, // { 'form-id': { level: 0, xp: 0 } }
             lastLoginDate: null,
             dailyQuests: [],
+            storyQuests: [],
             synergyBonus: {},
             luck: 0,
             armor: 0, baseArmor: 0,
@@ -1551,7 +1564,7 @@
                         baseMaxHp: 100, baseMaxEnergy: 50, formUsedThisBattle: false,
                         bounty: 0, friends: {}, chargeAmount: 50, redeemedCodes: [], currentEnemy: {},
                         isCamped: false, revivedThisBattle: false, uiRevivedThisBattle: false, masteryLevels: {}, formMastery: {},
-                        lastLoginDate: null, dailyQuests: [], synergyBonus: {}, luck: 0, armor: 0, baseArmor: 0, luckySpins: 0,
+                        lastLoginDate: null, dailyQuests: [], storyQuests: [], synergyBonus: {}, luck: 0, armor: 0, baseArmor: 0, luckySpins: 0,
                         originalEquipped: [], originalStats: {}
                     };
                     game = { ...defaults, ...loadedGame };
