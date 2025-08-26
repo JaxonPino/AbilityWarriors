@@ -583,7 +583,7 @@
         let game = {
             level: 1, hp: 100, maxHp: 100, energy: 50, maxEnergy: 50, rolls: 10,
             abilities: [], equipped: [], inBattle: false, isCamped: false,
-            enemyLv: 1, enemyHp: 80, enemyMaxHp: 80, enemyName: "Bandit",
+            enemyLv: 1, enemyHp: 60, enemyMaxHp: 60, enemyName: "Wind Slime",
             turn: true, playerEffects: {}, enemyEffects: {},
             totalWins: 0, bossesDefeated: 0, totalRolls: 0,
             statPoints: 0, baseDamageBonus: 1, inBattleDamageBonus: 1, tempDamageBonus: 1,
@@ -1465,8 +1465,8 @@
             game.rolls++;
             log(`Victory! Floor ${game.level}!`);
             
-            game.statPoints += 3;
-            log(`✨ You gained 3 stat points!`);
+            game.statPoints += 1;
+            log(`✨ You gained a stat point!`);
             updateQuestProgress('win_story', 1);
 
             game.hp = game.maxHp;
@@ -2274,3 +2274,4 @@
     </script>
 </body>
 </html>
+
