@@ -505,7 +505,7 @@
                     <button id="investDamageBtn" onclick="invest('damage')">+5% Damage</button>
                     <button id="investChargeBtn" onclick="invest('charge')">+50 Charge</button>
                     <button id="investLuckBtn" onclick="invest('luck')">+0.1% Luck</button>
-                    <button id="investArmorBtn" onclick="invest('armor')">+5% Armor</button>
+                    <button id="investArmorBtn" onclick="invest('armor')">+1% Armor</button>
                 </div>
             </div>
             <h3>Player Statistics</h3>
@@ -1511,6 +1511,11 @@
                 return;
             }
 
+            if (stat === 'armor' && game.baseArmor >= 0.5) {
+                log("🛡️ Armor is already at its maximum of 50%!");
+                return;
+            }
+
             game.statPoints--;
             switch(stat) {
                 case 'hp':
@@ -1538,7 +1543,10 @@
                     log(`🍀 Luck increased by 0.1%!`);
                     break;
                 case 'armor':
-                    game.baseArmor += 0.05;
+                    game.baseArmor += 0.01;
+                    if (game.baseArmor > 0.5) {
+                        game.baseArmor = 0.5;
+                    }
                     game.armor = game.baseArmor;
                     log(`🛡️ Armor increased to ${Math.round(game.armor * 100)}%!`);
                     break;
@@ -2195,7 +2203,7 @@
             document.getElementById("investDamageBtn").disabled = disabled;
             document.getElementById("investChargeBtn").disabled = disabled;
             document.getElementById("investLuckBtn").disabled = disabled;
-            document.getElementById("investArmorBtn").disabled = disabled;
+            document.getElementById("investArmorBtn").disabled = disabled || game.baseArmor >= 0.5;
             
             // Update roll buttons in banners
             document.querySelectorAll('.roll-1x, .roll-10x').forEach(btn => {
@@ -2274,4 +2282,3 @@
     </script>
 </body>
 </html>
-
