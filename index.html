@@ -188,6 +188,11 @@
         .epic { border-left: 5px solid #9c27b0; }
         .legendary { border-left: 5px solid #ff9800; }
         .mythic { border-left: 5px solid #f44336; }
+        .ultimate { 
+            border-left: 5px solid;
+            border-image: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000) 1;
+            animation: glow-ultimate 1.5s infinite alternate;
+        }
         
         button { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin: 5px; font-size: 16px; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         button:hover { background: #c73650; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
@@ -197,6 +202,8 @@
         .charge-btn:hover { background: #0088cc !important; }
         .form-btn { background: #9d4edd !important; width: 100%; margin-top: 10px; }
         .form-btn:hover { background: #7b2cbf !important; }
+        .lucky-spin-btn { background: linear-gradient(45deg, #ffeb3b, #ff9800) !important; color: #333; font-weight: bold; }
+        .lucky-spin-btn:hover { box-shadow: 0 0 15px #ffeb3b; }
         
         .bar-container { position: relative; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
         .bar-text { position: absolute; color: white; text-shadow: 1px 1px 2px black; font-size: 14px; pointer-events: none; }
@@ -239,29 +246,73 @@
         .roll-item.legendary { border: 3px solid #ff9800; box-shadow: 0 0 20px #ff9800; animation: glow-legendary 1.5s infinite; }
         .roll-item.mythic { border: 3px solid #f44336; box-shadow: 0 0 20px #f44336; animation: glow-mythic 1s infinite alternate; }
         .roll-item.epic { border: 2px solid #9c27b0; box-shadow: 0 0 15px #9c27b0; animation: glow-epic 2s infinite; }
+        .roll-item.ultimate { border: 3px solid; border-image: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet) 1; animation: glow-ultimate 1s infinite alternate; }
         
         .close-btn { background: #e94560; }
         
         input[type="text"], input[type="range"] { background: #0f3460; border: 1px solid #533483; color: white; padding: 8px; border-radius: 5px; margin: 5px; }
         
-        .friend-item, .dungeon-card { background: #0f3460; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .dungeon-card { flex-direction: column; cursor: pointer; transition: all 0.2s; }
-        .dungeon-card:hover { border-color: #e94560; transform: translateY(-5px); }
-        .dungeon-difficulties button { padding: 5px 10px; font-size: 14px; }
+        .friend-item { background: #0f3460; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         
         .setting-item { margin: 15px 0; }
         
         .banner-separator { height: 2px; background: #0f3460; margin: 25px 0; border-radius: 1px; }
+
+        /* New Banner Styles */
+        #banner-title {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #fff;
+        }
+
+        #banner-timer {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffeb3b;
+            font-size: 1.1em;
+        }
+
+        #featured-items-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .featured-item {
+            background: #0f3460;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            width: 180px;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            animation: glow-featured 2s infinite alternate;
+        }
+
+        #banner-roll-buttons {
+            text-align: center;
+        }
         
         @keyframes glow-form { from { box-shadow: 0 0 10px #fff, 0 0 20px #ff9800, 0 0 30px #9c27b0; } to { box-shadow: 0 0 20px #fff, 0 0 30px #ff9800, 0 0 40px #9c27b0; } }
         @keyframes glow-legendary { from { box-shadow: 0 0 10px #ff9800; } to { box-shadow: 0 0 25px #ff9800; } }
         @keyframes glow-mythic { from { box-shadow: 0 0 15px #f44336; transform: scale(1); } to { box-shadow: 0 0 35px #f44336; transform: scale(1.05); } }
         @keyframes glow-epic { from { box-shadow: 0 0 8px #9c27b0; } to { box-shadow: 0 0 20px #9c27b0; } }
+        @keyframes glow-ultimate { from { box-shadow: 0 0 20px #ff00c8, 0 0 30px #7a00ff; transform: scale(1.05); } to { box-shadow: 0 0 35px #00ffd5, 0 0 50px #ff0000; transform: scale(1.1); } }
+        @keyframes glow-featured {
+            from { box-shadow: 0 0 5px #fff, 0 0 10px #ffeb3b; }
+            to { box-shadow: 0 0 15px #fff, 0 0 25px #ffeb3b; }
+        }
 
         @media (max-width: 768px) {
             .roll-grid { grid-template-columns: repeat(2, 1fr); }
             .banner-rolls { flex-direction: column; }
             .pvp-container { grid-template-columns: 1fr; }
+            .featured-item { width: 140px; min-height: 140px; padding: 10px; font-size: 14px;}
         }
     </style>
 </head>
@@ -286,7 +337,6 @@
         <button class="tab active" onclick="switchTab('shop')">Banners</button>
         <button class="tab" onclick="switchTab('moves')">Moveset</button>
         <button class="tab" onclick="switchTab('battle')">Story</button>
-        <button class="tab" onclick="switchTab('dungeons')">Dungeons</button>
         <button class="tab" onclick="switchTab('quests')">Quests</button>
         <button class="tab" onclick="switchTab('multiplayer')">Multiplayer</button>
         <button class="tab" onclick="switchTab('social')">Social</button>
@@ -295,6 +345,14 @@
     </div>
 
     <!-- Modals -->
+    <div id="nameModal" class="modal show">
+        <div class="modal-content">
+            <h2>Welcome to Ability Warriors!</h2>
+            <p>Please enter your name to begin your journey.</p>
+            <input type="text" id="startupDisplayNameInput" placeholder="Enter your name" maxlength="15">
+            <button id="startGameBtn">Start Game</button>
+        </div>
+    </div>
     <div id="rollPopup" class="modal">
         <div class="modal-content">
             <h2 id="rollTitle">Roll Results</h2>
@@ -313,13 +371,6 @@
             </div>
         </div>
     </div>
-     <div id="dungeonRewardsModal" class="modal">
-        <div class="modal-content">
-            <h2 id="dungeonRewardsTitle">Dungeon Complete!</h2>
-            <div id="dungeonRewardsContent"></div>
-            <button class="close-btn" onclick="closeModal('dungeonRewardsModal')">Claim</button>
-        </div>
-    </div>
     <div id="dailyRewardModal" class="modal">
         <div class="modal-content">
             <h2>Daily Login Reward!</h2>
@@ -331,11 +382,20 @@
     <!-- Shop Tab -->
     <div id="shop" class="tab-content active">
         <div class="panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
                 <div class="stat">Rolls: <span id="rolls">4</span></div>
-                <h3 id="banner-countdown" style="margin: 0;"></h3>
+                <div class="stat">Lucky Spins: <span id="luckySpins">0</span></div>
             </div>
-            <div id="banners-list"></div>
+            <div id="single-banner-container">
+                <div id="banner-timer"></div>
+                <h2 id="banner-title"></h2>
+                <div id="featured-items-container">
+                    <!-- 3 featured items will be injected here -->
+                </div>
+                <div id="banner-roll-buttons">
+                    <!-- Roll buttons will be injected here -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -362,7 +422,7 @@
                 <h4 id="enemyTitle">Enemy: <span id="enemyName">Bandit</span></h4>
                 <div id="enemy-panel"> <!-- Added wrapper for hit flash -->
                     <div class="bar-container"><div class="bar"><div class="bar-fill health" id="enemyHpBar" style="width: 100%"></div></div></div>
-                    <div>HP: <span id="enemyHp">80</span>/<span id="enemyMaxHp">80</span></div>
+                    <div>HP: <span id="enemyHp">80</span>/<span id="enemyMaxHp">80</span> | Armor: <span id="enemyArmor">0</span>%</div>
                     <div class="status" id="enemyStatus"></div>
                 </div>
                 <button onclick="startBattle()" id="battleBtn" style="display:block;">Start Battle</button>
@@ -379,19 +439,6 @@
         </div>
     </div>
     
-    <!-- Dungeons Tab -->
-    <div id="dungeons" class="tab-content">
-        <div id="dungeon-selection-screen">
-            <div class="panel">
-                <h3>Select a Dungeon</h3>
-                <div id="dungeon-list"></div>
-            </div>
-        </div>
-        <div id="dungeon-battle-screen" style="display: none;">
-            <!-- Battle UI will be injected here -->
-        </div>
-    </div>
-
     <!-- Quests Tab -->
     <div id="quests" class="tab-content">
         <div class="panel">
@@ -445,6 +492,8 @@
                     <button id="investEnergyBtn" onclick="invest('energy')">+50 Energy</button>
                     <button id="investDamageBtn" onclick="invest('damage')">+5% Damage</button>
                     <button id="investChargeBtn" onclick="invest('charge')">+50 Charge</button>
+                    <button id="investLuckBtn" onclick="invest('luck')">+0.1% Luck</button>
+                    <button id="investArmorBtn" onclick="invest('armor')">+5% Armor</button>
                 </div>
             </div>
             <h3>Player Statistics</h3>
@@ -458,6 +507,8 @@
                 <div class="stat-card"><div>Damage Bonus</div><div class="stat-value" id="statDamageBonus">100%</div></div>
                 <div class="stat-card"><div>Total Rolls</div><div class="stat-value" id="statTotalRolls">0</div></div>
                 <div class="stat-card"><div>PvP Bounty</div><div class="stat-value" id="statBounty">0</div></div>
+                <div class="stat-card"><div>Luck</div><div class="stat-value" id="statLuck">0%</div></div>
+                <div class="stat-card"><div>Armor</div><div class="stat-value" id="statArmor">0%</div></div>
             </div>
         </div>
     </div>
@@ -493,7 +544,6 @@
         let queueListener = null;
         let displayName = "Warrior";
         let isRolling = false;
-        let bannerInterval;
 
         async function initializeFirebase() {
             try {
@@ -531,96 +581,103 @@
             baseMaxHp: 100, baseMaxEnergy: 50,
             formUsedThisBattle: false, bounty: 0,
             friends: {}, chargeAmount: 50,
-            inDungeon: false, dungeonState: {},
             redeemedCodes: [],
             currentEnemy: {},
-            revivedThisBattle: false,
+            revivedThisBattle: false, uiRevivedThisBattle: false,
             masteryLevels: {}, // { 'ability-id': { level: 0, xp: 0 } }
             formMastery: {}, // { 'form-id': { level: 0, xp: 0 } }
             lastLoginDate: null,
             dailyQuests: [],
-            synergyBonus: {}
+            synergyBonus: {},
+            luck: 0,
+            armor: 0, baseArmor: 0,
+            luckySpins: 0,
+            originalEquipped: [],
+            originalStats: {},
         };
 
         const s = (type, chance) => ({ type, chance });
         
-        const packs = {
-            naruto: { 
-                name: "Naruto", 
+        const banners = {
+            goku: { 
+                name: "Son Goku", 
+                anime: "Dragon Ball",
                 content: [
                     // Abilities
-                    {type:'ability', n:"Kunai Throw",d:[10,20],e:8,r:"common",s:null}, {type:'ability', n:"Shuriken Barrage",d:[5,35],e:12,r:"common",s:null}, {type:'ability', n:"Clone Barrage",d:[20,50],e:30,r:"common",s:null}, {type:'ability', n:"Leaf Hurricane",d:[10,50],e:20,r:"uncommon",s:null}, {type:'ability', n:"Primary Lotus",d:[10,60],e:22,r:"uncommon",s:null}, {type:'ability', n:"Fireball Jutsu",d:[45,60],e:28,r:"rare",s:s("burn", 0.8)}, {type:'ability', n:"Water Dragon",d:[50,75],e:32,r:"epic",s:s("freeze", 0.3)}, {type:'ability', n:"Rasengan",d:[70,90],e:40,r:"epic",s:"pierce"}, {type:'ability', n:"Chidori",d:[90,160],e:38,r:"legendary",s:s("stun", 0.4)}, {type:'ability', n:"Rasenshuriken",d:[90,120],e:45,r:"legendary",s:s("bleed", 0.7)}, {type:'ability', n:"Amaterasu",d:[100,190],e:50,r:"legendary",s:s("burn", 1)}, {type:'ability', n:"Infinite Tsukuyomi",d:[100,250],e:70,r:"mythic",s:s("stun", 0.75)}, {type:'ability', n:"Truth-Seeking Orbs",d:[150,300],e:80,r:"mythic",s:s("armor-break", 1)},
+                    {type:'ability', n:"Dragon Throw", d:[20,30], e:22, r:"common", s:null},
+                    {type:'ability', n:"Ki Blasts", d:[10,60], e:30, r:"uncommon", s:null},
+                    {type:'ability', n:"Meteor Combo", d:[55,75], e:45, r:"rare", s:s("weaken", 0.4)},
+                    {type:'ability', n:"Kamehameha", d:[90,110], e:55, r:"epic", s:s("armor-break", 0.35)},
+                    {type:'ability', n:"Angry Kamehameha", d:[150,180], e:70, r:"legendary", s:s("pierce", 0.4)},
+                    {type:'ability', n:"Spirit Bomb", d:[220,300], e:90, r:"legendary", s:s("heal", 0.01)},
+                    {type:'ability', n:"Silver Dragon Strike", d:[310,440], e:110, r:"mythic", s:s("energy-drain", 0.6)},
                     // Forms
-                    {type:'form', id: "f_n_c1", n: "One-Tailed Cloak", r: "common", cost: 20, dur: 4, eff: {hp:0.15, en:0, dmg:0.1}}, {type:'form', id: "f_n_u1", n: "Sage Mode", r: "uncommon", cost: 35, dur: 3, eff: {hp:0.2, en:0.1, dmg:0.25}}, {type:'form', id: "f_n_r1", n: "KCM1", r: "rare", cost: 45, dur: 4, eff: {hp:0.3, en:0.3, dmg:0.35}}, {type:'form', id: "f_n_e1", n: "KCM2", r: "epic", cost: 60, dur: 4, eff: {hp:0.4, en:0.4, dmg:0.5}}, {type:'form', id: "f_n_l1", n: "Six Paths Sage Mode", r: "legendary", cost: 80, dur: 5, eff: {hp:0.6, en:0.6, dmg:0.7}}, {type:'form', id: "f_n_m1", n: "Baryon Mode", r: "mythic", cost: 120, dur: 3, eff: {hp:0.2, en:0.2, dmg:1.5}}
+                    {type:'form', id:"f_db_e2", n:"Super Saiyan", r:"epic", cost: 40, dur: 4, eff:{dmg:0.15, en:0.35, hp:0.1}},
+                    {type:'form', id:"f_db_m2", n:"Super Saiyan God", r:"mythic", cost: 70, dur: 4, eff:{dmg:0.35, en:0.55, hp:0.4}},
+                    {type:'form', id:"f_db_u1", n:"Ultra Instinct", r:"ultimate", cost: 120, dur: 5, eff:{dmg:0.55, en:0.70, hp:0.85}, special: "revive_dodge"}
                 ]
             },
-            dragonball: { 
-                name: "Dragon Ball", 
+            naruto: { 
+                name: "Naruto Uzumaki", 
+                anime: "Naruto",
                 content: [
-                    {type:'ability', n:"Ki Blast",d:[1,35],e:8,r:"common",s:null}, {type:'ability', n:"Kamehameha",d:[25,35],e:25,r:"common",s:null}, {type:'ability', n:"Galick Gun",d:[20,35],e:25,r:"common",s:null}, {type:'ability', n:"Kioken Kamehameha x10",d:[45,70],e:45,r:"uncommon",s:null}, {type:'ability', n:"Destructo Disc",d:[50,65],e:35,r:"rare",s:"pierce"}, {type:'ability', n:"Masenko",d:[40,65],e:28,r:"rare",s:s("weaken", 0.2)}, {type:'ability', n:"Big Bang Attack",d:[60,90],e:45,r:"epic",s:s("stun", 0.2)}, {type:'ability', n:"Special Beam Cannon",d:[50,100],e:50,r:"epic",s:"pierce"}, {type:'ability', n:"Solar Flare",d:[1,10],e:45,r:"legendary",s:s("confusion", 0.9)}, {type:'ability', n:"Spirit Bomb",d:[1,400],e:90,r:"legendary",s:s("armor-break", 0.5)}, {type:'ability', n:"Final Flash",d:[110,220],e:90,r:"legendary",s:s("armor-break", 0.8)}, {type:'ability', n:"Hakai",d:[200,350],e:90,r:"mythic",s:s("bleed", 0.5)}, {type:'ability', n:"Zeno Erase",d:[1,1000],e:250,r:"mythic",s:s("freeze", 1)},
-                    {type:'form', id: "f_db_c1", n: "Kaio-ken", r: "common", cost: 20, dur: 3, eff: {hp:0.1, en:0.1, dmg:0.15}}, {type:'form', id: "f_db_u1", n: "Super Saiyan", r: "uncommon", cost: 30, dur: 3, eff: {hp:0.15, en:0.15, dmg:0.2}}, {type:'form', id: "f_db_r1", n: "Super Saiyan 2", r: "rare", cost: 40, dur: 4, eff: {hp:0.25, en:0.25, dmg:0.3}}, {type:'form', id: "f_db_e1", n: "Super Saiyan God", r: "epic", cost: 50, dur: 4, eff: {hp:0.4, en:0.4, dmg:0.45}}, {type:'form', id: "f_db_l1", n: "Super Saiyan Blue", r: "legendary", cost: 70, dur: 5, eff: {hp:0.5, en:0.5, dmg:0.6}}, {type:'form', id: "f_db_m1", n: "Ultra Instinct", r: "mythic", cost: 100, dur: 5, eff: {hp:0.5, en:0.5, dmg:0.75, dodge: 0.5}}
+                    // Abilities
+                    {type:'ability', n:"Shadow Clone Throw", d:[25,35], e:25, r:"common", s:null},
+                    {type:'ability', n:"Multi Shadow Clone Barrage", d:[30,70], e:30, r:"uncommon", s:s("stun", 0.15)},
+                    {type:'ability', n:"Rasengan", d:[60,80], e:45, r:"rare", s:null},
+                    {type:'ability', n:"Wind Style: Rasenshuriken", d:[100,140], e:65, r:"epic", s:s("bleed", 0.5)},
+                    {type:'ability', n:"Sage Art: Massive Rasengan", d:[180,220], e:80, r:"legendary", s:s("armor-break", 0.3)},
+                    {type:'ability', n:"Tailed Beast Bomb Rasenshuriken", d:[300,400], e:130, r:"mythic", s:s("armor-break", 1)},
+                    {type:'ability', n:"Six Paths: Ultra-Big Ball Rasenshuriken", d:[600,800], e:220, r:"ultimate", s:s("stun", 0.5)},
+                    // Forms
+                    {type:'form', id:"f_n_r2", n:"Four-Tails Chakra Cloak", r:"epic", cost: 30, dur: 3, eff:{dmg:0.3, en:0.4, hp:0.2}},
+                    {type:'form', id:"f_n_e2", n:"Sage Mode", r:"epic", cost: 50, dur: 4, eff:{dmg:0.3, en:0.4, hp:0.4}},
+                    {type:'form', id:"f_n_l2", n:"Kurama Chakra Mode (KCM)", r:"legendary", cost: 70, dur: 4, eff:{dmg:0.6, en:0.5, hp:0.4}},
+                    {type:'form', id:"f_n_m2", n:"Six Paths Sage Mode", r:"mythic", cost: 100, dur: 5, eff:{dmg:0.8, en:0.7, hp:0.6}},
+                    // Passive
+                    {type:'passive', id:"p_n_u1", n:"Nine-Tails Rage", r:"ultimate", desc:"Upon death, revive with double HP and infinite Stamina for 5 turns. Your moveset is replaced by 'Rage'. If the enemy isn't defeated, you die.", trigger:"onDeath", effect:{type:"nine_tails_rage"}}
                 ]
             },
-            onepiece: { 
-                name: "One Piece", 
+            luffy: { 
+                name: "Monkey D. Luffy", 
+                anime: "One Piece",
                 content: [
-                    {type:'ability', n:"Gomu Gomu Pistol",d:[10,20],e:8,r:"common",s:null}, {type:'ability', n:"Gomu Gomu Bazooka",d:[34,35],e:21,r:"common",s:null}, {type:'ability', n:"Onigiri",d:[39,40],e:29,r:"common",s:null}, {type:'ability', n:"Tatsumaki",d:[25,35],e:18,r:"uncommon",s:null}, {type:'ability', n:"Fire Fist",d:[35,55],e:20,r:"uncommon",s:s("burn", 0.7)}, {type:'ability', n:"Gura Gura Punch",d:[60,75],e:50,r:"rare",s:s("stun", 0.3)}, {type:'ability', n:"Kong Gun",d:[60,90],e:45,r:"epic",s:s("weaken", 0.4)}, {type:'ability', n:"Double Culverin",d:[70,140],e:50,r:"epic",s:"haste"}, {type:'ability', n:"Conqueror's Haki",d:[50,100],e:40,r:"legendary",s:s("stun", 0.5)}, {type:'ability', n:"Red Hawk",d:[100,250],e:85,r:"legendary",s:s("burn", 1)}, {type:'ability', n:"King Kong Gatling",d:[50,500],e:80,r:"legendary",s:s("bleed", 0.5)}, {type:'ability', n:"Gura Gura Kaishin",d:[300,600],e:100,r:"mythic",s:s("stun", 0.8)}, {type:'ability', n:"Bajrang Gun",d:[500,800],e:150,r:"mythic",s:s("armor-break", 1)},
-                    {type:'form', id: "f_op_c1", n: "Gear Second", r: "common", cost: 15, dur: 5, eff: {hp:0.05, en:0.05, dmg:0.1, haste: 0.2}}, {type:'form', id: "f_op_u1", n: "Gear Third", r: "uncommon", cost: 25, dur: 3, eff: {hp:0.1, en:0.1, dmg:0.3}}, {type:'form', id: "f_op_r1", n: "Gear Fourth: Boundman", r: "rare", cost: 40, dur: 4, eff: {hp:0.3, en:0.2, dmg:0.4}}, {type:'form', id: "f_op_e1", n: "Gear Fourth: Snakeman", r: "epic", cost: 55, dur: 5, eff: {hp:0.2, en:0.3, dmg:0.55, haste: 0.3}}, {type:'form', id: "f_op_l1", n: "Gear Fifth", r: "legendary", cost: 90, dur: 5, eff: {hp:0.7, en:0.7, dmg:0.8, dodge: 0.2}}, {type:'form', id: "f_op_m1", n: "Sun God Nika", r: "mythic", cost: 150, dur: 4, eff: {hp:1.0, en:1.0, dmg:1.2, dodge: 0.3}}
-                ]
-            },
-            demonslayer: { 
-                name: "Demon Slayer", 
-                content: [
-                    {type:'ability', n:"Water Surface Slash",d:[20,35],e:18,r:"common",s:null}, {type:'ability', n:"Beast Fang",d:[30,45],e:20,r:"uncommon",s:null}, {type:'ability', n:"Water Wheel",d:[40,70],e:28,r:"rare",s:s("bleed", 0.3)}, {type:'ability', n:"Thunderclap And Flash",d:[60,75],e:45,r:"rare",s:s("stun", 0.3)}, {type:'ability', n:"Scattering Mist Slash",d:[40,90],e:40,r:"rare",s:s("confusion", 0.2)}, {type:'ability', n:"Rumble and Flash",d:[70,110],e:60,r:"epic",s:s("stun", 0.5)}, {type:'ability', n:"Flame Tiger",d:[50,130],e:60,r:"epic",s:s("burn", 0.8)}, {type:'ability', n:"Moonbow",d:[10,250],e:75,r:"epic",s:s("bleed", 0.4)}, {type:'ability', n:"String Performance",d:[120,180],e:90,r:"legendary",s:s("bleed", 0.8)}, {type:'ability', n:"Obscuring Clouds",d:[90,190],e:100,r:"mythic",s:s("confusion", 0.8)}, {type:'ability', n:"Destructive Death",d:[100,750],e:175,r:"mythic",s:s("armor-break", 0.7)}, {type:'ability', n:"Thirteenth Form",d:[600,700],e:185,r:"mythic",s:s("burn", 1)},
-                    {type:'passive', id: "p_e1", n: "Final Stand", r: "epic", desc: "When you die, revive with 50% HP, full energy, and 2x damage. (Once per battle)", trigger: "onDeath", effect: {type: "finalStand"}}
-                ]
-            },
-            jujutsu: { 
-                name: "Jujutsu Kaisen", 
-                content: [
-                    {type:'ability', n:"Cursed Strike",d:[15,25],e:10,r:"common",s:null}, {type:'ability', n:"Divergent Fist",d:[12,22],e:9,r:"common",s:null}, {type:'ability', n:"Piercing Blood",d:[28,38],e:22,r:"uncommon",s:s("burn", 0.6)}, {type:'ability', n:"Black Flash",d:[40,55],e:30,r:"rare",s:s("weaken", 0.5)}, {type:'ability', n:"Lapse Blue",d:[42,57],e:32,r:"rare",s:s("freeze", 0.2)}, {type:'ability', n:"Nue",d:[50,65],e:30,r:"epic",s:"pierce"}, {type:'ability', n:"Reversal Red",d:[60,70],e:40,r:"epic",s:s("burn", 0.7)}, {type:'ability', n:"Chimera Shadow Garden",d:[1,10],e:50,r:"legendary",s:s("stun", 0.7)}, {type:'ability', n:"Cleave",d:[70,120],e:55,r:"legendary",s:s("bleed", 0.6)}, {type:'ability', n:"Hollow Purple",d:[100,270],e:65,r:"legendary",s:s("armor-break", 0.6)}, {type:'ability', n:"Malevolent Shrine",d:[100,220],e:70,r:"mythic",s:s("bleed", 0.9)}, {type:'ability', n:"Infinite Void",d:[49,50],e:85,r:"mythic",s:s("stun", 1)}, {type:'ability', n:"World Cutting Slash",d:[290,700],e:95,r:"mythic",s:s("bleed", 1)},
-                    {type:'passive', id: "p_l1", n: "Sparks of Black", r: "legendary", desc: "30% chance to deal 2x damage on an attack.", trigger: "onAttack", chance: 0.3, effect: {type: "crit", value: 2}}
-                ]
-            },
-            mha: { 
-                name: "My Hero Academia", 
-                content: [
-                    {type:'ability', n:"Delaware Smash",d:[20,25],e:20,r:"common",s:null}, {type:'ability', n:"Detroit Smash",d:[20,30],e:22,r:"common",s:null}, {type:'ability', n:"Manchester Smash",d:[25,45],e:17,r:"uncommon",s:null}, {type:'ability', n:"AP Shot",d:[35,65],e:20,r:"rare",s:s("burn", 0.5)}, {type:'ability', n:"Recipro Burst",d:[50,85],e:35,r:"epic",s:"haste"}, {type:'ability', n:"Blackwhip",d:[90,110],e:48,r:"legendary",s:s("stun", 0.4)}, {type:'ability', n:"Prominence Burn",d:[120,200],e:70,r:"legendary",s:s("burn", 1)}, {type:'ability', n:"Ice Glacier",d:[90,110],e:20,r:"mythic",s:s("freeze", 0.9)}, {type:'ability', n:"Stun Grenade",d:[20,70],e:10,r:"mythic",s:s("stun", 1)}
+                    {type:'ability', n:"Gum Gum Pistol", d:[25,40], e:20, r:"common", s:null},
+                    {type:'ability', n:"Gum Gum Bazooka", d:[40,70], e:40, r:"uncommon", s:null},
+                    {type:'ability', n:"Gum Gum Gatling", d:[20,100], e:50, r:"rare", s:s("haste", 0.3)},
+                    {type:'ability', n:"Jet Bazooka", d:[120,180], e:75, r:"epic", s:s("armor-break", 0.4)},
+                    {type:'ability', n:"Giant Pistol", d:[150,200], e:80, r:"epic", s:s("shield", 0.25)},
+                    {type:'ability', n:"Red Hawk", d:[200,240], e:90, r:"legendary", s:s("burn", 0.8)},
+                    {type:'ability', n:"Elephant Gun", d:[250,300], e:120, r:"legendary", s:s("armor-break", 0.6)},
+                    {type:'ability', n:"Jet Culverin", d:[400,450], e:140, r:"mythic", s:s("confusion", 0.3)},
+                    {type:'ability', n:"Bajrang Gun", d:[500,750], e:200, r:"ultimate", s:s("crit", 0.5)},
+                    {type:'form', id:"f_op_e2", n:"Gear 2", r:"epic", cost: 40, dur: 4, eff:{dmg:0.2, en:0.15, hp:0.1}},
+                    {type:'form', id:"f_op_m2", n:"Gear 4 Tankman", r:"mythic", cost: 80, dur: 3, eff:{dmg:0, en:0, hp:1.5}},
+                    {type:'form', id:"f_op_m3", n:"Gear 4 Boundman", r:"mythic", cost: 80, dur: 4, eff:{dmg:0.5, en:1.0, hp:0.5}},
+                    {type:'form', id:"f_op_m4", n:"Gear 4 Snakeman", r:"mythic", cost: 80, dur: 5, eff:{dmg:1.0, en:0.25, hp:0.25}},
+                    {type:'passive', id:"p_op_u1", n:"Drums Of Liberation", r:"ultimate", desc:"Upon death, revive with full HP, double stats for 5 turns. If the enemy isn't defeated, drop to 1 HP.", trigger:"onDeath", effect:{type:"revive_buff"}}
                 ]
             }
         };
-        const weights = {common:50, uncommon:30, rare:10, epic:8, legendary:1.5, mythic:0.5};
+        
+        const weights = {common:50, uncommon:30, rare:15, epic:8, legendary:1.5, mythic:0.49, ultimate: 0.01};
         const storyEnemies = [
-            { name: "Wind Slime", baseHp: 60, hpPerLvl: 25 },
-            { name: "Cursed Spirit", baseHp: 70, hpPerLvl: 30 },
-            { name: "Automaton Doll", baseHp: 100, hpPerLvl: 40 },
-            { name: "Enchanted Beast", baseHp: 150, hpPerLvl: 50 },
-            { name: "Void Walker", baseHp: 120, hpPerLvl: 60 }
+            { name: "Wind Slime", baseHp: 60, hpPerLvl: 25, armor: 0 },
+            { name: "Cursed Spirit", baseHp: 70, hpPerLvl: 30, armor: 0.05 },
+            { name: "Automaton Doll", baseHp: 100, hpPerLvl: 40, armor: 0.1 },
+            { name: "Enchanted Beast", baseHp: 150, hpPerLvl: 50, armor: 0.15 },
+            { name: "Void Walker", baseHp: 120, hpPerLvl: 60, armor: 0.2 }
         ];
         const storyMinibosses = [
-            { name: "Slime King", baseHp: 500, hpPerLvl: 100, isMiniboss: true },
-            { name: "Archon of Curses", baseHp: 700, hpPerLvl: 150, isMiniboss: true },
-            { name: "Rogue Mecha", baseHp: 1000, hpPerLvl: 200, isMiniboss: true },
-            { name: "Gatekeeper of the Abyss", baseHp: 1500, hpPerLvl: 250, isMiniboss: true }
+            { name: "Slime King", baseHp: 500, hpPerLvl: 100, isMiniboss: true, armor: 0.1 },
+            { name: "Archon of Curses", baseHp: 700, hpPerLvl: 150, isMiniboss: true, armor: 0.2 },
+            { name: "Rogue Mecha", baseHp: 1000, hpPerLvl: 200, isMiniboss: true, armor: 0.3 },
+            { name: "Gatekeeper of the Abyss", baseHp: 1500, hpPerLvl: 250, isMiniboss: true, armor: 0.35 }
         ];
         
-        const dungeons = {
-            one_piece: {
-                name: "One Piece",
-                enemies: [ { name: "Bandit", hp: 100, dmg: 10 }, { name: "Marine", hp: 150, dmg: 15 }, { name: "Admiral", hp: 300, dmg: 25 }, { name: "Warlord", hp: 500, dmg: 35 } ],
-                minibosses: [
-                    { name: "White Beard", hp: 1000, dmg: 40, drop: {n:"Gura Gura Punch",d:[60,75],e:50,r:"rare",s:s("stun", 0.3)} },
-                    { name: "Big Mom", hp: 1500, dmg: 50, drop: {n:"Soul Pocus",d:[50,100],e:60,r:"epic",s:s("weaken", 0.5)} },
-                    { name: "Kaido", hp: 2000, dmg: 60, drop: {n:"Thunder Bagua",d:[100,150],e:70,r:"epic",s:s("stun", 0.4)} }
-                ],
-                boss: { name: "Luffy", hp: 5000, dmg: 80, drop: {n:"Gomu Gomu no Bajrang Gun",d:[500,800],e:150,r:"mythic",s:s("armor-break", 1)} }
-            }
-        };
-
         const questTemplates = [
             { id: 'win_story_3', type: 'win_story', description: 'Win 3 Story Battles', target: 3, reward: { type: 'rolls', amount: 3 } },
             { id: 'use_abilities_10', type: 'use_ability', description: 'Use 10 abilities', target: 10, reward: { type: 'rolls', amount: 2 } },
-            { id: 'complete_dungeon_1', type: 'complete_dungeon', description: 'Complete any Dungeon', target: 1, reward: { type: 'rolls', amount: 5 } },
             { id: 'use_form_5', type: 'use_form', description: 'Activate your Form 5 times', target: 5, reward: { type: 'rolls', amount: 3 } },
             { id: 'defeat_enemies_10', type: 'defeat_enemy', description: 'Defeat 10 enemies', target: 10, reward: { type: 'rolls', amount: 2 } },
         ];
@@ -643,9 +700,6 @@
         window.addFriend = addFriend;
         window.resetGameWithConfirm = resetGameWithConfirm;
         window.redeemCode = redeemCode;
-        window.startDungeon = startDungeon;
-        window.useDungeonAbility = useDungeonAbility;
-        window.leaveDungeon = leaveDungeon;
         window.claimQuestReward = claimQuestReward;
         // --- End global functions ---
 
@@ -653,19 +707,37 @@
             game.abilities.push({id:0,n:"Charge",d:[0,0],e:-game.chargeAmount,r:"starter",s:"charge",equipped:true,a:"Basic", type: 'ability'});
             game.equipped.push(game.abilities[0]);
             loadGame();
-            createBanners();
-            startBannerCountdown();
-            game.baseMaxHp = game.maxHp;
-            game.baseMaxEnergy = game.maxEnergy;
             
             const savedName = localStorage.getItem('displayName');
             if (savedName) {
                 displayName = savedName;
                 document.getElementById('displayNameInput').value = displayName;
                 document.getElementById('displayNameDisplay').textContent = displayName;
+                document.getElementById('nameModal').classList.remove('show');
+                startGameSystems();
+            } else {
+                document.getElementById('startGameBtn').onclick = () => {
+                    const nameInput = document.getElementById('startupDisplayNameInput');
+                    const newName = nameInput.value.trim();
+                    if (newName && newName.length > 2 && newName.length < 16) {
+                        displayName = newName;
+                        localStorage.setItem('displayName', displayName);
+                        document.getElementById('displayNameInput').value = displayName;
+                        document.getElementById('displayNameDisplay').textContent = displayName;
+                        document.getElementById('nameModal').classList.remove('show');
+                        startGameSystems();
+                    } else {
+                        nameInput.style.border = "1px solid red";
+                    }
+                };
             }
-            
-            renderDungeons();
+        }
+
+        function startGameSystems() {
+            startBannerRotation();
+            game.baseMaxHp = game.maxHp;
+            game.baseMaxEnergy = game.maxEnergy;
+            game.baseArmor = game.armor;
             checkDailyReset();
             updateQuestsUI();
             update();
@@ -691,96 +763,151 @@
             return "";
         }
 
-        function createBanners() {
-            const bannersDiv = document.getElementById('banners-list');
-            bannersDiv.innerHTML = '';
-            
-            const now = new Date();
-            const hour = now.getHours();
+        let currentBannerKey;
+        let bannerRotationInterval;
+        let bannerTimeLeft = 300; // 5 minutes
 
-            const bannerSchedule = [
-                ['naruto', 'dragonball', 'mha'],
-                ['onepiece', 'demonslayer', 'jujutsu']
-            ];
-            const activeBannerKeys = bannerSchedule[hour % bannerSchedule.length];
-
-            activeBannerKeys.forEach((key, index) => {
-                const pack = packs[key];
-                if (!pack) return;
-                const banner = document.createElement('div');
-                banner.className = 'banner';
-                
-                banner.innerHTML = `
-                    <div class="banner-header">
-                        <div class="banner-title">${pack.name}</div>
-                        <div class="banner-rolls">
-                            <button onclick="rollFromBanner('${key}', 1)" class="roll-1x">1x Roll</button>
-                            <button onclick="rollFromBanner('${key}', 10)" class="roll-10x">10x Roll</button>
-                        </div>
-                    </div>
-                `;
-                bannersDiv.appendChild(banner);
-                if (index < activeBannerKeys.length - 1) {
-                    const separator = document.createElement('div');
-                    separator.className = 'banner-separator';
-                    bannersDiv.appendChild(separator);
+        function startBannerRotation() {
+            updateCurrentBanner(); // Show a banner immediately
+            bannerRotationInterval = setInterval(() => {
+                bannerTimeLeft--;
+                if (bannerTimeLeft <= 0) {
+                    updateCurrentBanner();
                 }
-            });
-        }
-        
-        function startBannerCountdown() {
-            if (bannerInterval) clearInterval(bannerInterval);
-
-            bannerInterval = setInterval(() => {
-                const now = new Date();
-                const minutes = 59 - now.getMinutes();
-                const seconds = 59 - now.getSeconds();
-
-                document.getElementById('banner-countdown').textContent = `New Banners In: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-                if (minutes === 0 && seconds === 0) {
-                    createBanners();
-                }
+                updateTimerDisplay();
             }, 1000);
         }
 
-        function rollFromBanner(bannerKey, count) {
-            if (isRolling || game.rolls < count) return;
+        function updateTimerDisplay() {
+            const minutes = Math.floor(bannerTimeLeft / 60);
+            const seconds = bannerTimeLeft % 60;
+            const timerEl = document.getElementById('banner-timer');
+            if(timerEl) {
+                timerEl.textContent = `New banner in: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }
+        }
+
+        function updateCurrentBanner() {
+            bannerTimeLeft = 300; // Reset timer
+            const bannerKeys = Object.keys(banners);
+            let newBannerKey = bannerKeys[Math.floor(Math.random() * bannerKeys.length)];
+            if (bannerKeys.length > 1) {
+                while (newBannerKey === currentBannerKey) {
+                    newBannerKey = bannerKeys[Math.floor(Math.random() * bannerKeys.length)];
+                }
+            }
+            currentBannerKey = newBannerKey;
+
+            const bannerData = banners[currentBannerKey];
+            const rarityOrder = { 'ultimate': 7, 'mythic': 6, 'legendary': 5, 'epic': 4, 'rare': 3, 'uncommon': 2, 'common': 1, 'starter': 0 };
+
+            const sortedContent = [...bannerData.content].sort((a, b) => (rarityOrder[b.r] || 0) - (rarityOrder[a.r] || 0));
+            const featuredItems = sortedContent.slice(0, 3);
+
+            document.getElementById('banner-title').textContent = bannerData.name;
+            const featuredContainer = document.getElementById('featured-items-container');
+            featuredContainer.innerHTML = '';
+            featuredItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `featured-item ${item.r}`;
+                if (item.type === 'ability') {
+                    div.innerHTML = `<div style="font-size: 16px; font-weight: bold;">${item.n}</div><div style="color: #aaa;">[${item.r.toUpperCase()}]</div><div style="font-size: 13px;">${item.d[0]}-${item.d[1]} D | ${item.e} S</div>`;
+                } else if (item.type === 'form') {
+                    div.innerHTML = `<div style="font-size: 16px; font-weight: bold;">FORM: ${item.n}</div><div style="color: #aaa;">[${item.r.toUpperCase()}]</div>`;
+                } else { // Passive
+                    div.innerHTML = `<div style="font-size: 16px; font-weight: bold;">PASSIVE: ${item.n}</div><div style="color: #aaa;">[${item.r.toUpperCase()}]</div>`;
+                }
+                featuredContainer.appendChild(div);
+            });
+
+            const buttonsContainer = document.getElementById('banner-roll-buttons');
+            buttonsContainer.innerHTML = `
+                <button onclick="rollFromBanner('${currentBannerKey}', 1, false)" class="roll-1x">1x Roll</button>
+                <button onclick="rollFromBanner('${currentBannerKey}', 10, false)" class="roll-10x">10x Roll</button>
+                <button onclick="rollFromBanner('${currentBannerKey}', 1, true)" class="lucky-spin-btn">Lucky Spin</button>
+            `;
+        }
+
+
+        function rollFromBanner(bannerKey, count, isLucky = false) {
+            if (isRolling) return;
+
+            if (isLucky) {
+                if (game.luckySpins <= 0) return;
+                game.luckySpins--;
+            } else {
+                if (game.rolls < count) return;
+                game.rolls -= count;
+            }
             
             isRolling = true;
-            game.rolls -= count;
             game.totalRolls += count;
 
-            const pack = packs[bannerKey];
+            const bannerData = banners[bannerKey];
             const results = [];
             
+            let currentWeights;
+            if (isLucky) {
+                currentWeights = {
+                    rare: weights.rare,
+                    epic: weights.epic,
+                    legendary: weights.legendary,
+                    mythic: weights.mythic,
+                    ultimate: weights.ultimate
+                };
+            } else {
+                currentWeights = { ...weights };
+            }
+
+            const luckBonus = 1 + (game.luck * 0.001);
+            if (luckBonus > 1) {
+                currentWeights.rare *= luckBonus;
+                currentWeights.epic *= luckBonus;
+                currentWeights.legendary *= luckBonus;
+                currentWeights.mythic *= luckBonus;
+                currentWeights.ultimate *= luckBonus;
+            }
+            
             for (let i = 0; i < count; i++) {
-                const total = Object.values(weights).reduce((a,b) => a+b, 0);
+                const total = Object.values(currentWeights).reduce((a,b) => a+b, 0);
                 let rand = Math.random() * total;
-                let rarity = "common";
+                let rarity = isLucky ? "rare" : "common";
                 
-                for (const [r, w] of Object.entries(weights)) {
+                for (const [r, w] of Object.entries(currentWeights)) {
                     rand -= w;
                     if (rand <= 0) { rarity = r; break; }
                 }
 
-                const available = pack.content.filter(a => a.r === rarity);
-                const template = available[Math.floor(Math.random() * available.length)];
-                
-                if (template.type === 'ability') {
-                    const ability = { ...template, id: Date.now() + i + Math.random(), equipped: false, a: pack.name };
-                    game.abilities.push(ability);
-                    results.push(ability);
-                } else if (template.type === 'form') {
-                    if (!game.forms.find(f => f.id === template.id)) {
-                        game.forms.push({ ...template, a: pack.name });
+                const available = bannerData.content.filter(a => a.r === rarity);
+                let template;
+                if (available.length > 0) {
+                     template = available[Math.floor(Math.random() * available.length)];
+                } else {
+                    // Fallback if no items of the rolled rarity exist
+                    const fallbackRarities = Object.keys(currentWeights).reverse();
+                    for(const fr of fallbackRarities) {
+                        const fallbackItems = bannerData.content.filter(a => a.r === fr);
+                        if (fallbackItems.length > 0) {
+                            template = fallbackItems[Math.floor(Math.random() * fallbackItems.length)];
+                            break;
+                        }
                     }
-                    results.push({ ...template, a: pack.name });
-                } else if (template.type === 'passive') {
-                     if (!game.passives.find(p => p.id === template.id)) {
-                        game.passives.push({ ...template, a: pack.name });
+                }
+
+                if (template) {
+                    const newItem = { ...template, id: Date.now() + i + Math.random(), equipped: false, a: bannerData.anime };
+                    if (newItem.type === 'ability') {
+                        game.abilities.push(newItem);
+                    } else if (newItem.type === 'form') {
+                         if (!game.forms.find(f => f.id === newItem.id)) {
+                            game.forms.push(newItem);
+                        }
+                    } else if (newItem.type === 'passive') {
+                         if (!game.passives.find(p => p.id === newItem.id)) {
+                            game.passives.push(newItem);
+                        }
                     }
-                    results.push({ ...template, a: pack.name });
+                    results.push(newItem);
                 }
             }
             
@@ -797,7 +924,7 @@
             title.textContent = count === 1 ? '🎲 Single Roll Result!' : `🎲 ${count}x Roll Results!`;
             resultsDiv.innerHTML = '';
             
-            const rarityOrder = { 'mythic': 6, 'legendary': 5, 'epic': 4, 'rare': 3, 'uncommon': 2, 'common': 1 };
+            const rarityOrder = { 'ultimate': 7, 'mythic': 6, 'legendary': 5, 'epic': 4, 'rare': 3, 'uncommon': 2, 'common': 1 };
             results.sort((a, b) => (rarityOrder[b.r] || 0) - (rarityOrder[a.r] || 0));
 
             results.forEach(item => {
@@ -867,13 +994,18 @@
         }
 
         function use(id) {
-            if (!game.inBattle || !game.turn || game.inDungeon) return;
+            if (!game.inBattle || !game.turn) return;
             
             const ability = game.equipped.find(a => a.id === id);
             if (!ability) return;
             
             playAbilityAnimation(ability.n);
             
+            let energyCost = ability.e;
+            if (game.playerEffects.haste > 0) {
+                energyCost = Math.floor(energyCost / 2);
+            }
+
             if (ability.n === "Charge") {
                 game.energy = Math.min(game.maxEnergy, game.energy + game.chargeAmount);
                 log(`Charged ${game.chargeAmount} energy!`);
@@ -881,44 +1013,56 @@
                 return;
             }
             
-            if (game.energy < ability.e) {
+            if (game.energy < energyCost && !game.playerEffects['nine-tails-rage']) {
                 log("Not enough energy!");
                 return;
             }
             
-            game.energy -= ability.e;
+            if (!game.playerEffects['nine-tails-rage']) {
+                game.energy -= energyCost;
+            }
             updateQuestProgress('use_ability', 1);
             
             const mastery = game.masteryLevels[ability.id] || { level: 0, xp: 0 };
             const masteryBonus = 1 + (mastery.level * 0.05);
             let baseDmg = (Math.floor(Math.random() * (ability.d[1] - ability.d[0] + 1)) + ability.d[0]) * masteryBonus;
             let dmg = Math.floor(baseDmg * game.inBattleDamageBonus * game.tempDamageBonus);
-
-            // --- Passive Check: onAttack ---
-            if (game.equippedPassive && game.equippedPassive.trigger === 'onAttack' && Math.random() < game.equippedPassive.chance) {
-                if (game.equippedPassive.effect.type === 'crit') {
-                    dmg *= game.equippedPassive.effect.value;
-                    log(`⚡ Sparks of Black! A critical hit deals ${dmg} damage!`);
-                }
-            } else {
-                 log(`⚔️ ${ability.n} deals ${dmg} damage!`);
+            
+            if (game.playerEffects.haste > 0) {
+                dmg = Math.floor(dmg / 2);
             }
             
+            let isPierce = false;
+            let isCrit = false;
+            if (ability.s && typeof ability.s === 'object') {
+                if (ability.s.type === 'pierce' && Math.random() < ability.s.chance) {
+                    isPierce = true;
+                    dmg = Math.floor(dmg * 1.10);
+                }
+                if (ability.s.type === 'crit' && Math.random() < ability.s.chance) {
+                    isCrit = true;
+                    dmg *= 2;
+                }
+            }
+
+            log(`⚔️ ${ability.n} deals ${dmg} damage!${isCrit ? ' (CRITICAL HIT!)' : ''}`);
+            
             if (game.activeForm) {
-                dmg = Math.floor(dmg * (1 + game.activeForm.eff.dmg));
+                const formDmgMultiplier = 1 + (game.activeForm.eff.dmg * game.activeForm.masteryBonus);
+                dmg = Math.floor(dmg * formDmgMultiplier);
             }
             if (game.enemyEffects['armor-break']) {
                 dmg = Math.floor(dmg * 1.5);
                 log("🛡️ Armor Break! Increased damage!");
             }
             
-            let damageDealt = dealDamage(dmg, 'enemy');
+            let damageDealt = dealDamage(dmg, 'enemy', isPierce);
             gainMasteryXp('ability', ability.id, 10);
 
             if (ability.s) {
                 const effectType = typeof ability.s === 'string' ? ability.s : ability.s.type;
                 const effectChance = typeof ability.s === 'object' ? ability.s.chance : 1;
-                if (Math.random() < effectChance) {
+                if (!['pierce', 'crit'].includes(effectType) && Math.random() < effectChance) {
                     applyEffect(effectType, "enemy", damageDealt);
                 } else if (typeof ability.s === 'object') {
                     log(`💨 ${effectType} effect failed to apply!`);
@@ -949,13 +1093,14 @@
             
             playFormAnimation();
             game.energy -= game.equippedForm.cost;
-            game.activeForm = { ...game.equippedForm, turnsLeft: game.equippedForm.dur };
+            
+            const mastery = game.formMastery[game.equippedForm.id] || { level: 0, xp: 0 };
+            const masteryBonus = 1 + (mastery.level * 0.05);
+
+            game.activeForm = { ...game.equippedForm, turnsLeft: game.equippedForm.dur, masteryBonus: masteryBonus };
             game.formUsedThisBattle = true;
             updateQuestProgress('use_form', 1);
             
-            const mastery = game.formMastery[game.activeForm.id] || { level: 0, xp: 0 };
-            const masteryBonus = 1 + (mastery.level * 0.05);
-
             const hpBoost = Math.floor(game.baseMaxHp * game.activeForm.eff.hp * masteryBonus);
             const enBoost = Math.floor(game.baseMaxEnergy * game.activeForm.eff.en * masteryBonus);
             
@@ -968,15 +1113,13 @@
                 applyEffect('haste', 'player');
             }
 
-            const currentLog = game.inDungeon ? dungeonLog : log;
-            currentLog(`TRANSFORMATION! You transformed into ${game.activeForm.n}!`);
+            log(`TRANSFORMATION! You transformed into ${game.activeForm.n}!`);
             update();
         }
 
         function deactivateForm() {
             if (!game.activeForm) return;
-            const currentLog = game.inDungeon ? dungeonLog : log;
-            currentLog(`${game.activeForm.n} has worn off!`);
+            log(`${game.activeForm.n} has worn off!`);
             game.maxHp = game.baseMaxHp;
             game.maxEnergy = game.baseMaxEnergy;
             if (game.hp > game.maxHp) game.hp = game.maxHp;
@@ -985,16 +1128,16 @@
             update();
         }
 
-        function dealDamage(amount, target) {
+        function dealDamage(amount, target, isPierce = false) {
             let actualDamage = amount;
             if (target === 'player') {
-                if (game.playerEffects.invincible && game.playerEffects.invincible > 0) {
+                const blocked = Math.floor(actualDamage * game.armor);
+                actualDamage -= blocked;
+                if (blocked > 0) log(`🛡️ Your armor blocked ${blocked} damage!`);
+
+                if (game.playerEffects.invincible > 0) {
                     log("🛡️ Limitless! You are invincible and take no damage!");
                     return 0; 
-                }
-
-                if ((!game.playerEffects.invincible || game.playerEffects.invincible <= 0) && game.equippedPassive && game.equippedPassive.trigger === 'onDamage' && game.equippedPassive.effect.type === 'invincible' && Math.random() < game.equippedPassive.chance) {
-                    applyEffect('invincible', 'player');
                 }
 
                 if (game.playerShield > 0) {
@@ -1006,34 +1149,36 @@
                 game.hp = Math.max(0, game.hp - actualDamage);
 
                 if (game.hp <= 0 && !game.revivedThisBattle) {
-                    if (game.equippedPassive && game.equippedPassive.trigger === 'onDeath') {
-                        if (game.equippedPassive.effect.type === 'revive') {
-                            game.hp = game.equippedPassive.effect.value;
-                            game.revivedThisBattle = true;
-                            log("👊 Hard Headed! You cling to life with 1 HP for a final attack!");
-                            update();
-                            return actualDamage; 
-                        }
-                        if (game.equippedPassive.effect.type === 'finalStand') {
-                            game.hp = Math.floor(game.maxHp * 0.5);
-                            game.energy = game.maxEnergy;
-                            game.inBattleDamageBonus *= 2; 
-                            game.revivedThisBattle = true;
-                            log("🔥 FINAL STAND! You are revived with immense power!");
-                            applyEffect('damage-boost', 'player'); 
-                            update();
-                            return actualDamage; 
-                        }
+                    if (game.activeForm && game.activeForm.special === 'revive_dodge' && !game.uiRevivedThisBattle) {
+                        game.hp = 1;
+                        game.revivedThisBattle = true;
+                        game.uiRevivedThisBattle = true;
+                        game.activeForm.n = "Mastered Ultra Instinct";
+                        applyEffect('guaranteed-dodge', 'player');
+                        log("✨ You have achieved Ultra Instinct! You revive with 1 HP and will dodge the next 5 attacks!");
+                        update();
+                        return actualDamage;
+                    }
+                    if (game.equippedPassive && game.equippedPassive.effect.type === 'revive_buff') {
+                        game.revivedThisBattle = true;
+                        applyEffect('drums-of-liberation', 'player');
+                        return actualDamage;
+                    }
+                    if (game.equippedPassive && game.equippedPassive.effect.type === 'nine_tails_rage') {
+                        game.revivedThisBattle = true;
+                        applyEffect('nine-tails-rage', 'player');
+                        return actualDamage;
                     }
                 }
-                
-                if (game.equippedPassive && game.equippedPassive.trigger === 'onDamage' && game.equippedPassive.effect.type === 'reflect' && Math.random() < game.equippedPassive.chance) {
-                    const reflectDmg = Math.floor(amount * game.equippedPassive.effect.value);
-                    dealDamage(reflectDmg, 'enemy');
-                    log(`💥 Thorns activated! Reflected ${reflectDmg} damage!`);
+            } else { // target is enemy
+                if (!isPierce && game.currentEnemy.armor > 0) {
+                    const blocked = Math.floor(actualDamage * game.currentEnemy.armor);
+                    actualDamage -= blocked;
+                    if (blocked > 0) log(`🛡️ Enemy armor blocked ${blocked} damage!`);
+                } else if (isPierce) {
+                    log("💥 Pierce! The attack ignores enemy armor!");
                 }
 
-            } else {
                 const enemyPanel = document.getElementById('enemy-panel');
                 if (enemyPanel) {
                     enemyPanel.classList.add('hit-flash');
@@ -1065,29 +1210,54 @@
                 case "armor-break": effects['armor-break'] = 2; log(`🛡️ ${targetName} armor broken!`); break;
                 case "confusion": effects.confusion = 1; log(`😵 ${targetName} confused!`); break;
                 case "shield": 
-                    if(isPlayer) game.playerShield += 50; else game.enemyShield += 50;
+                    if(isPlayer) {
+                        game.playerShield += Math.floor(game.maxHp * 0.25);
+                        effects.shield = 3;
+                    }
                     log(`🛡️ ${targetName} shielded!`); break;
                 case "regen": effects.regen = 3; log(`💚 ${targetName} regenerating!`); break;
-                case "reflect": effects.reflect = 2; log(`🔄 ${targetName} reflecting damage!`); break;
                 case "haste": effects.haste = 2; log(`⚡ ${targetName} hasted!`); break;
-                case "leech":
-                    const healed = Math.floor(damageDealt * 0.25);
-                    game.hp = Math.min(game.maxHp, game.hp + healed);
-                    log(`🧛 You leeched ${healed} HP!`);
-                    break;
                 case "energy-drain":
                     const drained = 20;
-                    game.enemyEffects.energy = Math.max(0, game.enemyEffects.energy - drained);
-                    game.energy = Math.min(game.maxEnergy, game.energy + drained);
-                    log(`🔋 You drained ${drained} energy!`);
+                    if (!isPlayer) {
+                        game.energy = Math.min(game.maxEnergy, game.energy + drained);
+                        log(`🔋 You drained ${drained} energy!`);
+                    }
                     break;
-                case "pierce": if (!isPlayer) { dealDamage(20, 'enemy'); log("Pierce! +20 bonus damage!"); } break;
-                case "heal": if (isPlayer) { game.hp = game.maxHp; log("You healed to full!"); } break;
-                case "speed": if (isPlayer) { effects.speed = 2; log("Speed boost active!"); } break;
-                case "invincible": if(isPlayer) effects.invincible = 4; log(`🛡️ ${targetName} invincible!`); break;
-                case "damage-boost": if(isPlayer) effects['damage-boost'] = 99; log(`🔥 ${targetName} damage boosted!`); break;
-                case "gambler-up": if(isPlayer) effects['gambler-up'] = 1; break;
-                case "gambler-down": if(isPlayer) effects['gambler-down'] = 1; break;
+                case "heal": 
+                    if (isPlayer) { 
+                        const healedAmount = Math.floor(game.maxHp * 0.01);
+                        game.hp = Math.min(game.maxHp, game.hp + healedAmount);
+                        log(`💚 You healed for ${healedAmount} HP!`); 
+                    } 
+                    break;
+                case "guaranteed-dodge": if(isPlayer) effects['guaranteed-dodge'] = 5; log(`✨ You are surrounded by a silver aura!`); break;
+                case "drums-of-liberation":
+                    if (isPlayer) {
+                        log("🥁 The Drums of Liberation beat within you!");
+                        game.originalStats = { maxHp: game.baseMaxHp, maxEnergy: game.baseMaxEnergy, damageBonus: game.baseDamageBonus };
+                        game.baseMaxHp *= 2;
+                        game.baseMaxEnergy *= 2;
+                        game.baseDamageBonus *= 2;
+                        game.maxHp = game.baseMaxHp;
+                        game.maxEnergy = game.baseMaxEnergy;
+                        game.hp = game.maxHp;
+                        game.energy = game.maxEnergy;
+                        effects['drums-of-liberation'] = 5;
+                    }
+                    break;
+                case "nine-tails-rage":
+                    if (isPlayer) {
+                        log("🔥 You are consumed by the Nine-Tails' Rage!");
+                        game.originalStats = { maxHp: game.baseMaxHp };
+                        game.originalEquipped = [...game.equipped];
+                        game.baseMaxHp *= 2;
+                        game.maxHp = game.baseMaxHp;
+                        game.hp = game.maxHp;
+                        game.equipped = [{id: "rage", n: "Rage", d: [1, 1000], e: 0, r: "ultimate", s: null}];
+                        effects['nine-tails-rage'] = 5;
+                    }
+                    break;
             }
         }
 
@@ -1099,16 +1269,13 @@
                     deactivateForm();
                 }
             }
-            game.tempDamageBonus = 1; // Reset gambler bonus
-            delete game.playerEffects['gambler-up'];
-            delete game.playerEffects['gambler-down'];
             game.turn = false;
             setTimeout(enemyTurn, 1000);
             update();
         }
 
         function enemyTurn() {
-            if (!game.inBattle || game.inDungeon) return;
+            if (!game.inBattle) return;
             
             if (game.enemyEffects.stun > 0 || game.enemyEffects.freeze > 0) {
                 log("Enemy is stunned and cannot act!");
@@ -1122,6 +1289,12 @@
                 startPlayerTurn();
                 return;
             }
+            
+            if (game.playerEffects['guaranteed-dodge'] > 0) {
+                log("✨ You effortlessly dodged the attack!");
+                startPlayerTurn();
+                return;
+            }
 
             if (game.activeForm && game.activeForm.eff.dodge && Math.random() < game.activeForm.eff.dodge) {
                 log("✨ You dodged the attack!");
@@ -1130,21 +1303,7 @@
             }
             
             let dmg = Math.floor(Math.random() * 25) + (game.enemyLv * 6);
-            if (game.enemyEffects.weaken > 0) {
-                dmg = Math.floor(dmg * 0.5);
-                log("💪 Enemy is weakened! Reduced damage!");
-            }
-            if (game.playerEffects.speed > 0 && Math.random() < 0.5) {
-                log("💨 Speed dodge!");
-                game.playerEffects.speed--;
-                startPlayerTurn();
-                return;
-            }
-            if (game.playerEffects.reflect > 0) {
-                const reflectDmg = Math.floor(dmg * 0.5);
-                log(`🔄 You reflect ${reflectDmg} damage!`);
-                dealDamage(reflectDmg, 'enemy');
-            }
+            if (game.enemyEffects.weaken > 0) dmg = Math.floor(dmg * 0.5);
             
             dealDamage(dmg, 'player');
             log(`👹 ${game.enemyName} attacks for ${dmg} damage!`);
@@ -1156,18 +1315,6 @@
         }
         
         function startPlayerTurn() {
-            if (game.equippedPassive && game.equippedPassive.trigger === 'onTurnStart' && game.equippedPassive.effect.type === 'gambler') {
-                if (Math.random() < 0.5) {
-                    game.tempDamageBonus = 1.5;
-                    log("🎲 Gambler's Luck! You feel powerful! (+50% Damage)");
-                    applyEffect('gambler-up', 'player');
-                } else {
-                    game.tempDamageBonus = 0.5;
-                    log("🎲 Gambler's Folly! You feel weak... (-50% Damage)");
-                    applyEffect('gambler-down', 'player');
-                }
-            }
-            
             game.turn = true;
             processEffects();
             update();
@@ -1177,12 +1324,38 @@
             for (const effect in game.playerEffects) {
                 if (game.playerEffects[effect] > 0) {
                     switch(effect) {
-                        case "burn": dealDamage(8, 'player'); log("🔥 You take burn damage!"); break;
+                        case "burn": dealDamage(Math.floor(game.maxHp * 0.05), 'player'); log("🔥 You take burn damage!"); break;
                         case "bleed": dealDamage(5, 'player'); log("🩸 You take bleed damage!"); break;
                         case "poison": dealDamage(6, 'player'); log("☠️ You take poison damage!"); break;
                         case "regen": game.hp = Math.min(game.maxHp, game.hp + 10); log("💚 You regenerate health!"); break;
+                        case "drums-of-liberation":
+                            if (game.playerEffects[effect] === 1) { // Last turn
+                                if (game.enemyHp > 0) {
+                                    log("🥁 The drums fade... You are exhausted!");
+                                    game.hp = 1;
+                                }
+                                game.baseMaxHp = game.originalStats.maxHp;
+                                game.baseMaxEnergy = game.originalStats.maxEnergy;
+                                game.baseDamageBonus = game.originalStats.damageBonus;
+                                game.maxHp = game.baseMaxHp;
+                                game.maxEnergy = game.baseMaxEnergy;
+                                if(game.hp > game.maxHp) game.hp = game.maxHp;
+                            }
+                            break;
+                        case "nine-tails-rage":
+                             if (game.playerEffects[effect] === 1) { // Last turn
+                                if (game.enemyHp > 0) {
+                                    log("🔥 The rage subsides... You have no energy left to fight.");
+                                    game.hp = 0; // Player dies
+                                }
+                                game.baseMaxHp = game.originalStats.maxHp;
+                                game.maxHp = game.baseMaxHp;
+                                game.equipped = [...game.originalEquipped];
+                                game.originalEquipped = [];
+                            }
+                            break;
                     }
-                    if (effect !== 'damage-boost') game.playerEffects[effect]--;
+                    game.playerEffects[effect]--;
                 }
                 if (game.playerEffects[effect] <= 0) delete game.playerEffects[effect];
             }
@@ -1190,7 +1363,7 @@
             for (const effect in game.enemyEffects) {
                 if (game.enemyEffects[effect] > 0) {
                      switch(effect) {
-                        case "burn": dealDamage(8, 'enemy'); log("🔥 Enemy takes burn damage!"); break;
+                        case "burn": dealDamage(Math.floor(game.enemyMaxHp * 0.05), 'enemy'); log("🔥 Enemy takes burn damage!"); break;
                         case "bleed": dealDamage(5, 'enemy'); log("🩸 Enemy takes bleed damage!"); break;
                         case "poison": dealDamage(6, 'enemy'); log("☠️ Enemy takes poison damage!"); break;
                         case "regen": game.enemyHp = Math.min(game.enemyMaxHp, game.enemyHp + 10); log("💚 Enemy regenerates health!"); break;
@@ -1200,13 +1373,11 @@
                  if (game.enemyEffects[effect] <= 0) delete game.enemyEffects[effect];
             }
 
-            if (game.hp <= 0) gameOver();
+            if (game.hp <= 0 && !game.revivedThisBattle) gameOver();
             else if (game.enemyHp <= 0) victory();
         }
 
         function startBattle() {
-            if (game.inDungeon) return;
-            
             const campBtn = document.getElementById('campBtn');
             campBtn.style.display = 'inline-block';
             campBtn.textContent = game.isCamped ? "Auto-Continue: OFF" : "Auto-Continue: ON";
@@ -1221,8 +1392,8 @@
             game.energy = game.maxEnergy;
             game.formUsedThisBattle = false;
             game.revivedThisBattle = false;
-            game.tempDamageBonus = 1;
-            game.inBattleDamageBonus = game.baseDamageBonus; // Reset battle damage bonus
+            game.uiRevivedThisBattle = false;
+            game.inBattleDamageBonus = game.baseDamageBonus;
             
             let enemyTemplate;
             if (game.level > 0 && game.level % 10 === 0) {
@@ -1262,10 +1433,17 @@
         function victory() {
             game.inBattle = false;
             if (game.activeForm) deactivateForm();
+            if(game.playerEffects['nine-tails-rage']) {
+                game.baseMaxHp = game.originalStats.maxHp;
+                game.maxHp = game.baseMaxHp;
+                game.equipped = [...game.originalEquipped];
+                game.originalEquipped = [];
+                delete game.playerEffects['nine-tails-rage'];
+            }
             
             if (game.currentEnemy && game.currentEnemy.isMiniboss) {
-                log("🏆 Miniboss defeated! You earned 5 bonus rolls!");
-                game.rolls += 5;
+                log("🏆 Miniboss defeated! You earned 1 Lucky Spin!");
+                game.luckySpins += 1;
             }
             game.currentEnemy = {};
             updateQuestProgress('defeat_enemy', 1);
@@ -1274,8 +1452,8 @@
             game.rolls++;
             log(`Victory! Floor ${game.level}!`);
             
-            game.statPoints += 2; // Changed from 3 to 1
-            log(`✨ You gained 2 stat point!`);
+            game.statPoints += 3;
+            log(`✨ You gained 3 stat points!`);
             updateQuestProgress('win_story', 1);
 
             game.hp = game.maxHp;
@@ -1299,6 +1477,13 @@
         function gameOver() {
             game.inBattle = false;
             if (game.activeForm) deactivateForm();
+            if(game.playerEffects['nine-tails-rage']) {
+                game.baseMaxHp = game.originalStats.maxHp;
+                game.maxHp = game.baseMaxHp;
+                game.equipped = [...game.originalEquipped];
+                game.originalEquipped = [];
+                delete game.playerEffects['nine-tails-rage'];
+            }
             log("💀 You were defeated! Try again.");
             game.currentEnemy = {};
             document.getElementById("battleBtn").textContent = "Try Again";
@@ -1328,12 +1513,21 @@
                     log(`⚡ Max Energy increased to ${game.maxEnergy}!`);
                     break;
                 case 'damage':
-                    game.baseDamageBonus += 0.05; // Changed from 0.10 to 0.05
+                    game.baseDamageBonus += 0.05;
                     log(`💥 Damage bonus increased to ${Math.round(game.baseDamageBonus * 100)}%!`);
                     break;
                 case 'charge':
                     game.chargeAmount += 50;
                     log(`🔋 Charge amount increased to ${game.chargeAmount}!`);
+                    break;
+                case 'luck':
+                    game.luck += 1;
+                    log(`🍀 Luck increased by 0.1%!`);
+                    break;
+                case 'armor':
+                    game.baseArmor += 0.05;
+                    game.armor = game.baseArmor;
+                    log(`🛡️ Armor increased to ${Math.round(game.armor * 100)}%!`);
                     break;
             }
             update();
@@ -1356,8 +1550,9 @@
                         passives: [], equippedPassive: null,
                         baseMaxHp: 100, baseMaxEnergy: 50, formUsedThisBattle: false,
                         bounty: 0, friends: {}, chargeAmount: 50, redeemedCodes: [], currentEnemy: {},
-                        isCamped: false, revivedThisBattle: false, masteryLevels: {}, formMastery: {},
-                        lastLoginDate: null, dailyQuests: [], synergyBonus: {}
+                        isCamped: false, revivedThisBattle: false, uiRevivedThisBattle: false, masteryLevels: {}, formMastery: {},
+                        lastLoginDate: null, dailyQuests: [], synergyBonus: {}, luck: 0, armor: 0, baseArmor: 0, luckySpins: 0,
+                        originalEquipped: [], originalStats: {}
                     };
                     game = { ...defaults, ...loadedGame };
                     log("📁 Game loaded!");
@@ -1389,308 +1584,7 @@
             if (masteryData[id].xp >= xpToNextLevel) {
                 masteryData[id].level++;
                 masteryData[id].xp -= xpToNextLevel;
-                const currentLog = game.inDungeon ? dungeonLog : log;
-                currentLog(`🌟 ${name} has reached Mastery Level ${masteryData[id].level}!`);
-            }
-        }
-        
-        // --- Dungeons ---
-        function renderDungeons() {
-            const list = document.getElementById('dungeon-list');
-            list.innerHTML = '';
-            Object.entries(dungeons).forEach(([id, dungeon]) => {
-                const card = document.createElement('div');
-                card.className = 'dungeon-card';
-                card.innerHTML = `
-                    <h3>${dungeon.name}</h3>
-                    <div class="dungeon-difficulties">
-                        <button onclick="startDungeon('${id}', 'easy')">Easy</button>
-                        <button onclick="startDungeon('${id}', 'normal')">Normal</button>
-                        <button onclick="startDungeon('${id}', 'hard')">Hard</button>
-                    </div>
-                `;
-                list.appendChild(card);
-            });
-        }
-
-        function startDungeon(dungeonId, difficulty) {
-            if (game.inBattle && !game.isCamped) {
-                log("❌ Cannot start a dungeon while in a story battle. Turn off Auto-Continue first!");
-                return;
-            }
-
-            const dungeonData = dungeons[dungeonId];
-            if (!dungeonData) return;
-
-            game.inDungeon = true;
-            game.inBattle = true;
-            game.turn = true;
-            game.playerEffects = {};
-            game.playerShield = 0;
-            game.hp = game.maxHp;
-            game.energy = game.maxEnergy;
-            game.formUsedThisBattle = false; 
-
-            const difficultyMultipliers = {
-                easy: { hp: 0.8, dmg: 0.8, rolls: 1 },
-                normal: { hp: 1, dmg: 1, rolls: 3 },
-                hard: { hp: 1.5, dmg: 1.5, rolls: 5 }
-            };
-            const multiplier = difficultyMultipliers[difficulty];
-
-            const processedEnemies = dungeonData.enemies.map(e => ({
-                ...e,
-                hp: Math.floor(e.hp * multiplier.hp),
-                maxHp: Math.floor(e.hp * multiplier.hp),
-                dmg: Math.floor(e.dmg * multiplier.dmg)
-            }));
-            
-            let processedMinibosses = [];
-            if (dungeonData.minibosses) {
-                processedMinibosses = dungeonData.minibosses.map(e => ({
-                    ...e,
-                    hp: Math.floor(e.hp * multiplier.hp),
-                    maxHp: Math.floor(e.hp * multiplier.hp),
-                    dmg: Math.floor(e.dmg * multiplier.dmg),
-                    isMiniboss: true,
-                    drop: e.drop
-                }));
-            }
-
-            const processedBoss = {
-                ...dungeonData.boss,
-                hp: Math.floor(dungeonData.boss.hp * multiplier.hp),
-                maxHp: Math.floor(dungeonData.boss.hp * multiplier.hp),
-                dmg: Math.floor(dungeonData.boss.dmg * multiplier.dmg),
-                isBoss: true,
-                drop: dungeonData.boss.drop
-            };
-
-            game.dungeonState = {
-                id: dungeonId,
-                difficulty: difficulty,
-                stage: 0,
-                enemies: [...processedEnemies, ...processedMinibosses, processedBoss],
-                rewards: { rolls: multiplier.rolls, abilities: [] }
-            };
-
-            document.getElementById('dungeon-selection-screen').style.display = 'none';
-            const battleScreen = document.getElementById('dungeon-battle-screen');
-            battleScreen.style.display = 'block';
-            battleScreen.innerHTML = `
-                <div class="panel">
-                    <div style="text-align: center;">
-                        <h4 id="dungeonEnemyTitle">Enemy: <span id="dungeonEnemyName"></span></h4>
-                        <div class="bar-container"><div class="bar"><div class="bar-fill health" id="dungeonEnemyHpBar" style="width: 100%"></div></div></div>
-                        <div>HP: <span id="dungeonEnemyHp"></span>/<span id="dungeonEnemyMaxHp"></span></div>
-                        <div class="status" id="dungeonEnemyStatus"></div>
-                        <h4>Your Status</h4>
-                        <div class="bar-container"><div class="bar"><div class="bar-fill health" id="dungeonPlayerHpBar" style="width: 100%"></div></div><span id="dungeonPlayerHpText" class="bar-text"></span></div>
-                        <div class="bar-container"><div class="bar"><div class="bar-fill energy" id="dungeonPlayerEnergyBar" style="width: 100%"></div></div><span id="dungeonPlayerEnergyText" class="bar-text"></span></div>
-                        <div class="status" id="dungeonPlayerStatus"></div>
-                    </div>
-                    <h4>Battle Actions</h4>
-                    <div id="dungeonEquipped"></div>
-                    <div id="dungeonFormActivation"></div>
-                    <div class="log" id="dungeonLog"></div>
-                    <button onclick="leaveDungeon()" style="margin-top: 15px;">Leave Dungeon</button>
-                </div>
-            `;
-            
-            setupDungeonBattle();
-        }
-
-        function setupDungeonBattle() {
-            const state = game.dungeonState;
-            if (state.stage >= state.enemies.length) {
-                dungeonVictory();
-                return;
-            }
-
-            const enemy = state.enemies[state.stage];
-            state.currentEnemy = enemy;
-            state.enemyEffects = {};
-            state.enemyShield = 0;
-
-            dungeonLog(`A wild ${enemy.name} appears!`);
-            updateDungeonUI();
-        }
-
-        function useDungeonAbility(id) {
-            if (!game.inDungeon || !game.turn) return;
-            
-            const ability = game.equipped.find(a => a.id === id);
-            if (!ability || !game.dungeonState.currentEnemy) return;
-            
-            if (ability.n === "Charge") {
-                game.energy = Math.min(game.maxEnergy, game.energy + game.chargeAmount);
-                dungeonLog(`Charged ${game.chargeAmount} energy!`);
-                endDungeonTurn();
-                return;
-            }
-            
-            if (game.energy < ability.e) {
-                dungeonLog("Not enough energy!");
-                return;
-            }
-            
-            game.energy -= ability.e;
-            const mastery = game.masteryLevels[ability.id] || { level: 0, xp: 0 };
-            const masteryBonus = 1 + (mastery.level * 0.05);
-            let baseDmg = (Math.floor(Math.random() * (ability.d[1] - ability.d[0] + 1)) + ability.d[0]) * masteryBonus;
-            let dmg = Math.floor(baseDmg * game.inBattleDamageBonus);
-
-            if (game.activeForm) {
-                dmg = Math.floor(dmg * (1 + game.activeForm.eff.dmg));
-            }
-            
-            game.dungeonState.currentEnemy.hp = Math.max(0, game.dungeonState.currentEnemy.hp - dmg);
-            dungeonLog(`⚔️ ${ability.n} deals ${dmg} damage to ${game.dungeonState.currentEnemy.name}!`);
-            gainMasteryXp('ability', ability.id, 10);
-            
-            if (game.dungeonState.currentEnemy.hp <= 0) {
-                dungeonLog(`${game.dungeonState.currentEnemy.name} defeated!`);
-                updateQuestProgress('defeat_enemy', 1);
-                if (game.dungeonState.currentEnemy.drop && Math.random() < 0.2) { // 20% drop chance for minibosses/boss
-                    const droppedAbility = { ...game.dungeonState.currentEnemy.drop, id: Date.now() + Math.random(), equipped: false, a: "Dungeon Drop" };
-                    game.abilities.push(droppedAbility);
-                    game.dungeonState.rewards.abilities.push(droppedAbility);
-                    dungeonLog(`⭐ ${game.dungeonState.currentEnemy.name} dropped ${droppedAbility.n}!`);
-                }
-                game.dungeonState.stage++;
-                update(); // update main game state after drop
-                setTimeout(setupDungeonBattle, 1500);
-                return;
-            }
-            
-            endDungeonTurn();
-        }
-
-        function endDungeonTurn() {
-            if (game.activeForm) {
-                game.activeForm.turnsLeft--;
-                gainMasteryXp('form', game.activeForm.id, 15);
-                if (game.activeForm.turnsLeft <= 0) {
-                    deactivateForm();
-                }
-            }
-            game.turn = false;
-            setTimeout(dungeonEnemyTurn, 1000);
-            updateDungeonUI();
-        }
-
-        function dungeonEnemyTurn() {
-            if (!game.inDungeon) return;
-            
-            const enemy = game.dungeonState.currentEnemy;
-            let dmg = enemy.dmg;
-            dealDamage(dmg, 'player');
-            dungeonLog(`👹 ${enemy.name} attacks for ${dmg} damage!`);
-            
-            if (game.hp <= 0) {
-                dungeonGameOver();
-                return;
-            }
-            
-            game.turn = true;
-            updateDungeonUI();
-        }
-
-        function dungeonVictory() {
-            dungeonLog("🎉 Dungeon Cleared! You are victorious!");
-            updateQuestProgress('complete_dungeon', 1);
-            
-            const rewards = game.dungeonState.rewards;
-            game.rolls += rewards.rolls;
-            
-            const rewardsModal = document.getElementById('dungeonRewardsModal');
-            const rewardsTitle = document.getElementById('dungeonRewardsTitle');
-            const rewardsContent = document.getElementById('dungeonRewardsContent');
-            
-            rewardsTitle.textContent = `Dungeon Cleared! (${game.dungeonState.difficulty})`;
-            let rewardsHTML = `<p>You earned ${rewards.rolls} rolls!</p>`;
-            if (rewards.abilities.length > 0) {
-                rewardsHTML += '<h4>Abilities Found:</h4>';
-                rewards.abilities.forEach(a => {
-                    rewardsHTML += `<div class="ability ${a.r}">${a.n}</div>`;
-                });
-            }
-            rewardsContent.innerHTML = rewardsHTML;
-            rewardsModal.classList.add('show');
-
-            resetDungeonState();
-        }
-
-        function dungeonGameOver() {
-            dungeonLog("💀 You were defeated in the dungeon!");
-            resetDungeonState();
-        }
-
-        function leaveDungeon() {
-            dungeonLog("You have left the dungeon.");
-            resetDungeonState();
-        }
-
-        function resetDungeonState() {
-            if (game.activeForm) deactivateForm();
-            game.inDungeon = false;
-            game.inBattle = false;
-            game.dungeonState = {};
-            document.getElementById('dungeon-selection-screen').style.display = 'block';
-            const battleScreen = document.getElementById('dungeon-battle-screen');
-            battleScreen.style.display = 'none';
-            battleScreen.innerHTML = '';
-            update();
-        }
-
-        function updateDungeonUI() {
-            if (!game.inDungeon || !game.dungeonState.currentEnemy) return;
-            const enemy = game.dungeonState.currentEnemy;
-            
-            document.getElementById('dungeonEnemyName').textContent = enemy.name;
-            document.getElementById('dungeonEnemyHp').textContent = enemy.hp;
-            document.getElementById('dungeonEnemyMaxHp').textContent = enemy.maxHp;
-            document.getElementById('dungeonEnemyHpBar').style.width = (enemy.hp / enemy.maxHp * 100) + "%";
-
-            document.getElementById('dungeonPlayerHpBar').style.width = (game.hp / game.maxHp * 100) + "%";
-            document.getElementById('dungeonPlayerHpText').textContent = `${game.hp}/${game.maxHp}`;
-            document.getElementById('dungeonPlayerEnergyBar').style.width = (game.energy / game.maxEnergy * 100) + "%";
-            document.getElementById('dungeonPlayerEnergyText').textContent = `${game.energy}/${game.maxEnergy}`;
-            
-            const equippedDiv = document.getElementById('dungeonEquipped');
-            if (equippedDiv) {
-                equippedDiv.innerHTML = "";
-                game.equipped.forEach(ability => {
-                    const btn = document.createElement("button");
-                    btn.textContent = ability.n === "Charge" ? `${ability.n} (+${game.chargeAmount}e)` : `${ability.n} (${ability.e}e)`;
-                    btn.onclick = () => useDungeonAbility(ability.id);
-                    btn.disabled = !game.turn || (ability.n !== "Charge" && game.energy < ability.e);
-                    if (ability.n === "Charge") btn.className = "charge-btn";
-                    equippedDiv.appendChild(btn);
-                });
-            }
-
-            const dungeonFormActivation = document.getElementById("dungeonFormActivation");
-            if (dungeonFormActivation) {
-                dungeonFormActivation.innerHTML = "";
-                if (game.equippedForm && game.inDungeon) {
-                    const btn = document.createElement("button");
-                    btn.textContent = `Activate ${game.equippedForm.n} (${game.equippedForm.cost}e)`;
-                    btn.className = "form-btn";
-                    btn.onclick = activateForm;
-                    btn.disabled = !game.turn || !!game.activeForm || game.energy < game.equippedForm.cost || game.formUsedThisBattle;
-                    dungeonFormActivation.appendChild(btn);
-                }
-            }
-        }
-
-        function dungeonLog(msg) {
-            const logDiv = document.getElementById("dungeonLog");
-            if (logDiv) {
-                const div = document.createElement("div");
-                div.textContent = msg;
-                logDiv.appendChild(div);
-                logDiv.scrollTop = logDiv.scrollHeight;
+                log(`🌟 ${name} has reached Mastery Level ${masteryData[id].level}!`);
             }
         }
         
@@ -1958,7 +1852,8 @@
             const code = input.value.toUpperCase().trim();
             const status = document.getElementById('codeStatus');
             const codes = {
-                'UPDATE!': { type: 'rolls', amount: 25 }
+                'UPDATE!': { type: 'rolls', amount: 25 },
+                'MASSIVECODE!': { type: 'luckySpins', amount: 5 }
             };
 
             if (game.redeemedCodes.includes(code)) {
@@ -1971,6 +1866,8 @@
                 const reward = codes[code];
                 if (reward.type === 'rolls') {
                     game.rolls += reward.amount;
+                } else if (reward.type === 'luckySpins') {
+                    game.luckySpins += reward.amount;
                 }
                 game.redeemedCodes.push(code);
                 status.textContent = `Success! You received ${reward.amount} ${reward.type}!`;
@@ -2081,23 +1978,27 @@
         }
 
         function update() {
+            const rarityOrder = { 'starter': 0, 'common': 1, 'uncommon': 2, 'rare': 3, 'epic': 4, 'legendary': 5, 'mythic': 6, 'ultimate': 7 };
+
             document.getElementById("level").textContent = game.level;
             document.getElementById("hp").textContent = game.hp;
             document.getElementById("maxHp").textContent = game.maxHp;
-            document.getElementById("energy").textContent = game.energy;
+            document.getElementById("energy").textContent = game.playerEffects['nine-tails-rage'] ? '∞' : game.energy;
             document.getElementById("maxEnergy").textContent = game.maxEnergy;
             document.getElementById("enemyLv").textContent = game.enemyLv;
             document.getElementById("enemyName").textContent = game.enemyName;
             document.getElementById("enemyHp").textContent = game.enemyHp;
             document.getElementById("enemyMaxHp").textContent = game.enemyMaxHp;
+            document.getElementById("enemyArmor").textContent = game.currentEnemy ? Math.round((game.currentEnemy.armor || 0) * 100) : 0;
             document.getElementById("rolls").textContent = game.rolls;
+            document.getElementById("luckySpins").textContent = game.luckySpins;
             document.getElementById("bountyDisplay").textContent = game.bounty;
             
             document.getElementById("playerHpBar").style.width = (game.hp / game.maxHp * 100) + "%";
-            document.getElementById("playerEnergyBar").style.width = (game.energy / game.maxEnergy * 100) + "%";
+            document.getElementById("playerEnergyBar").style.width = (game.playerEffects['nine-tails-rage'] ? 100 : (game.energy / game.maxEnergy * 100)) + "%";
             document.getElementById("enemyHpBar").style.width = (game.enemyHp / game.enemyMaxHp * 100) + "%";
             document.getElementById("playerHpText").textContent = `${game.hp}/${game.maxHp}`;
-            document.getElementById("playerEnergyText").textContent = `${game.energy}/${game.maxEnergy}`;
+            document.getElementById("playerEnergyText").textContent = game.playerEffects['nine-tails-rage'] ? '∞' : `${game.energy}/${game.maxEnergy}`;
             
             const collection = document.getElementById("collection");
             collection.innerHTML = "";
@@ -2108,7 +2009,15 @@
                 abilityGroups[key].total++;
                 if (ability.equipped) abilityGroups[key].equippedCount++;
             });
-            Object.values(abilityGroups).forEach(group => {
+            
+            const sortedAbilities = Object.values(abilityGroups).sort((a, b) => {
+                const equippedA = a.equippedCount > 0;
+                const equippedB = b.equippedCount > 0;
+                if (equippedA !== equippedB) return equippedA ? -1 : 1;
+                return (rarityOrder[b.template.r] || 0) - (rarityOrder[a.template.r] || 0);
+            });
+
+            sortedAbilities.forEach(group => {
                 const ability = group.template;
                 const div = document.createElement("div");
                 div.className = `ability ${ability.r} ${group.equippedCount > 0 ? 'equipped' : ''}`;
@@ -2130,7 +2039,7 @@
             
             const equippedDisplay = document.getElementById("equipped-display");
             equippedDisplay.innerHTML = "";
-            game.equipped.forEach(ability => {
+            game.equipped.sort((a, b) => (rarityOrder[b.r] || 0) - (rarityOrder[a.r] || 0)).forEach(ability => {
                 const div = document.createElement("div");
                 div.className = `ability ${ability.r} equipped`;
                 div.onclick = () => toggleEquip(ability.n, ability.r);
@@ -2138,14 +2047,30 @@
                 equippedDisplay.appendChild(div);
             });
             
+            // Forms
             const formsCollection = document.getElementById("forms-collection");
             formsCollection.innerHTML = "";
+            const formGroups = {};
             game.forms.forEach(form => {
+                if (!formGroups[form.id]) formGroups[form.id] = { template: form, count: 0 };
+                formGroups[form.id].count++;
+            });
+
+            const sortedForms = Object.values(formGroups).sort((a, b) => {
+                const equippedA = game.equippedForm && game.equippedForm.id === a.template.id;
+                const equippedB = game.equippedForm && game.equippedForm.id === b.template.id;
+                if (equippedA !== equippedB) return equippedA ? -1 : 1;
+                return (rarityOrder[b.template.r] || 0) - (rarityOrder[a.template.r] || 0);
+            });
+
+            sortedForms.forEach(group => {
+                const form = group.template;
                 const div = document.createElement("div");
                 const isEquipped = game.equippedForm && game.equippedForm.id === form.id;
                 div.className = `form-card ${form.r} ${isEquipped ? 'equipped' : ''}`;
                 div.onclick = () => equipForm(form.id);
-                let effectsText = `+${form.eff.hp*100}% HP, +${form.eff.en*100}% EN, +${form.eff.dmg*100}% DMG`;
+                const countText = group.count > 1 ? ` (x${group.count})` : "";
+                let effectsText = `+${form.eff.dmg*100}% D, +${form.eff.en*100}% S, +${form.eff.hp*100}% H`;
                 if(form.eff.dodge) effectsText += `, ${form.eff.dodge*100}% Dodge`;
                 if(form.eff.haste) effectsText += `, ${form.eff.haste*100}% Haste`;
 
@@ -2158,7 +2083,7 @@
                     </div>
                 `;
 
-                div.innerHTML = `<strong>${form.n}</strong> [${form.r.toUpperCase()}]<br><small>${effectsText}</small>${masteryHTML}`;
+                div.innerHTML = `<strong>${form.n}${countText}</strong> [${form.r.toUpperCase()}]<br><small>${effectsText}</small>${masteryHTML}`;
                 formsCollection.appendChild(div);
             });
 
@@ -2169,21 +2094,37 @@
                 const div = document.createElement("div");
                 div.className = `form-card ${form.r} equipped`;
                 div.onclick = () => equipForm(form.id);
-                let effectsText = `+${form.eff.hp*100}% HP, +${form.eff.en*100}% EN, +${form.eff.dmg*100}% DMG`;
+                let effectsText = `+${form.eff.dmg*100}% D, +${form.eff.en*100}% S, +${form.eff.hp*100}% H`;
                 if(form.eff.dodge) effectsText += `, ${form.eff.dodge*100}% Dodge`;
                 if(form.eff.haste) effectsText += `, ${form.eff.haste*100}% Haste`;
                 div.innerHTML = `<strong>${form.n}</strong> [${form.r.toUpperCase()}]<br><small>${effectsText}</small>`;
                 equippedFormDisplay.appendChild(div);
             }
             
+            // Passives
             const passivesCollection = document.getElementById("passives-collection");
             passivesCollection.innerHTML = "";
+            const passiveGroups = {};
             game.passives.forEach(passive => {
+                if (!passiveGroups[passive.id]) passiveGroups[passive.id] = { template: passive, count: 0 };
+                passiveGroups[passive.id].count++;
+            });
+
+            const sortedPassives = Object.values(passiveGroups).sort((a,b) => {
+                const equippedA = game.equippedPassive && game.equippedPassive.id === a.template.id;
+                const equippedB = game.equippedPassive && game.equippedPassive.id === b.template.id;
+                if (equippedA !== equippedB) return equippedA ? -1 : 1;
+                return (rarityOrder[b.template.r] || 0) - (rarityOrder[a.template.r] || 0);
+            });
+
+            sortedPassives.forEach(group => {
+                const passive = group.template;
                 const div = document.createElement("div");
                 const isEquipped = game.equippedPassive && game.equippedPassive.id === passive.id;
                 div.className = `passive-card ${passive.r} ${isEquipped ? 'equipped' : ''}`;
                 div.onclick = () => equipPassive(passive.id);
-                div.innerHTML = `<strong>${passive.n}</strong> [${passive.r.toUpperCase()}]<br><small>${passive.desc}</small>`;
+                const countText = group.count > 1 ? ` (x${group.count})` : "";
+                div.innerHTML = `<strong>${passive.n}${countText}</strong> [${passive.r.toUpperCase()}]<br><small>${passive.desc}</small>`;
                 passivesCollection.appendChild(div);
             });
 
@@ -2205,14 +2146,15 @@
                 const btn = document.createElement("button");
                 btn.textContent = ability.n === "Charge" ? `${ability.n} (+${game.chargeAmount}e)` : `${ability.n} (${ability.e}e)`;
                 btn.onclick = () => use(ability.id);
-                btn.disabled = !game.inBattle || !game.turn || (ability.n !== "Charge" && game.energy < ability.e);
+                btn.disabled = !game.inBattle || !game.turn || (ability.n !== "Charge" && game.energy < ability.e && !game.playerEffects['nine-tails-rage']);
                 if (ability.n === "Charge") btn.className = "charge-btn";
+                if (ability.n === "Rage") btn.className = "rage-btn"; // You might want to style this
                 equipped.appendChild(btn);
             });
 
             const formActivation = document.getElementById("form-activation");
             formActivation.innerHTML = "";
-            if (game.equippedForm && game.inBattle) {
+            if (game.equippedForm && game.inBattle && !game.playerEffects['nine-tails-rage']) {
                 const btn = document.createElement("button");
                 btn.textContent = `Activate ${game.equippedForm.n} (${game.equippedForm.cost}e)`;
                 btn.className = "form-btn";
@@ -2231,20 +2173,27 @@
             document.getElementById("statTotalRolls").textContent = game.totalRolls;
             document.getElementById("statBounty").textContent = game.bounty;
             document.getElementById("statPoints").textContent = game.statPoints;
+            document.getElementById("statLuck").textContent = `${(game.luck * 0.1).toFixed(1)}%`;
+            document.getElementById("statArmor").textContent = `${Math.round(game.baseArmor * 100)}%`;
+            
             const disabled = game.statPoints <= 0;
             document.getElementById("investHpBtn").disabled = disabled;
             document.getElementById("investEnergyBtn").disabled = disabled;
             document.getElementById("investDamageBtn").disabled = disabled;
             document.getElementById("investChargeBtn").disabled = disabled;
+            document.getElementById("investLuckBtn").disabled = disabled;
+            document.getElementById("investArmorBtn").disabled = disabled;
             
             // Update roll buttons in banners
             document.querySelectorAll('.roll-1x, .roll-10x').forEach(btn => {
                 const requiredRolls = btn.classList.contains('roll-10x') ? 10 : 1;
                 btn.disabled = game.rolls < requiredRolls || isRolling;
             });
+            document.querySelectorAll('.lucky-spin-btn').forEach(btn => {
+                btn.disabled = game.luckySpins <= 0 || isRolling;
+            });
 
             updateStatus();
-            if (game.inDungeon) updateDungeonUI();
             saveGame();
         }
 
@@ -2312,6 +2261,3 @@
     </script>
 </body>
 </html>
-
-
-
