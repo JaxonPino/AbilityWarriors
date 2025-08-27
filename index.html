@@ -968,18 +968,31 @@
 
                 if (template) {
                     const newItem = { ...template, id: Date.now() + i + Math.random(), equipped: false, a: bannerData.anime };
+                    results.push(newItem); // Show the roll result regardless
+
                     if (newItem.type === 'ability') {
-                        game.abilities.push(newItem);
+                        // Check for duplicate ability by name and rarity
+                        const isDuplicate = game.abilities.some(a => a.n === newItem.n && a.r === newItem.r);
+                        if (!isDuplicate) {
+                            game.abilities.push(newItem);
+                        } else {
+                            log(`♻️ Duplicate move '${newItem.n}' was discarded.`);
+                        }
                     } else if (newItem.type === 'form') {
-                         if (!game.forms.find(f => f.id === newItem.id)) {
+                         // This check is based on the static ID from the banner definition
+                         if (!game.forms.some(f => f.id === newItem.id)) {
                             game.forms.push(newItem);
+                        } else {
+                            log(`♻️ Duplicate form '${newItem.n}' was discarded.`);
                         }
                     } else if (newItem.type === 'passive') {
-                         if (!game.passives.find(p => p.id === newItem.id)) {
+                         // This check is based on the static ID from the banner definition
+                         if (!game.passives.some(p => p.id === newItem.id)) {
                             game.passives.push(newItem);
+                        } else {
+                            log(`♻️ Duplicate passive '${newItem.n}' was discarded.`);
                         }
                     }
-                    results.push(newItem);
                 }
             }
             
@@ -1023,26 +1036,26 @@
         }
 
         function toggleEquip(name, rarity) {
-            const equippedAbility = game.equipped.find(a => a.n === name && a.r === rarity);
+            const ability = game.abilities.find(a => a.n === name && a.r === rarity);
+            if (!ability) return; // Safety check
 
-            if (equippedAbility) {
-                if (equippedAbility.n === "Charge" || equippedAbility.n === "Chance") {
+            if (ability.equipped) {
+                // Unequip
+                if (ability.n === "Charge" || ability.n === "Chance") {
                     log("❌ Cannot unequip Class abilities!");
                     return;
                 }
-                equippedAbility.equipped = false;
-                game.equipped = game.equipped.filter(a => a.id !== equippedAbility.id);
+                ability.equipped = false;
+                game.equipped = game.equipped.filter(eq => eq.id !== ability.id);
             } else {
+                // Equip
                 const maxSlots = game.playerClass === 'gambler' ? 5 : 4;
                 if (game.equipped.length >= maxSlots) {
                     log(`❌ Max ${maxSlots} abilities!`);
                     return;
                 }
-                const abilityToEquip = game.abilities.find(a => a.n === name && a.r === rarity && !a.equipped);
-                if (abilityToEquip) {
-                    abilityToEquip.equipped = true;
-                    game.equipped.push(abilityToEquip);
-                }
+                ability.equipped = true;
+                game.equipped.push(ability);
             }
             updateSynergyBonus();
             update();
@@ -2139,27 +2152,16 @@
 
             const collection = document.getElementById("collection");
             collection.innerHTML = "";
-            const abilityGroups = {};
-            game.abilities.forEach(ability => {
-                const key = ability.n + '|' + ability.r;
-                if (!abilityGroups[key]) abilityGroups[key] = { template: ability, total: 0, equippedCount: 0 };
-                abilityGroups[key].total++;
-                if (ability.equipped) abilityGroups[key].equippedCount++;
-            });
             
-            const sortedAbilities = Object.values(abilityGroups).sort((a, b) => {
-                const equippedA = a.equippedCount > 0;
-                const equippedB = b.equippedCount > 0;
-                if (equippedA !== equippedB) return equippedA ? -1 : 1;
-                return (rarityOrder[b.template.r] || 0) - (rarityOrder[a.template.r] || 0);
+            const sortedAbilities = [...game.abilities].sort((a, b) => {
+                if (a.equipped !== b.equipped) return a.equipped ? -1 : 1;
+                return (rarityOrder[b.r] || 0) - (rarityOrder[a.r] || 0);
             });
 
-            sortedAbilities.forEach(group => {
-                const ability = group.template;
+            sortedAbilities.forEach(ability => {
                 const div = document.createElement("div");
-                div.className = `ability ${ability.r} ${group.equippedCount > 0 ? 'equipped' : ''}`;
+                div.className = `ability ${ability.r} ${ability.equipped ? 'equipped' : ''}`;
                 div.onclick = () => toggleEquip(ability.n, ability.r);
-                const countText = group.total > 1 ? ` (x${group.total})` : "";
                 
                 const mastery = game.masteryLevels[ability.id] || { level: 0, xp: 0 };
                 const xpToNextLevel = 100 * Math.pow(1.5, mastery.level);
@@ -2169,12 +2171,12 @@
                         <div class="mastery-bar-fill" style="width: ${mastery.xp / xpToNextLevel * 100}%"></div>
                     </div>
                 `;
-                let abilityDesc = `<strong>${ability.n}${countText}</strong> [${ability.r.toUpperCase()}]<br>`;
+                let abilityDesc = `<strong>${ability.n}</strong> [${ability.r.toUpperCase()}]<br>`;
                 if (ability.n === "Charge") abilityDesc += `Restores ${game.chargeAmount} Energy`;
                 else if (ability.n === "Chance") abilityDesc += `2% chance for a jackpot! | ${ability.e}e`;
                 else abilityDesc += `${ability.d[0]}-${ability.d[1]}dmg | ${ability.e}e`;
 
-                div.innerHTML = `${abilityDesc}${getSpecialText(ability.s)}<br><span class="anime">${ability.a}</span><br><span style="color: #00aaff;">[${group.equippedCount}/${group.total} Equipped]</span>${masteryHTML}`;
+                div.innerHTML = `${abilityDesc}${getSpecialText(ability.s)}<br><span class="anime">${ability.a}</span>${masteryHTML}`;
                 collection.appendChild(div);
             });
             
