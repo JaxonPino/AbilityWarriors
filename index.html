@@ -647,7 +647,8 @@
                 progress: 0,
                 playerHpSnapshot: 0,
                 playerEnergySnapshot: 0
-            }
+            },
+            completedDungeons: {}
         };
 
         const s = (type, chance) => ({ type, chance });
@@ -741,31 +742,55 @@
                 name: "Jujutsu Kaisen",
                 description: "Face the curses and sorcerers of the JJK world.",
                 enemies: [
-                    // 5 Normal NPCs
                     { name: "Jujutsu High Student", baseHp: 100, hpPerLvl: 40, armor: 0.1 },
                     { name: "Grade 3 Cursed Spirit", baseHp: 120, hpPerLvl: 50, armor: 0.1 },
                     { name: "Cursed User", baseHp: 150, hpPerLvl: 60, armor: 0.15 },
                     { name: "Grade 2 Cursed Spirit", baseHp: 200, hpPerLvl: 70, armor: 0.15 },
                     { name: "Jujutsu High Teacher", baseHp: 250, hpPerLvl: 80, armor: 0.2 },
-                    // 4 Minibosses
                     { name: "Panda", isMiniboss: true, baseHp: 800, hpPerLvl: 150, armor: 0.25 },
                     { name: "Megumi Fushiguro", isMiniboss: true, baseHp: 1000, hpPerLvl: 200, armor: 0.2 },
                     { name: "Aoi Todo", isMiniboss: true, baseHp: 1500, hpPerLvl: 250, armor: 0.3 },
                     { name: "Kento Nanami", isMiniboss: true, baseHp: 2000, hpPerLvl: 300, armor: 0.35 },
-                    // 1 Boss
-                    { name: "Yuji Itadori", isBoss: true, baseHp: 5000, hpPerLvl: 500, armor: 0.3, drop: {
-                        chance: 0.05,
-                        item: {type:'ability', id:"div_fist", n:"Divergent Fist", d:[100,250], e:80, r:"mythic", s:{type:"black_flash", chance:0.25}, a:"Jujutsu Kaisen"}
-                    }}
+                    { name: "Yuji Itadori", isBoss: true, baseHp: 5000, hpPerLvl: 500, armor: 0.3, drops: [
+                        { chance: 0.05, item: {type:'ability', id:"div_fist", n:"Divergent Fist", d:[100,250], e:80, r:"mythic", s:{type:"black_flash", chance:0.25}, a:"Jujutsu Kaisen"} }
+                    ]}
                 ],
-                rewards: {
-                    easy: { rolls: 5 },
-                    normal: { rolls: 10 },
-                    hard: { rolls: 20, luckySpins: 1 }
-                }
+                rewards: { easy: { rolls: 5 }, normal: { rolls: 10 }, hard: { rolls: 20, luckySpins: 1 } }
             },
-            mob_psycho: { name: "Mob Psycho 100", description: "Unlock your psychic potential. (Coming Soon)", enemies: [], rewards: {} },
-            hakari: { name: "Shinjuku Showdown", description: "Test your luck against the ultimate gambler. (Coming Soon)", enemies: [], rewards: {} }
+            mob_psycho: { 
+                name: "Mob Psycho 100", 
+                description: "Unlock your psychic potential.", 
+                enemies: [
+                    { name: "Body Improvement Club Member", baseHp: 150, hpPerLvl: 50, armor: 0.1 },
+                    { name: "Rival Esper", baseHp: 200, hpPerLvl: 60, armor: 0.1 },
+                    { name: "Low-Level Evil Spirit", baseHp: 250, hpPerLvl: 70, armor: 0.15 },
+                    { name: "Claw Agent", baseHp: 300, hpPerLvl: 80, armor: 0.2 },
+                    { name: "Teruki Hanazawa", isMiniboss: true, baseHp: 1200, hpPerLvl: 220, armor: 0.25 },
+                    { name: "Dimple (Possessed)", isMiniboss: true, baseHp: 1800, hpPerLvl: 280, armor: 0.3 },
+                    { name: "Shigeo 'Mob' Kageyama", isBoss: true, baseHp: 6000, hpPerLvl: 600, armor: 0.35, drops: [
+                        { chance: 0.01, item: {type: 'passive_unlock', unlock: 'psycho'} },
+                        { chance: 0.05, item: {type:'ability', id:"psychic_rage", n:"Psychic Rage", d:[1,100], e:50, r:"legendary", s:s("stun", 0.4), a:"Mob Psycho 100"} }
+                    ]}
+                ], 
+                rewards: { easy: { rolls: 5 }, normal: { rolls: 10 }, hard: { rolls: 20, luckySpins: 1 } }
+            },
+            hakari: { 
+                name: "Shinjuku Showdown", 
+                description: "Test your luck against the ultimate gambler.", 
+                enemies: [
+                    { name: "Cursed Spirit Gambler", baseHp: 200, hpPerLvl: 60, armor: 0.15 },
+                    { name: "Sorcerer Bouncer", baseHp: 250, hpPerLvl: 70, armor: 0.2 },
+                    { name: "High-Roller", baseHp: 300, hpPerLvl: 80, armor: 0.2 },
+                    { name: "Pachinko Machine Curse", baseHp: 400, hpPerLvl: 90, armor: 0.25 },
+                    { name: "Charles Bernard", isMiniboss: true, baseHp: 1500, hpPerLvl: 250, armor: 0.3 },
+                    { name: "Panda (Again)", isMiniboss: true, baseHp: 2000, hpPerLvl: 300, armor: 0.35 },
+                    { name: "Kinji Hakari", isBoss: true, baseHp: 7777, hpPerLvl: 777, armor: 0.4, drops: [
+                        { chance: 0.01, item: {type: 'passive_unlock', unlock: 'gambler'} },
+                        { chance: 0.05, item: {type:'ability', id:"pure_love_train", n:"Pure Love Train", d:[200,350], e:120, r:"mythic", s:s("armor-break", 0.75), a:"Jujutsu Kaisen"} }
+                    ]}
+                ], 
+                rewards: { easy: { rolls: 5 }, normal: { rolls: 10 }, hard: { rolls: 20, luckySpins: 1 } }
+            }
         };
 
         // --- Make functions global so HTML can access them ---
@@ -1751,7 +1776,8 @@
                         isCamped: false, revivedThisBattle: false, uiRevivedThisBattle: false, masteryLevels: {}, formMastery: {},
                         lastLoginDate: null, dailyQuests: [], storyQuests: [], synergyBonus: {}, luck: 0, armor: 0, baseArmor: 0, luckySpins: 0,
                         originalEquipped: [], originalStats: {}, unlocks: { gambler: false, psycho: false }, psychoBar: 0,
-                        dungeonState: { inDungeon: false, dungeonId: null, difficulty: null, progress: 0, playerHpSnapshot: 0, playerEnergySnapshot: 0 }
+                        dungeonState: { inDungeon: false, dungeonId: null, difficulty: null, progress: 0, playerHpSnapshot: 0, playerEnergySnapshot: 0 },
+                        completedDungeons: {}
                     };
                     game = { ...defaults, ...loadedGame };
                     log("📁 Game loaded!");
@@ -2263,6 +2289,14 @@
             
             log(`🏆 CONGRATULATIONS! You have cleared the ${dungeon.name} dungeon!`);
             
+            // One-time stat point reward
+            const completionKey = `${dungeonId}-${difficulty}`;
+            if (!game.completedDungeons[completionKey]) {
+                game.statPoints += 5;
+                log(`✨ You earned 5 stat points for the first-time completion!`);
+                game.completedDungeons[completionKey] = true;
+            }
+
             if (reward.rolls) {
                 game.rolls += reward.rolls;
                 log(`You received ${reward.rolls} rolls!`);
@@ -2274,12 +2308,28 @@
 
             // Boss drop check
             const boss = dungeon.enemies[dungeon.enemies.length - 1];
-            if (boss.drop && Math.random() < boss.drop.chance) {
-                const dropItem = { ...boss.drop.item, equipped: false };
-                 if (!game.abilities.some(a => a.id === dropItem.id)) {
-                    game.abilities.push(dropItem);
-                    log(`🌟 BOSS DROP! You obtained the move: ${dropItem.n}!`);
-                }
+            if (boss.drops && Array.isArray(boss.drops)) {
+                boss.drops.forEach(drop => {
+                    if (Math.random() < drop.chance) {
+                        if (drop.item.type === 'ability') {
+                            const dropItem = { ...drop.item, equipped: false };
+                            if (!game.abilities.some(a => a.id === dropItem.id)) {
+                                game.abilities.push(dropItem);
+                                log(`🌟 BOSS DROP! You obtained the move: ${dropItem.n}!`);
+                            }
+                        } else if (drop.item.type === 'passive_unlock') {
+                            const unlockKey = drop.item.unlock;
+                            if (unlockKey === 'psycho' && !game.unlocks.psycho) {
+                                game.unlocks.psycho = true;
+                                log(`🌟 BOSS DROP! You have unlocked the potential for Psychic Rage!`);
+                            } else if (unlockKey === 'gambler' && !game.unlocks.gambler) {
+                                game.unlocks.gambler = true;
+                                game.abilities.push({id:"chance", n:"Chance", d:[0,0], e:20, r:"mythic", s:null, a:"Class", type: 'ability'});
+                                log(`🌟 BOSS DROP! You have unlocked the Gambler's 'Chance' ability!`);
+                            }
+                        }
+                    }
+                });
             }
 
             // Restore player state and exit dungeon mode
