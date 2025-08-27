@@ -97,6 +97,12 @@
             0%, 100% { opacity: 0; }
             50% { opacity: 0.9; background: linear-gradient(45deg, transparent 48%, #311b92 49%, #311b92 51%, transparent 52%); }
         }
+        .black-flash { animation: black-flash 0.3s ease-out; }
+        @keyframes black-flash {
+            0%, 100% { opacity: 0; }
+            20%, 80% { opacity: 1; background: black; }
+            40%, 60% { opacity: 1; background: #e94560; }
+        }
         /* --- End Animation Styles --- */
 
         .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -242,11 +248,6 @@
         .modal.show { display: flex; }
         .modal-content { background: #16213e; border: 3px solid #e94560; border-radius: 15px; padding: 30px; max-width: 90%; max-height: 90%; overflow-y: auto; text-align: center; }
         
-        .class-selection-container { display: flex; justify-content: center; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
-        .class-card { background: #0f3460; border: 2px solid #533483; border-radius: 10px; padding: 20px; width: 200px; cursor: pointer; transition: all 0.3s; }
-        .class-card:hover { transform: translateY(-5px); border-color: #e94560; }
-        .class-card h3 { margin-top: 0; color: #e94560; }
-
         .roll-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
         .roll-item { background: #0f3460; border-radius: 10px; padding: 15px; text-align: center; min-width: 150px; }
         .roll-item.legendary { border: 3px solid #ff9800; box-shadow: 0 0 20px #ff9800; animation: glow-legendary 1.5s infinite; }
@@ -304,6 +305,17 @@
             text-align: center;
         }
         
+        /* Dungeon Styles */
+        .dungeon-selection { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .dungeon-card { background: #0f3460; border: 2px solid #533483; border-radius: 10px; padding: 20px; text-align: center; }
+        .dungeon-card h3 { margin-top: 0; color: #e94560; }
+        .difficulty-buttons button { background: #16213e; border: 1px solid #533483; }
+        .difficulty-buttons button:hover { background: #533483; }
+        .difficulty-buttons button.easy { border-color: #4caf50; color: #4caf50; }
+        .difficulty-buttons button.normal { border-color: #ffeb3b; color: #ffeb3b; }
+        .difficulty-buttons button.hard { border-color: #f44336; color: #f44336; }
+        #dungeon-status { text-align: center; margin-top: 20px; font-size: 1.2em; }
+
         @keyframes glow-form { from { box-shadow: 0 0 10px #fff, 0 0 20px #ff9800, 0 0 30px #9c27b0; } to { box-shadow: 0 0 20px #fff, 0 0 30px #ff9800, 0 0 40px #9c27b0; } }
         @keyframes glow-legendary { from { box-shadow: 0 0 10px #ff9800; } to { box-shadow: 0 0 25px #ff9800; } }
         @keyframes glow-mythic { from { box-shadow: 0 0 15px #f44336; transform: scale(1); } to { box-shadow: 0 0 35px #f44336; transform: scale(1.05); } }
@@ -343,6 +355,7 @@
         <button class="tab active" onclick="switchTab('shop')">Banners</button>
         <button class="tab" onclick="switchTab('moves')">Moveset</button>
         <button class="tab" onclick="switchTab('battle')">Story</button>
+        <button class="tab" onclick="switchTab('dungeons')">Dungeons</button>
         <button class="tab" onclick="switchTab('quests')">Quests</button>
         <button class="tab" onclick="switchTab('multiplayer')">Multiplayer</button>
         <button class="tab" onclick="switchTab('social')">Social</button>
@@ -357,26 +370,6 @@
             <p>Please enter your name to begin your journey.</p>
             <input type="text" id="startupDisplayNameInput" placeholder="Enter your name" maxlength="15">
             <button id="confirmNameBtn">Confirm Name</button>
-        </div>
-    </div>
-    <div id="classModal" class="modal">
-        <div class="modal-content">
-            <h2>Choose Your Class</h2>
-            <p>Your class defines your unique path. Choose wisely!</p>
-            <div class="class-selection-container">
-                <div class="class-card" onclick="selectClass('saiyan')">
-                    <h3>Saiyan</h3>
-                    <p>A warrior race with immense potential. Gain 3 stat points per story victory instead of 1.</p>
-                </div>
-                <div class="class-card" onclick="selectClass('gambler')">
-                    <h3>Gambler</h3>
-                    <p>Live on the edge. Gain a special 'Chance' ability with a 2% chance for a massive temporary boost.</p>
-                </div>
-                <div class="class-card" onclick="selectClass('psycho')">
-                    <h3>Psycho</h3>
-                    <p>Channel your pain into power. Getting hit fills a bar that grants a huge damage boost when full.</p>
-                </div>
-            </div>
         </div>
     </div>
     <div id="rollPopup" class="modal">
@@ -433,7 +426,7 @@
         </div>
         <div class="container">
             <div class="panel"><h3>Collection</h3><div id="collection" style="max-height: 400px; overflow-y: auto;"></div></div>
-            <div class="panel"><h3>Equipped Moves (Max 5)</h3><div id="equipped-display"></div></div>
+            <div class="panel"><h3>Equipped Moves (Max 4)</h3><div id="equipped-display"></div></div>
             <div class="panel"><h3>Forms</h3><div id="forms-collection" style="max-height: 400px; overflow-y: auto;"></div></div>
             <div class="panel"><h3>Equipped Form</h3><div id="equipped-form-display"></div></div>
             <div class="panel"><h3>Passives</h3><div id="passives-collection" style="max-height: 400px; overflow-y: auto;"></div></div>
@@ -452,6 +445,7 @@
                     <div class="status" id="enemyStatus"></div>
                 </div>
                 <button onclick="startBattle()" id="battleBtn" style="display:block;">Start Battle</button>
+                <div id="dungeon-status"></div>
                 <h4>Your Status</h4>
                 <div class="bar-container"><div class="bar"><div class="bar-fill health" id="playerHpBar" style="width: 100%"></div></div><span id="playerHpText" class="bar-text">100/100</span></div>
                 <div class="bar-container"><div class="bar"><div class="bar-fill energy" id="playerEnergyBar" style="width: 100%"></div></div><span id="playerEnergyText" class="bar-text">50/50</span></div>
@@ -463,6 +457,16 @@
             <button onclick="toggleCamp()" id="campBtn" style="display:none;">Auto-Continue: OFF</button>
             <div id="form-activation"></div>
             <div class="log" id="log"></div>
+        </div>
+    </div>
+
+    <!-- Dungeons Tab -->
+    <div id="dungeons" class="tab-content">
+        <div class="panel">
+            <h3>Select a Dungeon</h3>
+            <div id="dungeon-selection" class="dungeon-selection">
+                <!-- Dungeon cards will be injected here -->
+            </div>
         </div>
     </div>
     
@@ -634,8 +638,16 @@
             luckySpins: 0,
             originalEquipped: [],
             originalStats: {},
-            playerClass: null, // 'saiyan', 'gambler', 'psycho'
+            unlocks: { gambler: false, psycho: false },
             psychoBar: 0,
+            dungeonState: {
+                inDungeon: false,
+                dungeonId: null,
+                difficulty: null,
+                progress: 0,
+                playerHpSnapshot: 0,
+                playerEnergySnapshot: 0
+            }
         };
 
         const s = (type, chance) => ({ type, chance });
@@ -723,6 +735,38 @@
             { id: 'use_form_5', type: 'use_form', description: 'Activate your Form 5 times', target: 5, reward: { type: 'rolls', amount: 3 } },
             { id: 'defeat_enemies_10', type: 'defeat_enemy', description: 'Defeat 10 enemies', target: 10, reward: { type: 'rolls', amount: 2 } },
         ];
+        
+        const dungeons = {
+            jjk: {
+                name: "Jujutsu Kaisen",
+                description: "Face the curses and sorcerers of the JJK world.",
+                enemies: [
+                    // 5 Normal NPCs
+                    { name: "Jujutsu High Student", baseHp: 100, hpPerLvl: 40, armor: 0.1 },
+                    { name: "Grade 3 Cursed Spirit", baseHp: 120, hpPerLvl: 50, armor: 0.1 },
+                    { name: "Cursed User", baseHp: 150, hpPerLvl: 60, armor: 0.15 },
+                    { name: "Grade 2 Cursed Spirit", baseHp: 200, hpPerLvl: 70, armor: 0.15 },
+                    { name: "Jujutsu High Teacher", baseHp: 250, hpPerLvl: 80, armor: 0.2 },
+                    // 4 Minibosses
+                    { name: "Panda", isMiniboss: true, baseHp: 800, hpPerLvl: 150, armor: 0.25 },
+                    { name: "Megumi Fushiguro", isMiniboss: true, baseHp: 1000, hpPerLvl: 200, armor: 0.2 },
+                    { name: "Aoi Todo", isMiniboss: true, baseHp: 1500, hpPerLvl: 250, armor: 0.3 },
+                    { name: "Kento Nanami", isMiniboss: true, baseHp: 2000, hpPerLvl: 300, armor: 0.35 },
+                    // 1 Boss
+                    { name: "Yuji Itadori", isBoss: true, baseHp: 5000, hpPerLvl: 500, armor: 0.3, drop: {
+                        chance: 0.05,
+                        item: {type:'ability', id:"div_fist", n:"Divergent Fist", d:[100,250], e:80, r:"mythic", s:{type:"black_flash", chance:0.25}, a:"Jujutsu Kaisen"}
+                    }}
+                ],
+                rewards: {
+                    easy: { rolls: 5 },
+                    normal: { rolls: 10 },
+                    hard: { rolls: 20, luckySpins: 1 }
+                }
+            },
+            mob_psycho: { name: "Mob Psycho 100", description: "Unlock your psychic potential. (Coming Soon)", enemies: [], rewards: {} },
+            hakari: { name: "Shinjuku Showdown", description: "Test your luck against the ultimate gambler. (Coming Soon)", enemies: [], rewards: {} }
+        };
 
         // --- Make functions global so HTML can access them ---
         window.switchTab = switchTab;
@@ -743,7 +787,7 @@
         window.resetGameWithConfirm = resetGameWithConfirm;
         window.redeemCode = redeemCode;
         window.claimQuestReward = claimQuestReward;
-        window.selectClass = selectClass;
+        window.startDungeon = startDungeon;
         // --- End global functions ---
 
         function init() {
@@ -754,17 +798,9 @@
                 displayName = savedName;
                 document.getElementById('displayNameInput').value = displayName;
                 document.getElementById('displayNameDisplay').textContent = displayName;
-                
-                if (game.playerClass) {
-                    document.getElementById('nameModal').classList.remove('show');
-                    document.getElementById('classModal').classList.remove('show');
-                    setupInitialAbilities();
-                    startGameSystems();
-                } else {
-                    document.getElementById('nameModal').classList.remove('show');
-                    document.getElementById('classModal').classList.add('show');
-                }
-
+                document.getElementById('nameModal').classList.remove('show');
+                setupInitialAbilities();
+                startGameSystems();
             } else {
                 document.getElementById('confirmNameBtn').onclick = () => {
                     const nameInput = document.getElementById('startupDisplayNameInput');
@@ -775,7 +811,8 @@
                         document.getElementById('displayNameInput').value = displayName;
                         document.getElementById('displayNameDisplay').textContent = displayName;
                         document.getElementById('nameModal').classList.remove('show');
-                        document.getElementById('classModal').classList.add('show');
+                        setupInitialAbilities();
+                        startGameSystems();
                     } else {
                         nameInput.style.border = "1px solid red";
                     }
@@ -783,30 +820,18 @@
             }
         }
         
-        function selectClass(className) {
-            game.playerClass = className;
-            document.getElementById('classModal').classList.remove('show');
-            setupInitialAbilities();
-            startGameSystems();
-        }
-        
         function setupInitialAbilities() {
+            if (game.abilities.length > 0) return; // Only run on first time setup
             game.abilities = [];
             game.equipped = [];
-
             game.abilities.push({id:0,n:"Charge",d:[0,0],e:-game.chargeAmount,r:"starter",s:"charge",equipped:true,a:"Basic", type: 'ability'});
             game.equipped.push(game.abilities[0]);
-
-            if (game.playerClass === 'gambler') {
-                const chanceAbility = {id: 'chance', n: "Chance", d:[0,0], e: 10, r: "mythic", s: "chance", equipped: true, a: "Class", type: 'ability'};
-                game.abilities.push(chanceAbility);
-                game.equipped.push(chanceAbility);
-            }
         }
 
 
         function startGameSystems() {
             startBannerRotation();
+            renderDungeons();
             game.baseMaxHp = game.maxHp;
             game.baseMaxEnergy = game.maxEnergy;
             game.baseArmor = game.armor;
@@ -830,7 +855,8 @@
             if (!special) return "";
             if (typeof special === 'string') return ` (${special})`;
             if (typeof special === 'object' && special.type && special.chance) {
-                return ` (${special.type} ${Math.round(special.chance * 100)}%)`;
+                let typeText = special.type.replace('_', ' ');
+                return ` (${typeText} ${Math.round(special.chance * 100)}%)`;
             }
             return "";
         }
@@ -1042,14 +1068,14 @@
             if (ability.equipped) {
                 // Unequip
                 if (ability.n === "Charge" || ability.n === "Chance") {
-                    log("❌ Cannot unequip Class abilities!");
+                    log("❌ Cannot unequip innate abilities!");
                     return;
                 }
                 ability.equipped = false;
                 game.equipped = game.equipped.filter(eq => eq.id !== ability.id);
             } else {
                 // Equip
-                const maxSlots = game.playerClass === 'gambler' ? 5 : 4;
+                const maxSlots = 4;
                 if (game.equipped.length >= maxSlots) {
                     log(`❌ Max ${maxSlots} abilities!`);
                     return;
@@ -1138,6 +1164,7 @@
             
             let isPierce = false;
             let isCrit = false;
+            let isBlackFlash = false;
             if (ability.s && typeof ability.s === 'object') {
                 if (ability.s.type === 'pierce' && Math.random() < ability.s.chance) {
                     isPierce = true;
@@ -1147,9 +1174,14 @@
                     isCrit = true;
                     dmg *= 2;
                 }
+                if (ability.s.type === 'black_flash' && Math.random() < ability.s.chance) {
+                    isBlackFlash = true;
+                    dmg = Math.floor(Math.random() * (700 - 500 + 1)) + 500;
+                    playAbilityAnimation('black_flash');
+                }
             }
 
-            log(`⚔️ ${ability.n} deals ${dmg} damage!${isCrit ? ' (CRITICAL HIT!)' : ''}`);
+            log(`⚔️ ${ability.n} deals ${dmg} damage!${isCrit ? ' (CRITICAL HIT!)' : ''}${isBlackFlash ? ' ⚫ BLACK FLASH!' : ''}`);
             
             if (game.activeForm) {
                 const formDmgMultiplier = 1 + (game.activeForm.eff.dmg * game.activeForm.masteryBonus);
@@ -1166,7 +1198,7 @@
             if (ability.s) {
                 const effectType = typeof ability.s === 'string' ? ability.s : ability.s.type;
                 const effectChance = typeof ability.s === 'object' ? ability.s.chance : 1;
-                if (!['pierce', 'crit'].includes(effectType) && Math.random() < effectChance) {
+                if (!['pierce', 'crit', 'black_flash'].includes(effectType) && Math.random() < effectChance) {
                     applyEffect(effectType, "enemy", damageDealt);
                 } else if (typeof ability.s === 'object') {
                     log(`💨 ${effectType} effect failed to apply!`);
@@ -1240,7 +1272,7 @@
                     return 0;
                 }
 
-                if (game.playerClass === 'psycho') {
+                if (game.unlocks.psycho) {
                     game.psychoBar = Math.min(100, game.psychoBar + 5);
                     if (game.psychoBar === 100) {
                         applyEffect('psycho-rage', 'player');
@@ -1508,10 +1540,16 @@
             else if (game.enemyHp <= 0) victory();
         }
 
-        function startBattle() {
-            const campBtn = document.getElementById('campBtn');
-            campBtn.style.display = 'inline-block';
-            campBtn.textContent = game.isCamped ? "Auto-Continue: OFF" : "Auto-Continue: ON";
+        function startBattle(isDungeon = false) {
+            if (!isDungeon) {
+                if (game.dungeonState.inDungeon) {
+                    log("❌ Cannot start a story battle while in a dungeon!");
+                    return;
+                }
+                const campBtn = document.getElementById('campBtn');
+                campBtn.style.display = 'inline-block';
+                campBtn.textContent = game.isCamped ? "Auto-Continue: OFF" : "Auto-Continue: ON";
+            }
 
             game.inBattle = true;
             game.turn = true;
@@ -1519,26 +1557,35 @@
             game.enemyEffects = {};
             game.playerShield = 0;
             game.enemyShield = 0;
-            game.hp = game.maxHp;
-            game.energy = game.maxEnergy;
+            if (!isDungeon) {
+                 game.hp = game.maxHp;
+                 game.energy = game.maxEnergy;
+            }
             game.formUsedThisBattle = false;
             game.revivedThisBattle = false;
             game.uiRevivedThisBattle = false;
             game.inBattleDamageBonus = game.baseDamageBonus;
             
             let enemyTemplate;
-            if (game.level > 0 && game.level % 10 === 0) {
-                const bossIndex = Math.min(Math.floor(game.level / 10) - 1, storyMinibosses.length - 1);
-                enemyTemplate = storyMinibosses[bossIndex];
-                game.enemyMaxHp = enemyTemplate.baseHp + (enemyTemplate.hpPerLvl * game.level);
-                document.getElementById("enemyTitle").className = "boss-enemy";
-            } else {
-                const enemyIndex = Math.min(Math.floor((game.level-1) / 5), storyEnemies.length - 1);
-                enemyTemplate = storyEnemies[enemyIndex];
-                game.enemyMaxHp = enemyTemplate.baseHp + (enemyTemplate.hpPerLvl * game.level);
-                document.getElementById("enemyTitle").className = "";
+            if (isDungeon) {
+                const dungeon = dungeons[game.dungeonState.dungeonId];
+                enemyTemplate = dungeon.enemies[game.dungeonState.progress];
+                const difficultyMultipliers = { easy: 0.75, normal: 1, hard: 1.5 };
+                const multiplier = difficultyMultipliers[game.dungeonState.difficulty];
+                game.enemyMaxHp = Math.floor((enemyTemplate.baseHp + (enemyTemplate.hpPerLvl * game.level)) * multiplier);
+            } else { // Story mode
+                if (game.level > 0 && game.level % 10 === 0) {
+                    const bossIndex = Math.min(Math.floor(game.level / 10) - 1, storyMinibosses.length - 1);
+                    enemyTemplate = storyMinibosses[bossIndex];
+                    game.enemyMaxHp = enemyTemplate.baseHp + (enemyTemplate.hpPerLvl * game.level);
+                } else {
+                    const enemyIndex = Math.min(Math.floor((game.level-1) / 5), storyEnemies.length - 1);
+                    enemyTemplate = storyEnemies[enemyIndex];
+                    game.enemyMaxHp = enemyTemplate.baseHp + (enemyTemplate.hpPerLvl * game.level);
+                }
             }
 
+            document.getElementById("enemyTitle").className = (enemyTemplate.isBoss || enemyTemplate.isMiniboss) ? "boss-enemy" : "";
             game.enemyName = enemyTemplate.name;
             game.currentEnemy = { ...enemyTemplate };
             game.enemyHp = game.enemyMaxHp;
@@ -1562,6 +1609,12 @@
         }
 
         function victory() {
+            if (game.dungeonState.inDungeon) {
+                dungeonBattleVictory();
+                return;
+            }
+
+            // --- Story Mode Victory ---
             game.inBattle = false;
             if (game.activeForm) deactivateForm();
             if(game.playerEffects['nine-tails-rage']) {
@@ -1583,9 +1636,8 @@
             game.rolls++;
             log(`Victory! Floor ${game.level}!`);
             
-            const pointsGained = game.playerClass === 'saiyan' ? 3 : 1;
-            game.statPoints += pointsGained;
-            log(`✨ You gained ${pointsGained} stat point(s)!`);
+            game.statPoints += 1;
+            log(`✨ You gained 1 stat point!`);
             updateQuestProgress('win_story', 1);
 
             game.hp = game.maxHp;
@@ -1607,6 +1659,12 @@
         }
 
         function gameOver() {
+            if (game.dungeonState.inDungeon) {
+                dungeonBattleDefeat();
+                return;
+            }
+
+            // --- Story Mode Game Over ---
             game.inBattle = false;
             if (game.activeForm) deactivateForm();
             if(game.playerEffects['nine-tails-rage']) {
@@ -1692,7 +1750,8 @@
                         bounty: 0, friends: {}, chargeAmount: 50, redeemedCodes: [], currentEnemy: {},
                         isCamped: false, revivedThisBattle: false, uiRevivedThisBattle: false, masteryLevels: {}, formMastery: {},
                         lastLoginDate: null, dailyQuests: [], storyQuests: [], synergyBonus: {}, luck: 0, armor: 0, baseArmor: 0, luckySpins: 0,
-                        originalEquipped: [], originalStats: {}, playerClass: null, psychoBar: 0
+                        originalEquipped: [], originalStats: {}, unlocks: { gambler: false, psycho: false }, psychoBar: 0,
+                        dungeonState: { inDungeon: false, dungeonId: null, difficulty: null, progress: 0, playerHpSnapshot: 0, playerEnergySnapshot: 0 }
                     };
                     game = { ...defaults, ...loadedGame };
                     log("📁 Game loaded!");
@@ -1931,16 +1990,17 @@
             body.classList.remove('screen-shake');
 
             setTimeout(() => {
-                switch(abilityName) {
-                    case 'Kamehameha': overlay.classList.add('kamehameha-flash'); break;
-                    case 'Rasengan': overlay.classList.add('rasengan-flash'); break;
-                    case 'Amaterasu': overlay.classList.add('amaterasu-flash'); break;
-                    case 'Hollow Purple': overlay.classList.add('hollow-purple-flash'); break;
-                    case 'Final Flash': overlay.classList.add('final-flash'); break;
-                    case 'Spirit Bomb': overlay.classList.add('spirit-bomb-flash'); break;
-                    case 'Detroit Smash': overlay.classList.add('detroit-smash-flash'); body.classList.add('screen-shake'); break;
-                    case 'Cleave': case 'World Cutting Slash': overlay.classList.add('cleave-flash'); break;
-                    case 'Gura Gura Punch': body.classList.add('screen-shake'); break;
+                switch(abilityName.toLowerCase()) {
+                    case 'kamehameha': overlay.classList.add('kamehameha-flash'); break;
+                    case 'rasengan': overlay.classList.add('rasengan-flash'); break;
+                    case 'amaterasu': overlay.classList.add('amaterasu-flash'); break;
+                    case 'hollow purple': overlay.classList.add('hollow-purple-flash'); break;
+                    case 'final flash': overlay.classList.add('final-flash'); break;
+                    case 'spirit bomb': overlay.classList.add('spirit-bomb-flash'); break;
+                    case 'detroit smash': overlay.classList.add('detroit-smash-flash'); body.classList.add('screen-shake'); break;
+                    case 'cleave': case 'world cutting slash': overlay.classList.add('cleave-flash'); break;
+                    case 'gura gura punch': body.classList.add('screen-shake'); break;
+                    case 'black_flash': overlay.classList.add('black-flash'); break;
                 }
             }, 10);
         }
@@ -1989,11 +2049,12 @@
 
         function redeemCode() {
             const input = document.getElementById('codeInput');
-            const code = input.value.toUpperCase().trim();
+            const code = input.value.trim();
             const status = document.getElementById('codeStatus');
             const codes = {
                 'UPDATE!': { type: 'rolls', amount: 25 },
-                'MASSIVECODE!': { type: 'luckySpins', amount: 5 }
+                'MASSIVECODE!': { type: 'luckySpins', amount: 5 },
+                'AdminPino!': { type: 'ability', item: {type:'ability', id:"div_fist", n:"Divergent Fist", d:[100,250], e:80, r:"mythic", s:{type:"black_flash", chance:0.25}, a:"Jujutsu Kaisen"} }
             };
 
             if (game.redeemedCodes.includes(code)) {
@@ -2006,11 +2067,20 @@
                 const reward = codes[code];
                 if (reward.type === 'rolls') {
                     game.rolls += reward.amount;
+                    status.textContent = `Success! You received ${reward.amount} rolls!`;
                 } else if (reward.type === 'luckySpins') {
                     game.luckySpins += reward.amount;
+                    status.textContent = `Success! You received ${reward.amount} lucky spins!`;
+                } else if (reward.type === 'ability') {
+                    const newItem = { ...reward.item, equipped: false };
+                    if (!game.abilities.some(a => a.id === newItem.id)) {
+                        game.abilities.push(newItem);
+                        status.textContent = `Success! You received the move: ${newItem.n}!`;
+                    } else {
+                        status.textContent = `You already have ${newItem.n}!`;
+                    }
                 }
                 game.redeemedCodes.push(code);
-                status.textContent = `Success! You received ${reward.amount} ${reward.type}!`;
                 status.style.color = '#4caf50';
                 update();
             } else {
@@ -2116,6 +2186,111 @@
             }
             document.getElementById('synergy-display').innerHTML = synergyText;
         }
+        
+        // --- Dungeon System ---
+        function renderDungeons() {
+            const container = document.getElementById('dungeon-selection');
+            container.innerHTML = '';
+            for (const [id, dungeon] of Object.entries(dungeons)) {
+                const card = document.createElement('div');
+                card.className = 'dungeon-card';
+                const isLocked = dungeon.enemies.length === 0;
+                card.innerHTML = `
+                    <h3>${dungeon.name}</h3>
+                    <p>${dungeon.description}</p>
+                    <div class="difficulty-buttons">
+                        <button class="easy" onclick="startDungeon('${id}', 'easy')" ${isLocked ? 'disabled' : ''}>Easy</button>
+                        <button class="normal" onclick="startDungeon('${id}', 'normal')" ${isLocked ? 'disabled' : ''}>Normal</button>
+                        <button class="hard" onclick="startDungeon('${id}', 'hard')" ${isLocked ? 'disabled' : ''}>Hard</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        function startDungeon(dungeonId, difficulty) {
+            if (game.inBattle) {
+                alert("You cannot start a dungeon while in a battle!");
+                return;
+            }
+            game.dungeonState = {
+                inDungeon: true,
+                dungeonId: dungeonId,
+                difficulty: difficulty,
+                progress: 0,
+                playerHpSnapshot: game.hp,
+                playerEnergySnapshot: game.energy
+            };
+            log(`Starting ${dungeons[dungeonId].name} dungeon on ${difficulty} difficulty!`);
+            switchTab('battle');
+            startBattle(true);
+        }
+        
+        function dungeonBattleVictory() {
+            log(`Defeated ${game.currentEnemy.name}!`);
+            game.dungeonState.progress++;
+            
+            const dungeon = dungeons[game.dungeonState.dungeonId];
+            
+            // Check if dungeon is complete
+            if (game.dungeonState.progress >= dungeon.enemies.length) {
+                dungeonComplete();
+                return;
+            }
+            
+            // Start next fight
+            log(`Proceeding to the next opponent...`);
+            setTimeout(() => startBattle(true), 2000);
+            update();
+        }
+
+        function dungeonBattleDefeat() {
+            log(`💀 You were defeated in the dungeon!`);
+            game.hp = game.dungeonState.playerHpSnapshot;
+            game.energy = game.dungeonState.playerEnergySnapshot;
+            game.dungeonState.inDungeon = false;
+            
+            game.inBattle = false;
+            document.getElementById("battleBtn").textContent = "Start Battle";
+            document.getElementById("battleBtn").style.display = "block";
+            update();
+        }
+
+        function dungeonComplete() {
+            const { dungeonId, difficulty } = game.dungeonState;
+            const dungeon = dungeons[dungeonId];
+            const reward = dungeon.rewards[difficulty];
+            
+            log(`🏆 CONGRATULATIONS! You have cleared the ${dungeon.name} dungeon!`);
+            
+            if (reward.rolls) {
+                game.rolls += reward.rolls;
+                log(`You received ${reward.rolls} rolls!`);
+            }
+            if (reward.luckySpins) {
+                game.luckySpins += reward.luckySpins;
+                log(`You received ${reward.luckySpins} lucky spins!`);
+            }
+
+            // Boss drop check
+            const boss = dungeon.enemies[dungeon.enemies.length - 1];
+            if (boss.drop && Math.random() < boss.drop.chance) {
+                const dropItem = { ...boss.drop.item, equipped: false };
+                 if (!game.abilities.some(a => a.id === dropItem.id)) {
+                    game.abilities.push(dropItem);
+                    log(`🌟 BOSS DROP! You obtained the move: ${dropItem.n}!`);
+                }
+            }
+
+            // Restore player state and exit dungeon mode
+            game.hp = game.dungeonState.playerHpSnapshot;
+            game.energy = game.dungeonState.playerEnergySnapshot;
+            game.dungeonState.inDungeon = false;
+            game.inBattle = false;
+            document.getElementById("battleBtn").textContent = "Start Battle";
+            document.getElementById("battleBtn").style.display = "block";
+            update();
+        }
 
         function update() {
             const rarityOrder = { 'starter': 0, 'common': 1, 'uncommon': 2, 'rare': 3, 'epic': 4, 'legendary': 5, 'mythic': 6, 'ultimate': 7 };
@@ -2140,9 +2315,19 @@
             document.getElementById("playerHpText").textContent = `${game.hp}/${game.maxHp}`;
             document.getElementById("playerEnergyText").textContent = game.playerEffects['nine-tails-rage'] || game.playerEffects['777'] > 0 ? '∞' : `${game.energy}/${game.maxEnergy}`;
             
+            // Dungeon Status UI
+            const dungeonStatusDiv = document.getElementById('dungeon-status');
+            if (game.dungeonState.inDungeon) {
+                const dungeon = dungeons[game.dungeonState.dungeonId];
+                dungeonStatusDiv.textContent = `${dungeon.name} (${game.dungeonState.difficulty}) - Wave ${game.dungeonState.progress + 1} / ${dungeon.enemies.length}`;
+                dungeonStatusDiv.style.display = 'block';
+            } else {
+                dungeonStatusDiv.style.display = 'none';
+            }
+
             // Psycho Bar UI
             const psychoBarContainer = document.getElementById('psycho-bar-container');
-            if (game.playerClass === 'psycho') {
+            if (game.unlocks.psycho) {
                 psychoBarContainer.style.display = 'flex';
                 document.getElementById('playerPsychoBar').style.width = game.psychoBar + '%';
                 document.getElementById('playerPsychoText').textContent = `${game.psychoBar}%`;
