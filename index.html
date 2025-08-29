@@ -1018,25 +1018,27 @@
                 }
 
                 if (template) {
-                    const newItem = { ...template, id: Date.now() + i + Math.random(), equipped: false, a: bannerData.anime };
+                    let newItem = { ...template, equipped: false, a: bannerData.anime };
+                    if (template.type === 'ability') {
+                        // Abilities need unique runtime IDs for equipping and mastery
+                        newItem.id = Date.now() + i + Math.random();
+                    }
+                    // For forms/passives, we use the static ID from the template for grouping
+
                     results.push(newItem); // Show the roll result regardless
 
                     if (newItem.type === 'ability') {
-                        // Check for duplicate ability by name and rarity
+                        // Check for duplicate ability by name and rarity, only add if new
                         const isDuplicate = game.abilities.some(a => a.n === newItem.n && a.r === newItem.r);
                         if (!isDuplicate) {
                             game.abilities.push(newItem);
                         }
                     } else if (newItem.type === 'form') {
-                         // This check is based on the static ID from the banner definition
-                         if (!game.forms.some(f => f.id === newItem.id)) {
-                            game.forms.push(newItem);
-                        }
+                        // Always add forms, the UI will group them
+                        game.forms.push(newItem);
                     } else if (newItem.type === 'passive') {
-                         // This check is based on the static ID from the banner definition
-                         if (!game.passives.some(p => p.id === newItem.id)) {
-                            game.passives.push(newItem);
-                        }
+                        // Always add passives, the UI will group them
+                        game.passives.push(newItem);
                     }
                 }
             }
