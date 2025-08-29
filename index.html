@@ -880,7 +880,7 @@
             if (!special) return "";
             if (typeof special === 'string') return ` (${special})`;
             if (typeof special === 'object' && special.type && special.chance) {
-                let typeText = special.type.replace('_', ' ');
+                let typeText = special.type.replace(/_/g, ' ');
                 return ` (${typeText} ${Math.round(special.chance * 100)}%)`;
             }
             return "";
@@ -1217,12 +1217,21 @@
             gainMasteryXp('ability', ability.id, 10);
 
             if (ability.s) {
-                const effectType = typeof ability.s === 'string' ? ability.s : ability.s.type;
-                const effectChance = typeof ability.s === 'object' ? ability.s.chance : 1;
-                if (!['pierce', 'crit', 'black_flash'].includes(effectType) && Math.random() < effectChance) {
-                    applyEffect(effectType, "enemy", damageDealt);
-                } else if (typeof ability.s === 'object') {
-                    log(`💨 ${effectType} effect failed to apply!`);
+                if (ability.s.type === 'advanced_freeze' && Math.random() < ability.s.chance) {
+                    let freezeDuration = 1;
+                    if (Math.random() < 0.25) { // 25% for an extra turn
+                        freezeDuration = 2;
+                    }
+                    game.enemyEffects.freeze = freezeDuration;
+                    log(`🧊 Enemy is frozen for ${freezeDuration} turn(s)!`);
+                } else {
+                    const effectType = typeof ability.s === 'string' ? ability.s : ability.s.type;
+                    const effectChance = typeof ability.s === 'object' ? ability.s.chance : 1;
+                    if (!['pierce', 'crit', 'black_flash', 'advanced_freeze'].includes(effectType) && Math.random() < effectChance) {
+                        applyEffect(effectType, "enemy", damageDealt);
+                    } else if (typeof ability.s === 'object' && !['pierce', 'crit', 'black_flash', 'advanced_freeze'].includes(effectType)) {
+                         log(`💨 ${effectType} effect failed to apply!`);
+                    }
                 }
             }
             
@@ -1268,6 +1277,9 @@
 
             if (game.activeForm.eff.haste) {
                 applyEffect('haste', 'player');
+            }
+            if (game.activeForm.special === 'activate_dodge') {
+                applyEffect('guaranteed-dodge', 'player', 0, 3);
             }
 
             log(`TRANSFORMATION! You transformed into ${game.activeForm.n}!`);
@@ -1365,7 +1377,7 @@
             return actualDamage;
         }
 
-        function applyEffect(effect, target, damageDealt = 0) {
+        function applyEffect(effect, target, damageDealt = 0, duration = null) {
             const isPlayer = target === "player";
             const effects = isPlayer ? game.playerEffects : game.enemyEffects;
             const targetName = isPlayer ? "You are" : "Enemy is";
@@ -1401,7 +1413,7 @@
                         log(`💚 You healed for ${healedAmount} HP!`); 
                     } 
                     break;
-                case "guaranteed-dodge": if(isPlayer) effects['guaranteed-dodge'] = 5; log(`✨ You are surrounded by a silver aura!`); break;
+                case "guaranteed-dodge": if(isPlayer) effects['guaranteed-dodge'] = duration || 5; log(`✨ You are surrounded by a silver aura!`); break;
                 case "drums-of-liberation":
                     if (isPlayer) {
                         log("🥁 The Drums of Liberation beat within you!");
@@ -2076,7 +2088,9 @@
             const codes = {
                 'UPDATE!': { type: 'rolls', amount: 25 },
                 'MASSIVECODE!': { type: 'luckySpins', amount: 5 },
-                'AdminPino!': { type: 'ability', item: {type:'ability', id:"div_fist", n:"Divergent Fist", d:[100,250], e:80, r:"mythic", s:{type:"black_flash", chance:0.25}, a:"Jujutsu Kaisen"} }
+                'AdminPino!': { type: 'ability', item: {type:'ability', id:"div_fist", n:"Divergent Fist", d:[100,250], e:80, r:"mythic", s:{type:"black_flash", chance:0.25}, a:"Jujutsu Kaisen"} },
+                'AdminIcez!': { type: 'ability', item: {type:'ability', n:"Glacier", d:[300,650], e:100, r:"mythic", s:{type:"advanced_freeze", chance:0.5}, a:"Admin"} },
+                'AdminDino!': { type: 'form', item: {type:'form', id:"f_admin_dino", n:"Monstrance", r:"ultimate", cost: 100, dur: 5, eff:{dmg:0.5, en:0.5, hp:0.5}, special: "activate_dodge"} }
             };
 
             if (game.redeemedCodes.includes(code)) {
@@ -2094,13 +2108,17 @@
                     game.luckySpins += reward.amount;
                     status.textContent = `Success! You received ${reward.amount} lucky spins!`;
                 } else if (reward.type === 'ability') {
-                    const newItem = { ...reward.item, equipped: false };
-                    if (!game.abilities.some(a => a.id === newItem.id)) {
+                    const newItem = { ...reward.item, equipped: false, id: Date.now() + Math.random() };
+                    if (!game.abilities.some(a => a.n === newItem.n)) {
                         game.abilities.push(newItem);
                         status.textContent = `Success! You received the move: ${newItem.n}!`;
                     } else {
                         status.textContent = `You already have ${newItem.n}!`;
                     }
+                } else if (reward.type === 'form') {
+                    const newForm = { ...reward.item };
+                    game.forms.push(newForm);
+                    status.textContent = `Success! You received the form: ${newForm.n}!`;
                 }
                 game.redeemedCodes.push(code);
                 status.style.color = '#4caf50';
@@ -2644,5 +2662,4 @@
     </script>
 </body>
 </html>
-
 
