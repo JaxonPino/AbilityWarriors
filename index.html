@@ -533,10 +533,10 @@
                 <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
                     <button id="investHpBtn" onclick="invest('hp')">+100 Health</button>
                     <button id="investEnergyBtn" onclick="invest('energy')">+50 Energy</button>
-                    <button id="investDamageBtn" onclick="invest('damage')">+5% Damage</button>
+                    <button id="investDamageBtn" onclick="invest('damage')">+10% Damage</button>
                     <button id="investChargeBtn" onclick="invest('charge')">+50 Charge</button>
                     <button id="investLuckBtn" onclick="invest('luck')">+0.1% Luck</button>
-                    <button id="investArmorBtn" onclick="invest('armor')">+1% Armor</button>
+                    <button id="investArmorBtn" onclick="invest('armor')">+5% Armor</button>
                 </div>
             </div>
             <h3>Player Statistics</h3>
@@ -612,7 +612,7 @@
         }
         
         let game = {
-            level: 1, hp: 100, maxHp: 100, energy: 50, maxEnergy: 50, rolls: 10,
+            level: 1, hp: 100, maxHp: 100, energy: 100, maxEnergy: 100, rolls: 10,
             abilities: [], equipped: [], inBattle: false, isCamped: false,
             enemyLv: 1, enemyHp: 60, enemyMaxHp: 60, enemyName: "Wind Slime",
             turn: true, playerEffects: {}, enemyEffects: {},
@@ -621,7 +621,7 @@
             playerShield: 0, enemyShield: 0,
             forms: [], equippedForm: null, activeForm: null,
             passives: [], equippedPassive: null,
-            baseMaxHp: 100, baseMaxEnergy: 50,
+            baseMaxHp: 100, baseMaxEnergy: 100,
             formUsedThisBattle: false, bounty: 0,
             friends: {}, chargeAmount: 50,
             redeemedCodes: [],
@@ -1709,8 +1709,8 @@
                 return;
             }
 
-            if (stat === 'armor' && game.baseArmor >= 0.5) {
-                log("🛡️ Armor is already at its maximum of 50%!");
+            if (stat === 'armor' && game.baseArmor >= 0.75) {
+                log("🛡️ Armor is already at its maximum of 75%!");
                 return;
             }
 
@@ -1729,7 +1729,7 @@
                     log(`⚡ Max Energy increased to ${game.maxEnergy}!`);
                     break;
                 case 'damage':
-                    game.baseDamageBonus += 0.05;
+                    game.baseDamageBonus += 0.10;
                     log(`💥 Damage bonus increased to ${Math.round(game.baseDamageBonus * 100)}%!`);
                     break;
                 case 'charge':
@@ -1741,9 +1741,9 @@
                     log(`🍀 Luck increased by 0.1%!`);
                     break;
                 case 'armor':
-                    game.baseArmor += 0.01;
-                    if (game.baseArmor > 0.5) {
-                        game.baseArmor = 0.5;
+                    game.baseArmor += 0.05;
+                    if (game.baseArmor > 0.75) {
+                        game.baseArmor = 0.75;
                     }
                     game.armor = game.baseArmor;
                     log(`🛡️ Armor increased to ${Math.round(game.armor * 100)}%!`);
@@ -1767,7 +1767,7 @@
                         statPoints: 0, baseDamageBonus: 1, inBattleDamageBonus: 1, tempDamageBonus: 1, playerShield: 0, enemyShield: 0,
                         forms: [], equippedForm: null, activeForm: null,
                         passives: [], equippedPassive: null,
-                        baseMaxHp: 100, baseMaxEnergy: 50, formUsedThisBattle: false,
+                        baseMaxHp: 100, baseMaxEnergy: 100, formUsedThisBattle: false,
                         bounty: 0, friends: {}, chargeAmount: 50, redeemedCodes: [], currentEnemy: {},
                         isCamped: false, revivedThisBattle: false, uiRevivedThisBattle: false, masteryLevels: {}, formMastery: {},
                         lastLoginDate: null, dailyQuests: [], storyQuests: [], synergyBonus: {}, luck: 0, armor: 0, baseArmor: 0, luckySpins: 0,
@@ -2565,7 +2565,7 @@
             document.getElementById("investDamageBtn").disabled = disabled;
             document.getElementById("investChargeBtn").disabled = disabled;
             document.getElementById("investLuckBtn").disabled = disabled;
-            document.getElementById("investArmorBtn").disabled = disabled || game.baseArmor >= 0.5;
+            document.getElementById("investArmorBtn").disabled = disabled || game.baseArmor >= 0.75;
             
             // Update roll buttons in banners
             document.querySelectorAll('.roll-1x, .roll-10x').forEach(btn => {
@@ -2644,4 +2644,5 @@
     </script>
 </body>
 </html>
+
 
