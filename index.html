@@ -347,7 +347,7 @@
     <div class="stats">
         <div class="stat">Floor: <span id="level">1</span></div>
         <div class="stat">Health: <span id="hp">100</span>/<span id="maxHp">100</span></div>
-        <div class="stat">Energy: <span id="energy">50</span>/<span id="maxEnergy">50</span></div>
+        <div class="stat">Energy: <span id="energy">100</span>/<span id="maxEnergy">100</span></div>
         <div class="stat">Enemy Lv: <span id="enemyLv">1</span></div>
     </div>
 
@@ -1723,13 +1723,13 @@
                     log(`❤️ Max HP increased to ${game.maxHp}!`);
                     break;
                 case 'energy':
-                    game.baseMaxEnergy += 50;
+                    game.baseMaxEnergy += 100;
                     game.maxEnergy = game.baseMaxEnergy;
                     game.energy = game.maxEnergy;
                     log(`⚡ Max Energy increased to ${game.maxEnergy}!`);
                     break;
                 case 'damage':
-                    game.baseDamageBonus += 0.05;
+                    game.baseDamageBonus += 0.1;
                     log(`💥 Damage bonus increased to ${Math.round(game.baseDamageBonus * 100)}%!`);
                     break;
                 case 'charge':
@@ -1741,7 +1741,7 @@
                     log(`🍀 Luck increased by 0.1%!`);
                     break;
                 case 'armor':
-                    game.baseArmor += 0.01;
+                    game.baseArmor += 0.05;
                     if (game.baseArmor > 0.5) {
                         game.baseArmor = 0.5;
                     }
@@ -2644,4 +2644,5 @@
     </script>
 </body>
 </html>
+
 
