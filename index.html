@@ -120,7 +120,7 @@
             height: 12px;
             border-radius: 50%;
             margin-right: 8px;
-            transition: background-color: 0.5s;
+            transition: background-color 0.5s;
         }
         .status-dot.online {
             background-color: #4caf50; /* Green */
@@ -1026,22 +1026,16 @@
                         const isDuplicate = game.abilities.some(a => a.n === newItem.n && a.r === newItem.r);
                         if (!isDuplicate) {
                             game.abilities.push(newItem);
-                        } else {
-                            log(`♻️ Duplicate move '${newItem.n}' was discarded.`);
                         }
                     } else if (newItem.type === 'form') {
                          // This check is based on the static ID from the banner definition
                          if (!game.forms.some(f => f.id === newItem.id)) {
                             game.forms.push(newItem);
-                        } else {
-                            log(`♻️ Duplicate form '${newItem.n}' was discarded.`);
                         }
                     } else if (newItem.type === 'passive') {
                          // This check is based on the static ID from the banner definition
                          if (!game.passives.some(p => p.id === newItem.id)) {
                             game.passives.push(newItem);
-                        } else {
-                            log(`♻️ Duplicate passive '${newItem.n}' was discarded.`);
                         }
                     }
                 }
@@ -2648,3 +2642,4 @@
     </script>
 </body>
 </html>
+
